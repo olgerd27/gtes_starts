@@ -8,4 +8,4 @@ LOAD DATA INFILE 'D:/work/Starts_data_base/project/gtes_starts/db/scripts/data__
 REPLACE
 INTO TABLE gtes_starts.graphs_parameters_values
 CHARACTER SET cp1251;
-SELECT par_values FROM gtes_starts.graphs_parameters_values;
+SELECT * FROM gtes_starts.graphs_parameters_values;
