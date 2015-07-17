@@ -106,45 +106,45 @@ CREATE TABLE IF NOT EXISTS engines_settings (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# air bypass valve (ABV)
-CREATE TABLE IF NOT EXISTS abv_types (
+# bypass
+CREATE TABLE IF NOT EXISTS bypass_types (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(30),
     PRIMARY KEY (id)
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
--- S_section - area of ABV section (cm2)
-CREATE TABLE IF NOT EXISTS abv (
+-- S_section - area of bypass section (cm2)
+CREATE TABLE IF NOT EXISTS bypasses (
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     type_id TINYINT UNSIGNED,
     S_section FLOAT,
     draft_number VARCHAR(20),
     PRIMARY KEY (id),
     FOREIGN KEY (type_id)
-        REFERENCES abv_types (id)
+        REFERENCES bypass_types (id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-CREATE TABLE IF NOT EXISTS abv_mount_places (
+CREATE TABLE IF NOT EXISTS bypass_mount_places (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(40),
     PRIMARY KEY (id)
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-CREATE TABLE IF NOT EXISTS engines_abv (
+CREATE TABLE IF NOT EXISTS engines_bypasses (
     engine_id MEDIUMINT UNSIGNED NOT NULL,
-    abv_id MEDIUMINT UNSIGNED NOT NULL,
+    bypass_id MEDIUMINT UNSIGNED NOT NULL,
     mount_place_id TINYINT UNSIGNED NOT NULL,
     quantity TINYINT,
-    PRIMARY KEY (engine_id, abv_id, mount_place_id),
+    PRIMARY KEY (engine_id, bypass_id, mount_place_id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
-    FOREIGN KEY (abv_id)
-        REFERENCES abv (id)
+    FOREIGN KEY (bypass_id)
+        REFERENCES bypasses (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (mount_place_id)
-        REFERENCES abv_mount_places (id)
+        REFERENCES bypass_mount_places (id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
@@ -169,6 +169,7 @@ CREATE TABLE IF NOT EXISTS engines_algorithms (
     switching_off_id SMALLINT UNSIGNED,
     switching_off_value FLOAT,
     comments VARCHAR(250),
+    order_number SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (engine_id, parameter_id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
