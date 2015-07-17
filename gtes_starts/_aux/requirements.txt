@@ -1,0 +1,44 @@
+                        List of the "GTE's starts" DB project requirements
+
+1 General.
+1.1 User must to have an ability to VIEW, INSERT, UPDATE and DELETE database data.
+
+2 The main window.
+2.1 The main window is common window for all application's forms. It means that main window interface is available from any form (panel).
+2.2 The main window interface allow:
+    - connect to database;
+    - disconnect from database;
+    - refresh data in application;
+    - open form for performing VIEW/INPUT/UPDATE/DELETE of data;
+    - open form for queries execution;
+    - open form for graphs plotting;
+    - show the "About" message;
+    - close the application.
+
+3 VIEW/INPUT/UPDATE/DELETE of data.
+3.1 The VIEW/INPUT/UPDATE/DELETE of data performs in the form "Data input".
+3.2 On this form must places all data, relevant to every GTE's start, with push buttons for walk through GTE's starts records items.
+    This form must looks like forms in MS Access.
+3.3 The fields, linked with some database table, must give interface to add new item in linked table.
+3.4 This form must include the "Apply" (or "Confirm", or "Save") push button for applying changes to database, inputed in any field of form
+    (INSERT, UPDATE, DELETE). Only after pressing this button user can go to another GTE's start record.
+    If user don't save inputed changes and try go to another GTE's start record, application must ask him -
+    "Do you want to save inputed changes?" (Yes, No, Cancel).
+
+4 Queries execution.
+4.1 Queries execution performs in the form "Queries".
+4.2 This form must include 3 type of queries:
+    1) prepared query - is ready for execution and user don't need to enter some settings;
+    2) complex query - user must enter some settings;
+    3) custom query - user can write a custom SQL-command directly in the field "Query command".
+4.3 When user choose some query by 3.2 1) or 3.2 2), its approppriate SQL-command must place in the field "Query command".
+4.4 By default the field "Query command" is read only. To make it enabled for writing, user must choose custom query and correct query command.
+4.5 For clearing the field "Query command" user must click to "Clear query" push button.
+4.6 For execution any query, user must click to "Execute" push button.
+4.7 In bottom part of this form must places a table for showing current query execution results.
+    The size of this table must to be variable and its size depend on query result table, returned by DB server after query execution.
+
+5 Graphs plotting.
+5.1 Graphs plotting in the form "Graphs".
+5.2 Application must plot the graphs of the GTE's parameters during GTE's starts.
+5.3 It must to be ability of export any graph in image format.
