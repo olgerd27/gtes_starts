@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/choice_list_query.png</file>
+        <file>images/choice_list_data_input.png</file>
+        <file>images/choice_list_graphs.png</file>
+    </qresource>
+</RCC>
