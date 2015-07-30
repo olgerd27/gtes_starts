@@ -6,32 +6,536 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>480</height>
+    <width>644</width>
+    <height>527</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>160</x>
-     <y>130</y>
-     <width>251</width>
-     <height>31</height>
-    </rect>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="leftMargin">
+    <number>0</number>
    </property>
-   <property name="font">
-    <font>
-     <pointsize>18</pointsize>
-    </font>
+   <property name="topMargin">
+    <number>0</number>
    </property>
-   <property name="text">
-    <string>Data input form</string>
+   <property name="rightMargin">
+    <number>0</number>
    </property>
-  </widget>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="m_tabWidget">
+     <property name="tabPosition">
+      <enum>QTabWidget::North</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>18</width>
+       <height>18</height>
+      </size>
+     </property>
+     <widget class="QWidget" name="tab_engines">
+      <attribute name="icon">
+       <iconset resource="images_resources.qrc">
+        <normaloff>:/images/turbina.png</normaloff>:/images/turbina.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Engines</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QGroupBox" name="m_gboxEngineData">
+         <property name="title">
+          <string>Engine data</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="m_lblId">
+            <property name="text">
+             <string>Id:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label">
+            <property name="minimumSize">
+             <size>
+              <width>65</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>65</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Panel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+            <property name="text">
+             <string>165</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="m_tbDeleteEngine">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete current engine&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/clear_output.png</normaloff>:/images/clear_output.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>265</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="m_lblName">
+            <property name="text">
+             <string>Name:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_cboxName</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" colspan="3">
+           <widget class="QComboBox" name="m_cboxName">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>350</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="currentText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QPushButton" name="m_pbEditName">
+            <property name="text">
+             <string>Edit...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="m_lblNumber">
+            <property name="text">
+             <string>Number:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_sboxNumber</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2" colspan="2">
+           <widget class="QSpinBox" name="m_sboxNumber">
+            <property name="minimumSize">
+             <size>
+              <width>65</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>65</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="maximum">
+             <number>99999</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="m_lblFuel">
+            <property name="text">
+             <string>Fuel:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_cboxFuel</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" colspan="3">
+           <widget class="QComboBox" name="m_cboxFuel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>350</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="currentText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="5">
+           <widget class="QPushButton" name="m_pbEditFuel">
+            <property name="text">
+             <string>Edit...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QLabel" name="m_lblChamber">
+            <property name="text">
+             <string>Combustion chamber:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_cboxChamber</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2" colspan="3">
+           <widget class="QComboBox" name="m_cboxChamber">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>350</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="currentText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="5">
+           <widget class="QPushButton" name="m_pbEditChamber">
+            <property name="text">
+             <string>Edit...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="m_lblStartDevice">
+            <property name="text">
+             <string>Start device:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_cboxStartDevice</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2" colspan="3">
+           <widget class="QComboBox" name="m_cboxStartDevice">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>350</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="5">
+           <widget class="QPushButton" name="m_pbEditStartDevice">
+            <property name="text">
+             <string>Edit...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QLabel" name="m_lblStartDeviceQnty">
+            <property name="text">
+             <string>Start device quantity:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_sboxStartDeviceQnty</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2">
+           <widget class="QSpinBox" name="m_sboxStartDeviceQnty">
+            <property name="minimumSize">
+             <size>
+              <width>65</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>65</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="m_lblComments">
+            <property name="text">
+             <string>Comments:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_teComments</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2" rowspan="2" colspan="4">
+           <widget class="QTextEdit" name="m_teComments">
+            <property name="minimumSize">
+             <size>
+              <width>350</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>108</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QToolButton" name="m_tbRecordFirst">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the first record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="icon">
+            <iconset resource="images_resources.qrc">
+             <normaloff>:/images/record_first.png</normaloff>:/images/record_first.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="m_tbRecordPrev">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the previous record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="icon">
+            <iconset resource="images_resources.qrc">
+             <normaloff>:/images/record_back.png</normaloff>:/images/record_back.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="m_leRecordId">
+           <property name="minimumSize">
+            <size>
+             <width>75</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="m_tbRecordNext">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the next record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="icon">
+            <iconset resource="images_resources.qrc">
+             <normaloff>:/images/record_next.png</normaloff>:/images/record_next.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="m_tbRecordLast">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the last record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="icon">
+            <iconset resource="images_resources.qrc">
+             <normaloff>:/images/record_last.png</normaloff>:/images/record_last.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_bypasses">
+      <attribute name="icon">
+       <iconset resource="images_resources.qrc">
+        <normaloff>:/images/rotated_trash.png</normaloff>:/images/rotated_trash.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Bypasses</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tab_algorithm">
+      <attribute name="icon">
+       <iconset resource="images_resources.qrc">
+        <normaloff>:/images/db.Routine.64x64.png</normaloff>:/images/db.Routine.64x64.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Algorithm</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tab_settings">
+      <attribute name="icon">
+       <iconset resource="images_resources.qrc">
+        <normaloff>:/images/1437705241_equalizer_sticker_4.PNG</normaloff>:/images/1437705241_equalizer_sticker_4.PNG</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Settings</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tab_documents">
+      <attribute name="icon">
+       <iconset resource="images_resources.qrc">
+        <normaloff>:/images/File_Doc_Text_Word.png</normaloff>:/images/File_Doc_Text_Word.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Documents</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tab_graphs">
+      <attribute name="icon">
+       <iconset resource="images_resources.qrc">
+        <normaloff>:/images/choice_list_graphs.png</normaloff>:/images/choice_list_graphs.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Graphs</string>
+      </attribute>
+     </widget>
+    </widget>
+   </item>
+  </layout>
  </widget>
- <resources/>
+ <tabstops>
+  <tabstop>m_tabWidget</tabstop>
+  <tabstop>m_tbDeleteEngine</tabstop>
+  <tabstop>m_cboxName</tabstop>
+  <tabstop>m_pbEditName</tabstop>
+  <tabstop>m_sboxNumber</tabstop>
+  <tabstop>m_cboxFuel</tabstop>
+  <tabstop>m_pbEditFuel</tabstop>
+  <tabstop>m_cboxChamber</tabstop>
+  <tabstop>m_pbEditChamber</tabstop>
+  <tabstop>m_cboxStartDevice</tabstop>
+  <tabstop>m_pbEditStartDevice</tabstop>
+  <tabstop>m_sboxStartDeviceQnty</tabstop>
+  <tabstop>m_teComments</tabstop>
+  <tabstop>m_tbRecordFirst</tabstop>
+  <tabstop>m_tbRecordPrev</tabstop>
+  <tabstop>m_leRecordId</tabstop>
+  <tabstop>m_tbRecordNext</tabstop>
+  <tabstop>m_tbRecordLast</tabstop>
+ </tabstops>
+ <resources>
+  <include location="images_resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

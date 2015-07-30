@@ -1,7 +1,29 @@
 <RCC>
     <qresource prefix="/">
         <file>images/choice_list_query.png</file>
-        <file>images/choice_list_data_input.png</file>
         <file>images/choice_list_graphs.png</file>
+        <file>images/choice_list_data_input.png</file>
+        <file>images/exit.png</file>
+        <file>images/edit.png</file>
+        <file>images/File_Doc_Text_Word.png</file>
+        <file>images/db.Routine.64x64.png</file>
+        <file>images/rotated_trash.png</file>
+        <file>images/record_next.png</file>
+        <file>images/record_back.png</file>
+        <file>images/record_first.png</file>
+        <file>images/record_last.png</file>
+        <file>images/1437705241_equalizer_sticker_4.PNG</file>
+        <file>images/clear_output.png</file>
+        <file>images/document-save.png</file>
+        <file>images/filesave2.png</file>
+        <file>images/Add.png</file>
+        <file>images/qt-logo_1.png</file>
+        <file>images/document-properties.png</file>
+        <file>images/db.mgmt.Connection.32x32.png</file>
+        <file>images/Error_Symbol.png</file>
+        <file>images/gnome-shutdown.png</file>
+        <file>images/cog-icon-2-48x48.png</file>
+        <file>images/1438203865_gtk-refresh.png</file>
+        <file>images/turbina.png</file>
     </qresource>
 </RCC>

@@ -14,19 +14,20 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         main_window.cpp \
-    form_data_input.cpp \
     form_queries.cpp \
-    form_graphs.cpp
+    form_data_input.cpp \
+    form_options.cpp
 
 HEADERS  += main_window.h \
-    form_data_input.h \
     form_queries.h \
-    form_graphs.h
+    form_data_input.h \
+    form_options.h \
+    reimplemented_widgets.h
 
 FORMS    += main_window.ui \
-    form_data_input.ui \
     form_queries.ui \
-    form_graphs.ui
+    form_data_input.ui \
+    form_options.ui
 
 OTHER_FILES += \
     _aux/requirements.txt

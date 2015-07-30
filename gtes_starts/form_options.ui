@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FormGraphs</class>
- <widget class="QWidget" name="FormGraphs">
+ <class>FormOptions</class>
+ <widget class="QWidget" name="FormOptions">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -28,7 +28,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Graphs form</string>
+    <string>Options form</string>
    </property>
   </widget>
  </widget>
