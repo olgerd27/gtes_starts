@@ -97,6 +97,7 @@ CREATE TABLE IF NOT EXISTS engines_settings (
     setting_name_id MEDIUMINT UNSIGNED NOT NULL,
     setting_value FLOAT,
     comments VARCHAR(250),
+    serial_number SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (engine_id, setting_name_id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
@@ -136,6 +137,7 @@ CREATE TABLE IF NOT EXISTS engines_bypasses (
     bypass_id MEDIUMINT UNSIGNED NOT NULL,
     mount_place_id TINYINT UNSIGNED NOT NULL,
     quantity TINYINT,
+    serial_number SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (engine_id, bypass_id, mount_place_id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
@@ -169,7 +171,7 @@ CREATE TABLE IF NOT EXISTS engines_algorithms (
     switching_off_id SMALLINT UNSIGNED,
     switching_off_value FLOAT,
     comments VARCHAR(250),
-    order_number SMALLINT UNSIGNED NOT NULL,
+    serial_number SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (engine_id, parameter_id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
@@ -208,6 +210,7 @@ CREATE TABLE IF NOT EXISTS engines_documents (
     engine_id MEDIUMINT UNSIGNED NOT NULL,
     document_id SMALLINT UNSIGNED NOT NULL,
     comments VARCHAR(250),
+    serial_number SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (engine_id, document_id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
@@ -242,6 +245,7 @@ CREATE TABLE IF NOT EXISTS engines_graphs (
     par_x_id MEDIUMINT UNSIGNED NOT NULL,
     par_y_id MEDIUMINT UNSIGNED NOT NULL,
     comments VARCHAR(250),
+    serial_number SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (engine_id, par_x_id, par_y_id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
