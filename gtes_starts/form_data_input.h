@@ -15,7 +15,13 @@ public:
     explicit FormDataInput(QWidget *parent = 0);
     ~FormDataInput();
 
+private slots:
+    void slotEditEnginesNames();
+    void slotEditFuels();
+
 private:
+    void editSimplyDBTable(const QString &tablename);
+
     Ui::FormDataInput *ui;
 };
 

@@ -36,8 +36,6 @@ MainWindow::MainWindow(QWidget *parent) :
     sw->insertWidget(index_queries, new FormQueries(sw));
     sw->insertWidget(index_options, new FormOptions(sw));
 
-    qDebug() << COREINST.msg();
-
     // signals & slots connections
     connect(ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));
 }

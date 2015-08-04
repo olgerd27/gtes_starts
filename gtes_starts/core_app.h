@@ -13,7 +13,6 @@ public:
         return theInstance;
     }
     ~CoreApp();
-    const char * msg() const { return "CoreApp instance achieved"; } // TODO: delete
 
 signals:
 
