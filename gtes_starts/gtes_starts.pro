@@ -4,25 +4,24 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
+QT += core gui widgets sql
 TARGET = gtes_starts
 TEMPLATE = app
-
+CONFIG += c++11
 
 SOURCES += main.cpp\
         main_window.cpp \
     form_queries.cpp \
     form_data_input.cpp \
-    form_options.cpp
+    form_options.cpp \
+    core_app.cpp
 
 HEADERS  += main_window.h \
     form_queries.h \
     form_data_input.h \
     form_options.h \
-    reimplemented_widgets.h
+    reimplemented_widgets.h \
+    core_app.h
 
 FORMS    += main_window.ui \
     form_queries.ui \

@@ -28,6 +28,9 @@
    </property>
    <item>
     <widget class="QTabWidget" name="m_tabWidget">
+     <property name="locale">
+      <locale language="Russian" country="Ukraine"/>
+     </property>
      <property name="tabPosition">
       <enum>QTabWidget::North</enum>
      </property>
@@ -51,19 +54,25 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QGroupBox" name="m_gboxEngineData">
+         <property name="locale">
+          <locale language="Russian" country="Ukraine"/>
+         </property>
          <property name="title">
           <string>Engine data</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
            <widget class="QLabel" name="m_lblId">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Id:</string>
             </property>
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="m_lblIdValue">
             <property name="minimumSize">
              <size>
               <width>65</width>
@@ -76,14 +85,14 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="frameShape">
              <enum>QFrame::Panel</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Sunken</enum>
-            </property>
-            <property name="text">
-             <string>165</string>
             </property>
            </widget>
           </item>
@@ -91,6 +100,9 @@
            <widget class="QToolButton" name="m_tbDeleteEngine">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete current engine&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
             </property>
             <property name="icon">
              <iconset resource="images_resources.qrc">
@@ -100,6 +112,9 @@
           </item>
           <item row="0" column="4">
            <spacer name="horizontalSpacer">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -113,6 +128,9 @@
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="m_lblName">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Name:</string>
             </property>
@@ -135,6 +153,9 @@
               <height>20</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="currentText">
              <string/>
             </property>
@@ -142,6 +163,9 @@
           </item>
           <item row="1" column="5">
            <widget class="QPushButton" name="m_pbEditName">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Edit...</string>
             </property>
@@ -153,6 +177,9 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="m_lblNumber">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Number:</string>
             </property>
@@ -166,7 +193,7 @@
             <property name="minimumSize">
              <size>
               <width>65</width>
-              <height>20</height>
+              <height>23</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -175,6 +202,9 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="maximum">
              <number>99999</number>
             </property>
@@ -182,6 +212,9 @@
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="m_lblFuel">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Fuel:</string>
             </property>
@@ -204,6 +237,9 @@
               <height>20</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="currentText">
              <string/>
             </property>
@@ -211,6 +247,9 @@
           </item>
           <item row="3" column="5">
            <widget class="QPushButton" name="m_pbEditFuel">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Edit...</string>
             </property>
@@ -222,6 +261,9 @@
           </item>
           <item row="4" column="0" colspan="2">
            <widget class="QLabel" name="m_lblChamber">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Combustion chamber:</string>
             </property>
@@ -244,6 +286,9 @@
               <height>20</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="currentText">
              <string/>
             </property>
@@ -251,6 +296,9 @@
           </item>
           <item row="4" column="5">
            <widget class="QPushButton" name="m_pbEditChamber">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Edit...</string>
             </property>
@@ -262,6 +310,9 @@
           </item>
           <item row="5" column="0">
            <widget class="QLabel" name="m_lblStartDevice">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Start device:</string>
             </property>
@@ -270,24 +321,11 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="2" colspan="3">
-           <widget class="QComboBox" name="m_cboxStartDevice">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>350</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
           <item row="5" column="5">
            <widget class="QPushButton" name="m_pbEditStartDevice">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Edit...</string>
             </property>
@@ -299,6 +337,9 @@
           </item>
           <item row="6" column="0" colspan="2">
            <widget class="QLabel" name="m_lblStartDeviceQnty">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Start device quantity:</string>
             </property>
@@ -312,7 +353,7 @@
             <property name="minimumSize">
              <size>
               <width>65</width>
-              <height>20</height>
+              <height>23</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -321,10 +362,16 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
            </widget>
           </item>
           <item row="7" column="0">
            <widget class="QLabel" name="m_lblComments">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="text">
              <string>Comments:</string>
             </property>
@@ -341,10 +388,16 @@
               <height>0</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
            </widget>
           </item>
           <item row="8" column="1">
            <spacer name="verticalSpacer">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -356,6 +409,25 @@
             </property>
            </spacer>
           </item>
+          <item row="5" column="2" colspan="3">
+           <widget class="QComboBox" name="m_cboxStartDevice">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>350</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -363,6 +435,9 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <spacer name="horizontalSpacer_2">
+           <property name="locale">
+            <locale language="Russian" country="Ukraine"/>
+           </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -378,6 +453,9 @@
           <widget class="QToolButton" name="m_tbRecordFirst">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the first record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="locale">
+            <locale language="Russian" country="Ukraine"/>
            </property>
            <property name="icon">
             <iconset resource="images_resources.qrc">
@@ -395,6 +473,9 @@
           <widget class="QToolButton" name="m_tbRecordPrev">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the previous record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="locale">
+            <locale language="Russian" country="Ukraine"/>
            </property>
            <property name="icon">
             <iconset resource="images_resources.qrc">
@@ -422,6 +503,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="locale">
+            <locale language="Russian" country="Ukraine"/>
+           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
@@ -431,6 +515,9 @@
           <widget class="QToolButton" name="m_tbRecordNext">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the next record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="locale">
+            <locale language="Russian" country="Ukraine"/>
            </property>
            <property name="icon">
             <iconset resource="images_resources.qrc">
@@ -448,6 +535,9 @@
           <widget class="QToolButton" name="m_tbRecordLast">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the last record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="locale">
+            <locale language="Russian" country="Ukraine"/>
            </property>
            <property name="icon">
             <iconset resource="images_resources.qrc">

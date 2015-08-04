@@ -3,6 +3,7 @@
 #include "form_data_input.h"
 #include "form_queries.h"
 #include "form_options.h"
+#include "core_app.h"
 
 #include <QStyledItemDelegate>
 #include <QDebug>
@@ -31,9 +32,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(ui->m_listChoice));
 
     QStackedWidget *sw = ui->m_stackForms;
-    sw->addWidget(new FormDataInput(sw));
-    sw->addWidget(new FormQueries(sw));
-    sw->addWidget(new FormOptions(sw));
+    sw->insertWidget(index_data_input, new FormDataInput(sw));
+    sw->insertWidget(index_queries, new FormQueries(sw));
+    sw->insertWidget(index_options, new FormOptions(sw));
+
+    qDebug() << COREINST.msg();
 
     // signals & slots connections
     connect(ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));

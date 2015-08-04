@@ -38,7 +38,21 @@
 4.7 In bottom part of this form must places a table for showing current query execution results.
     The size of this table must to be variable and its size depend on query result table, returned by DB server after query execution.
 
-5 Graphs plotting.
-5.1 Graphs plotting in the form "Graphs".
-5.2 Application must plot the graphs of the GTE's parameters during GTE's starts.
-5.3 It must to be ability of export any graph in image format.
+5 Options
+5.1 There are the application options (application settings), that placed in the "Options" panel.
+5.2 The summary amount of application options is bigger then amount options, placed in this panel.
+5.3 The panel options:
+    - radiobutton choice:
+              --- autosaving data in DB
+                  (tooltip: perform autosaving inputed data on a some panel to DB, when this panel changes to another one)
+              --- manual saving data in DB
+                  (tooltip: perform manual saving inputed data on a some panel to DB, when this panel changes to another one);
+    - .
+5.4 The absentee on this panel options:
+    - Id of the GTE, that has been showed at the moment of window close;
+    - geometry (size and position) of the application window at the moment of window close.
+
+6 Graphs plotting.
+6.1 Graphs plotting performs from the tab panel "Data input" -> "Graphs".
+6.2 Application must plot the graphs of the GTE's parameters during GTE's starts.
+6.3 It must to be ability of export any graph in image format.

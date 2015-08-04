@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>840</width>
-    <height>504</height>
+    <height>519</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,11 +54,12 @@
        <enum>QListView::IconMode</enum>
       </property>
       <property name="currentRow">
-       <number>-1</number>
+       <number>0</number>
       </property>
       <item>
        <property name="text">
-        <string>Data input</string>
+        <string>Data
+input</string>
        </property>
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the &lt;span style=&quot; font-weight:600;&quot;&gt;Data input&lt;/span&gt; panel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -97,7 +98,7 @@
         <string>Options</string>
        </property>
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the &lt;span style=&quot; font-weight:600;&quot;&gt;Graphs&lt;/span&gt; plotting panel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the application &lt;span style=&quot; font-weight:600;&quot;&gt;Options&lt;/span&gt; panel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="textAlignment">
         <set>AlignHCenter|AlignVCenter|AlignCenter</set>
@@ -142,7 +143,7 @@
      <x>0</x>
      <y>0</y>
      <width>840</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_menuHelp">
@@ -166,11 +167,18 @@
     </property>
     <addaction name="m_actConnectToDB"/>
     <addaction name="m_actDisconnectFromDB"/>
-    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuOperations">
+    <property name="title">
+     <string>Operations</string>
+    </property>
     <addaction name="m_actNewEngine"/>
     <addaction name="m_actSave"/>
     <addaction name="m_actRefresh"/>
+    <addaction name="separator"/>
+    <addaction name="m_actExit"/>
    </widget>
+   <addaction name="menuOperations"/>
    <addaction name="m_menuDatabase"/>
    <addaction name="m_menuLanguage"/>
    <addaction name="m_menuHelp"/>
@@ -197,12 +205,12 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="m_actConnectToDB"/>
-   <addaction name="m_actDisconnectFromDB"/>
-   <addaction name="separator"/>
    <addaction name="m_actNewEngine"/>
    <addaction name="m_actSave"/>
    <addaction name="m_actRefresh"/>
+   <addaction name="separator"/>
+   <addaction name="m_actConnectToDB"/>
+   <addaction name="m_actDisconnectFromDB"/>
    <addaction name="separator"/>
    <addaction name="m_actAboutApp"/>
    <addaction name="m_actAboutQt"/>
@@ -252,7 +260,7 @@
      <normaloff>:/images/document-properties.png</normaloff>:/images/document-properties.png</iconset>
    </property>
    <property name="text">
-    <string>About</string>
+    <string>About app</string>
    </property>
    <property name="toolTip">
     <string>Show information about this application</string>
