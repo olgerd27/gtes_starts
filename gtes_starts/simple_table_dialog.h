@@ -24,6 +24,9 @@ public:
     void setData(const QStringList &data);
     QStringList queries() const;
 
+private slots:
+    void slotFilterList(const QString &mask);
+
 private:
     Ui::SimpleTableDialog *ui;
     // TODO: create the class for forming any types of queries. This must allow move the queries forming code from the UI classes, like this class.
