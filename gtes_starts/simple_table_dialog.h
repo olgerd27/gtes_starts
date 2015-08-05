@@ -6,6 +6,7 @@
 namespace Ui {
     class SimpleTableDialog;
 }
+class QStringListModel;
 
 struct ItemQuery
 {
@@ -28,8 +29,11 @@ private slots:
     void slotFilterList(const QString &mask);
 
 private:
+    void setDBdataView();
+
     Ui::SimpleTableDialog *ui;
     // TODO: create the class for forming any types of queries. This must allow move the queries forming code from the UI classes, like this class.
+    QStringListModel *m_sourceModel;
     QList<ItemQuery> m_queries;
 };
 

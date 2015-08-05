@@ -1,5 +1,7 @@
 #include <QItemDelegate>
 #include <QPainter>
+#include <QStringListModel>
+#include <QSortFilterProxyModel>
 #include <QDebug>
 #include "simple_table_dialog.h"
 #include "ui_simple_table_dialog.h"
@@ -42,13 +44,23 @@ SimpleTableDialog::SimpleTableDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setDBdataView();
+}
 
-    // ListWidget settings
-    QListWidget *lw = ui->m_listwData;
-    lw->setItemDelegate(new HighlightDelegate(lw));
-    lw->viewport()->setAttribute(Qt::WA_Hover);
+void SimpleTableDialog::setDBdataView()
+{
+    // ListView settings
+    QListView *lv = ui->m_listvData;
+    lv->setItemDelegate(new HighlightDelegate(lv));
+    lv->viewport()->setAttribute(Qt::WA_Hover);
 
-    connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), this, SLOT(slotFilterList(QString)));
+    // ListView model setting
+    m_sourceModel = new QStringListModel(this);
+    QSortFilterProxyModel *filterModel = new QSortFilterProxyModel(this);
+    filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    filterModel->setSourceModel(m_sourceModel);
+    lv->setModel(filterModel);
+    connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), filterModel, SLOT(setFilterFixedString(QString)));
 }
 
 SimpleTableDialog::~SimpleTableDialog()
@@ -58,10 +70,7 @@ SimpleTableDialog::~SimpleTableDialog()
 
 void SimpleTableDialog::setData(const QStringList &data)
 {
-    QListWidget *listWgt = ui->m_listwData;
-    foreach (QString str, data) {
-        new QListWidgetItem(str, listWgt);
-    }
+    m_sourceModel->setStringList(data);
 }
 
 QStringList SimpleTableDialog::queries() const
@@ -71,9 +80,10 @@ QStringList SimpleTableDialog::queries() const
 
 void SimpleTableDialog::slotFilterList(const QString &mask)
 {
-    QList<QListWidgetItem *> findedItems = ui->m_listwData->findItems(mask, Qt::MatchContains);
-    foreach (QListWidgetItem *item, findedItems) {
-        qDebug() << item->text();
-    }
+//    QList<QListWidgetItem *> findedItems = ui->m_listwData->findItems(mask, Qt::MatchContains);
+//    foreach (QListWidgetItem *item, findedItems) {
+//        qDebug() << item->text();
+//    }
     qDebug() << "------";
 }
+

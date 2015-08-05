@@ -41,17 +41,14 @@
       <string>&amp;Matched table data:</string>
      </property>
      <property name="buddy">
-      <cstring>m_listwData</cstring>
+      <cstring>m_listvData</cstring>
      </property>
     </widget>
    </item>
    <item row="3" column="0" rowspan="4">
-    <widget class="QListWidget" name="m_listwData">
+    <widget class="QListView" name="m_listvData">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Available database table data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="locale">
-      <locale language="Russian" country="Ukraine"/>
      </property>
     </widget>
    </item>
