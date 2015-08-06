@@ -2,9 +2,11 @@
 #include <QPainter>
 #include <QStringListModel>
 #include <QSortFilterProxyModel>
+
 #include <QDebug>
-#include "simple_table_dialog.h"
-#include "ui_simple_table_dialog.h"
+
+#include "simple_db_table_dialog.h"
+#include "ui_simple_db_table_dialog.h"
 
 /*
  * HighlightDelegate
@@ -36,18 +38,18 @@ public:
 };
 
 /*
- * SimpleTableDialog
+ * SimpleDBTableDialog
  */
-SimpleTableDialog::SimpleTableDialog(QWidget *parent) :
+SimpleDBTableDialog::SimpleDBTableDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SimpleTableDialog)
+    ui(new Ui::SimpleDBTableDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setDBdataView();
 }
 
-void SimpleTableDialog::setDBdataView()
+void SimpleDBTableDialog::setDBdataView()
 {
     // ListView settings
     QListView *lv = ui->m_listvData;
@@ -63,27 +65,17 @@ void SimpleTableDialog::setDBdataView()
     connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), filterModel, SLOT(setFilterFixedString(QString)));
 }
 
-SimpleTableDialog::~SimpleTableDialog()
+SimpleDBTableDialog::~SimpleDBTableDialog()
 {
     delete ui;
 }
 
-void SimpleTableDialog::setData(const QStringList &data)
+void SimpleDBTableDialog::setData(const QStringList &data)
 {
     m_sourceModel->setStringList(data);
 }
 
-QStringList SimpleTableDialog::queries() const
+QStringList SimpleDBTableDialog::queries() const
 {
     // TODO: forming queries with help of some QueryCreator class
 }
-
-void SimpleTableDialog::slotFilterList(const QString &mask)
-{
-//    QList<QListWidgetItem *> findedItems = ui->m_listwData->findItems(mask, Qt::MatchContains);
-//    foreach (QListWidgetItem *item, findedItems) {
-//        qDebug() << item->text();
-//    }
-    qDebug() << "------";
-}
-

@@ -1,8 +1,9 @@
+#include <QSqlQuery>
 #include <QDebug>
 
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
-#include "simple_table_dialog.h"
+#include "simple_db_table_dialog.h"
 
 FormDataInput::FormDataInput(QWidget *parent) :
     QWidget(parent),
@@ -31,10 +32,16 @@ void FormDataInput::slotEditFuels()
 
 void FormDataInput::editSimplyDBTable(const QString &tablename)
 {
-    QStringList names = { "DG90", "DN80", "DA91" }; // TODO: exec SELECT query and extract all names (without id values) for passing to dialog
-    SimpleTableDialog dlgEngineNames(this);
+    qDebug() << "SimpleDBTableDialog: Is DB open? " << QSqlDatabase::database().isOpen(); // FIXME: the connection loses without this checking
+    QStringList names;
+    QSqlQuery query(QString("SELECT * FROM gtes_starts.%1;").arg(tablename));
+    while (query.next()) {
+        names.push_back(query.value(1).toString().trimmed());
+    }
+
+    SimpleDBTableDialog dlgEngineNames(this);
     dlgEngineNames.setData(names);
     if (dlgEngineNames.exec()) {
-        // TODO: exec INSERT, UPDATE and/or DELETE returned queries
+        // TODO: exec INSERT, UPDATE and/or DELETE returned by queries of the SimpleDBTableDialog class
     }
 }
