@@ -162,7 +162,7 @@
            </widget>
           </item>
           <item row="1" column="5">
-           <widget class="QPushButton" name="m_pbEditEnginesNames">
+           <widget class="PushButtonKnowsDBTable" name="m_pbEditNames">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
@@ -246,7 +246,7 @@
            </widget>
           </item>
           <item row="3" column="5">
-           <widget class="QPushButton" name="m_pbEditFuels">
+           <widget class="PushButtonKnowsDBTable" name="m_pbEditFuels">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
@@ -295,7 +295,7 @@
            </widget>
           </item>
           <item row="4" column="5">
-           <widget class="QPushButton" name="m_pbEditChambers">
+           <widget class="PushButtonKnowsDBTable" name="m_pbEditChambers">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
@@ -322,7 +322,7 @@
            </widget>
           </item>
           <item row="5" column="5">
-           <widget class="QPushButton" name="m_pbEditStartDevices">
+           <widget class="PushButtonKnowsDBTable" name="m_pbEditStartDevices">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
@@ -604,11 +604,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PushButtonKnowsDBTable</class>
+   <extends>QPushButton</extends>
+   <header>reimplemented_widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>m_tabWidget</tabstop>
   <tabstop>m_tbDeleteEngine</tabstop>
   <tabstop>m_cboxName</tabstop>
-  <tabstop>m_pbEditEnginesNames</tabstop>
+  <tabstop>m_pbEditNames</tabstop>
   <tabstop>m_sboxNumber</tabstop>
   <tabstop>m_cboxFuel</tabstop>
   <tabstop>m_pbEditFuels</tabstop>

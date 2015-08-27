@@ -2,6 +2,7 @@
 #define REIMPLEMENTED_WIDGETS_H
 
 #include <QListWidget>
+#include <QPushButton>
 #include <QDebug>
 
 class ResizableWidgetList : public QListWidget
@@ -18,6 +19,22 @@ public:
         sizeContent.rwidth() += 5;
         return sizeContent;
     }
+};
+
+class PushButtonKnowsDBTable : public QPushButton
+{
+    Q_OBJECT
+public:
+    PushButtonKnowsDBTable(QWidget *parent)
+        : QPushButton(parent)
+    {
+    }
+
+    void setDBTableName(const QString &name) { m_DBTableName = name; }
+    QString DBTableName() const { return m_DBTableName; }
+
+private:
+    QString m_DBTableName;
 };
 
 #endif // REIMPLEMENTED_WIDGETS_H

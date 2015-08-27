@@ -16,11 +16,10 @@ public:
     ~FormDataInput();
 
 private slots:
-    void slotEditEnginesNames();
-    void slotEditFuels();
+    void slotEditSimplyDBTable();
 
 private:
-    void editSimplyDBTable(const QString &tablename);
+    void setDBTableNames();
 
     Ui::FormDataInput *ui;
 };

@@ -16,7 +16,8 @@ SOURCES += main.cpp\
     form_options.cpp \
     core_app.cpp \
     complex_db_table_dialog.cpp \
-    simple_db_table_dialog.cpp
+    simple_db_table_dialog.cpp \
+    db_info.cpp
 
 HEADERS  += main_window.h \
     form_queries.h \
@@ -25,7 +26,8 @@ HEADERS  += main_window.h \
     reimplemented_widgets.h \
     core_app.h \
     complex_db_table_dialog.h \
-    simple_db_table_dialog.h
+    simple_db_table_dialog.h \
+    db_info.h
 
 FORMS    += main_window.ui \
     form_queries.ui \
