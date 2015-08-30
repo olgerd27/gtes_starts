@@ -2,7 +2,6 @@
 #include <QPainter>
 #include <QStringListModel>
 #include <QSortFilterProxyModel>
-
 #include <QDebug>
 
 #include "simple_db_table_dialog.h"
@@ -52,16 +51,16 @@ SimpleDBTableDialog::SimpleDBTableDialog(QWidget *parent) :
 void SimpleDBTableDialog::setDBdataView()
 {
     // ListView settings
-    QListView *lv = ui->m_listvData;
-    lv->setItemDelegate(new HighlightDelegate(lv));
-    lv->viewport()->setAttribute(Qt::WA_Hover);
+    QListView *view = ui->m_listvData;
+    view->setItemDelegate(new HighlightDelegate(view));
+    view->viewport()->setAttribute(Qt::WA_Hover);
 
     // ListView model setting
     m_sourceModel = new QStringListModel(this);
     QSortFilterProxyModel *filterModel = new QSortFilterProxyModel(this);
     filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     filterModel->setSourceModel(m_sourceModel);
-    lv->setModel(filterModel);
+    view->setModel(filterModel);
     connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), filterModel, SLOT(setFilterFixedString(QString)));
 }
 
@@ -78,4 +77,5 @@ void SimpleDBTableDialog::setData(const QStringList &data)
 QStringList SimpleDBTableDialog::queries() const
 {
     // TODO: forming queries with help of some QueryCreator class
+    return QStringList();
 }

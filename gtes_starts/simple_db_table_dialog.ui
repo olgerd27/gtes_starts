@@ -22,9 +22,9 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="3" column="1">
-    <widget class="QPushButton" name="m_pbAddNew">
+    <widget class="QPushButton" name="m_pbAdd">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add the new item in the current database table&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add the new item&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="locale">
       <locale language="Russian" country="Ukraine"/>
@@ -100,7 +100,7 @@
    <item row="5" column="1">
     <widget class="QPushButton" name="m_pbDelete">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete the selected item in the current database table&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete the selected item&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="locale">
       <locale language="Russian" country="Ukraine"/>
@@ -136,7 +136,7 @@
    <item row="4" column="1">
     <widget class="QPushButton" name="m_pbEdit">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Edit the selected item in the current database table&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Edit the selected item&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="locale">
       <locale language="Russian" country="Ukraine"/>
@@ -154,7 +154,7 @@
  </widget>
  <tabstops>
   <tabstop>m_leSearchMask</tabstop>
-  <tabstop>m_pbAddNew</tabstop>
+  <tabstop>m_pbAdd</tabstop>
   <tabstop>m_pbDelete</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
