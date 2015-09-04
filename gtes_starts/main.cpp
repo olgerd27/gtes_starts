@@ -5,10 +5,11 @@
 #include <QSqlError>
 #include <QDebug>
 #include "main_window.h"
+#include "dlgs/complex_db_table_dialog.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("localhost");
@@ -47,5 +48,5 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     db.close();
-    return a.exec();
+    return app.exec();
 }

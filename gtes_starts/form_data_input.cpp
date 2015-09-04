@@ -3,17 +3,22 @@
 
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
-#include "simple_db_table_dialog.h"
+#include "dlgs/simple_db_table_dialog.h"
+#include "dlgs/complex_db_table_dialog.h"
+#include "db_info.h"
 
-FormDataInput::FormDataInput(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::FormDataInput)
+FormDataInput::FormDataInput(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::FormDataInput)
 {
     ui->setupUi(this);
     setDBTableNames();
 
-    connect(ui->m_pbEditNames, SIGNAL(clicked()), this, SLOT(slotEditSimplyDBTable()));
-    connect(ui->m_pbEditFuels, SIGNAL(clicked()), this, SLOT(slotEditSimplyDBTable()));
+    const char *slotMethod = SLOT(slotOpenDBTableDialog());
+    connect(ui->m_pbEditNames, SIGNAL(clicked()), this, slotMethod);
+    connect(ui->m_pbEditFuels, SIGNAL(clicked()), this, slotMethod);
+    connect(ui->m_pbEditChambers, SIGNAL(clicked()), this, slotMethod);
+    connect(ui->m_pbEditStartDevices, SIGNAL(clicked()), this, slotMethod);
 }
 
 void FormDataInput::setDBTableNames()
@@ -29,21 +34,48 @@ FormDataInput::~FormDataInput()
     delete ui;
 }
 
-void FormDataInput::slotEditSimplyDBTable()
+DBTableDialog * FormDataInput::defineDBTableDialog(DBTableInfo *info)
 {
-    qDebug() << "SimpleDBTableDialog: Is DB open? " << QSqlDatabase::database().isOpen(); // FIXME: the connection loses without this checking
-    PushButtonKnowsDBTable *pbKDBT = 0;
-    if ( (pbKDBT = qobject_cast<PushButtonKnowsDBTable *>(sender())) == 0 )
+    int tableDegree = info->m_fields.size();
+    if (tableDegree == 2)
+        return new SimpleDBTableDialog(info, this);
+    else if (tableDegree > 2 /*&& info->m_fields.at(0)*/) // TODO: perform the checking - has the first table field the name "id" or not?
+        return new ComplexDBTableDialog(info, this);
+    else
+        return 0;
+}
+
+void FormDataInput::slotOpenDBTableDialog()
+{
+    QSqlDatabase::database().isOpen(); // FIXME: the connection loses without this checking
+    PushButtonKnowsDBTable *pbKDBT = qobject_cast<PushButtonKnowsDBTable *>(sender());
+    if ( !pbKDBT ) {
+        // TODO: Generate the error #XXX: Invalid push button. Consult with a application developer.
+        qDebug() << "Generate the error #1: Invalid push button. Consult with a application developer.";
         return;
-    QStringList names;
-    QSqlQuery query(QString("SELECT * FROM gtes_starts.%1;").arg(pbKDBT->DBTableName()));
-    while (query.next()) {
-        names.push_back(query.value(1).toString().trimmed());
     }
 
-    SimpleDBTableDialog dlgEngineNames(this);
-    dlgEngineNames.setData(names);
-    if (dlgEngineNames.exec()) {
+//    QStringList names;
+//    QSqlQuery query(QString("SELECT * FROM gtes_starts.%1;").arg(pbKDBT->DBTableName()));
+//    while (query.next()) {
+//        names.push_back(query.value(1).toString().trimmed());
+//    }
+
+    DBTableInfo *dbTableInfo = DBINFO.findTable(pbKDBT->DBTableName());
+    if ( !dbTableInfo ) {
+        // TODO: Generate the error #XXX: Invalid push button. Cannot define the database table. Consult with a application developer.
+        qDebug() << "Generate the error #2: Invalid push button. Cannot define the database table. Consult with a application developer.";
+        return;
+    }
+
+    DBTableDialog *dialog = defineDBTableDialog(dbTableInfo);
+    if ( !dialog ) {
+        // TODO: Generate the error #XXX: Invalid push button. Cannot define the created dialog type. Consult with a application developer.
+        qDebug() << "Generate the error #3: Invalid push button. Cannot define the created dialog type. Consult with a application developer.";
+        return;
+    }
+
+    if (dialog->exec()) {
         // TODO: exec INSERT, UPDATE and/or DELETE SQL-statement, returned by the SimpleDBTableDialog class object
     }
 }

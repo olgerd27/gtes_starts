@@ -39,9 +39,9 @@ public:
 /*
  * SimpleDBTableDialog
  */
-SimpleDBTableDialog::SimpleDBTableDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SimpleDBTableDialog)
+SimpleDBTableDialog::SimpleDBTableDialog(DBTableInfo *dbTable, QWidget *parent)
+    : DBTableDialog(dbTable, parent)
+    , ui(new Ui::SimpleDBTableDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -74,7 +74,7 @@ void SimpleDBTableDialog::setData(const QStringList &data)
     m_sourceModel->setStringList(data);
 }
 
-QStringList SimpleDBTableDialog::queries() const
+QStringList SimpleDBTableDialog::SQLstatements() const
 {
     // TODO: forming queries with help of some QueryCreator class
     return QStringList();

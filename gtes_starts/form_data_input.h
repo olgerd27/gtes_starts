@@ -6,6 +6,8 @@
 namespace Ui {
     class FormDataInput;
 }
+class DBTableDialog;
+class DBTableInfo;
 
 class FormDataInput : public QWidget
 {
@@ -16,10 +18,11 @@ public:
     ~FormDataInput();
 
 private slots:
-    void slotEditSimplyDBTable();
+    void slotOpenDBTableDialog();
 
 private:
     void setDBTableNames();
+    DBTableDialog * defineDBTableDialog(DBTableInfo *info);
 
     Ui::FormDataInput *ui;
 };

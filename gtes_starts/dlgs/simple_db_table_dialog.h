@@ -1,7 +1,7 @@
 #ifndef SIMPLE_DB_TABLE_DIALOG_H
 #define SIMPLE_DB_TABLE_DIALOG_H
 
-#include <QDialog>
+#include "db_table_dialog.h"
 
 namespace Ui {
     class SimpleDBTableDialog;
@@ -14,16 +14,16 @@ struct ItemQuery
     QString m_query;    // item query
 };
 
-class SimpleDBTableDialog : public QDialog
+class SimpleDBTableDialog : public DBTableDialog
 {
     Q_OBJECT
 
 public:
-    explicit SimpleDBTableDialog(QWidget *parent = 0);
-    ~SimpleDBTableDialog();
+    explicit SimpleDBTableDialog(DBTableInfo *dbTable, QWidget *parent = 0);
+    virtual ~SimpleDBTableDialog();
 
     void setData(const QStringList &data);
-    QStringList queries() const;
+    QStringList SQLstatements() const;
 
 private:
     void setDBdataView();

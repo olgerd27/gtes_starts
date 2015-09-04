@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>840</width>
-    <height>519</height>
+    <width>710</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -142,7 +142,7 @@ input</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>840</width>
+     <width>710</width>
      <height>20</height>
     </rect>
    </property>
@@ -173,6 +173,7 @@ input</string>
      <string>Operations</string>
     </property>
     <addaction name="m_actNewEngine"/>
+    <addaction name="m_actDeleteEngine"/>
     <addaction name="m_actSave"/>
     <addaction name="m_actRefresh"/>
     <addaction name="separator"/>
@@ -206,6 +207,7 @@ input</string>
     <bool>false</bool>
    </attribute>
    <addaction name="m_actNewEngine"/>
+   <addaction name="m_actDeleteEngine"/>
    <addaction name="m_actSave"/>
    <addaction name="m_actRefresh"/>
    <addaction name="separator"/>
@@ -322,6 +324,18 @@ input</string>
    </property>
    <property name="toolTip">
     <string>Exit from the application</string>
+   </property>
+  </action>
+  <action name="m_actDeleteEngine">
+   <property name="icon">
+    <iconset resource="images_resources.qrc">
+     <normaloff>:/images/clear_output.png</normaloff>:/images/clear_output.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete engine</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete current engine. This action is enabled only if choosed &quot;Engines&quot; tab panel</string>
    </property>
   </action>
  </widget>
