@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS injectors_types (
 CREATE TABLE IF NOT EXISTS combustion_chambers (
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     draft_number VARCHAR(20),
+    flue_tubes_quantity TINYINT UNSIGNED NOT NULL,
     injectors_type_id TINYINT UNSIGNED,
     igniters_quantity TINYINT UNSIGNED,
     comments VARCHAR(250),
@@ -137,6 +138,7 @@ CREATE TABLE IF NOT EXISTS engines_bypasses (
     bypass_id MEDIUMINT UNSIGNED NOT NULL,
     mount_place_id TINYINT UNSIGNED NOT NULL,
     quantity TINYINT,
+    comments VARCHAR(250),
     serial_number SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (engine_id, bypass_id, mount_place_id),
     FOREIGN KEY (engine_id)
