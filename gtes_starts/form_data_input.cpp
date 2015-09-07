@@ -34,12 +34,14 @@ FormDataInput::~FormDataInput()
     delete ui;
 }
 
-DBTableDialog * FormDataInput::defineDBTableDialog(DBTableInfo *info)
+/* Factory method for creation some type of a database table dialog */
+DBTableDialog * FormDataInput::createDBTableDialog(DBTableInfo *info)
 {
-    int tableDegree = info->m_fields.size();
-    if (tableDegree == 2)
+    int degree = info->tableDegree();
+    bool fieldWasFound = info->findField("id").isValid();
+    if ( fieldWasFound && degree == 2 )
         return new SimpleDBTableDialog(info, this);
-    else if (tableDegree > 2 /*&& info->m_fields.at(0)*/) // TODO: perform the checking - has the first table field the name "id" or not?
+    else if ( fieldWasFound && degree > 2 )
         return new ComplexDBTableDialog(info, this);
     else
         return 0;
@@ -68,7 +70,7 @@ void FormDataInput::slotOpenDBTableDialog()
         return;
     }
 
-    DBTableDialog *dialog = defineDBTableDialog(dbTableInfo);
+    DBTableDialog *dialog = createDBTableDialog(dbTableInfo);
     if ( !dialog ) {
         // TODO: Generate the error #XXX: Invalid push button. Cannot define the created dialog type. Consult with a application developer.
         qDebug() << "Generate the error #3: Invalid push button. Cannot define the created dialog type. Consult with a application developer.";

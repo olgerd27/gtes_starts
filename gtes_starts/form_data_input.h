@@ -22,7 +22,7 @@ private slots:
 
 private:
     void setDBTableNames();
-    DBTableDialog * defineDBTableDialog(DBTableInfo *info);
+    DBTableDialog * createDBTableDialog(DBTableInfo *info);
 
     Ui::FormDataInput *ui;
 };

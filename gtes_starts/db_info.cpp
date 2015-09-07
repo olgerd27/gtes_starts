@@ -2,6 +2,55 @@
 #include "db_info.h"
 
 /*
+ * Comparison a some database table (the name passed in QString format) with the template some "info" class instance.
+ * A some template "info" class instance must have variable "m_nameInDB".
+ * Have 2 overloaded version of functor predicate with pointer and refference arguments.
+ */
+template<typename T_info>
+struct CompareInfoWithString
+{
+    CompareInfoWithString(const QString &tableName)
+    {
+        m_info.m_nameInDB = tableName;
+    }
+
+    inline bool operator()(const T_info &item)
+    {
+        return operator ()(&item);
+    }
+
+    inline bool operator()(const T_info *item)
+    {
+        return item->m_nameInDB == m_info.m_nameInDB;
+    }
+
+private:
+    T_info m_info;
+};
+
+/*
+ * DBTableFieldInfo
+ */
+bool DBTableFieldInfo::isValid() const
+{
+    return !m_nameInDB.isEmpty() && !m_nameInUI.isEmpty();
+}
+
+/*
+ * DBTableInfo
+ */
+int DBTableInfo::tableDegree() const
+{
+    return m_fields.size();
+}
+
+const DBTableFieldInfo & DBTableInfo::findField(const QString &fieldName) const
+{
+    auto it = std::find_if(m_fields.begin(), m_fields.end(), CompareInfoWithString<DBTableFieldInfo>(fieldName));
+    return it == m_fields.end() ? DBTableFieldInfo() : *it;
+}
+
+/*
  * DBInfo
  */
 DBInfo::DBInfo()
@@ -11,74 +60,74 @@ DBInfo::DBInfo()
 
     m_tables = {
         /* engines_names */
-        new DBTableInfo {"engines_names", QObject::tr("engine name"),
+        new DBTableInfo {"engines_names", QObject::tr("Engine name"),
                          {
-                             {QObject::tr("id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("name"), DBTableFieldInfo::wtype_lineEdit, 0}
+                             {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
                          }
         },
 
         /* fuels_types */
-        new DBTableInfo {"fuels_types", QObject::tr("fuel type"),
+        new DBTableInfo {"fuels_types", QObject::tr("Fuel type"),
                          {
-                             {QObject::tr("id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("name"), DBTableFieldInfo::wtype_lineEdit, 0}
+                             {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
                          }
         },
 
         /* start_devices_types */
-        new DBTableInfo {"start_devices_types", QObject::tr("start device type"),
+        new DBTableInfo {"start_devices_types", QObject::tr("Start device type"),
                          {
-                             {QObject::tr("id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("name"), DBTableFieldInfo::wtype_lineEdit, 0}
+                             {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
                          }
         },
 
         /* start_devices */
-        new DBTableInfo {"start_devices", QObject::tr("start device"),
+        new DBTableInfo {"start_devices", QObject::tr("Start device"),
                          {
-                             {QObject::tr("id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("type"), DBTableFieldInfo::wtype_comboBox, 0},
-                             {QObject::tr("model"), DBTableFieldInfo::wtype_lineEdit, 0},
-                             {QObject::tr("Nnom"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
-                             {QObject::tr("n_nom"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
-                             {QObject::tr("kp"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
-                             {QObject::tr("f1"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
-                             {QObject::tr("f2"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
-                             {QObject::tr("comments"), DBTableFieldInfo::wtype_textEdit, 0}
+                             {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"type", QObject::tr("Type"), DBTableFieldInfo::wtype_comboBox, 0},
+                             {"model", QObject::tr("Model"), DBTableFieldInfo::wtype_lineEdit, 0},
+                             {"Nnom", QObject::tr("Nnom"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
+                             {"n_nom", QObject::tr("n_nom"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
+                             {"kp", QObject::tr("kp"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
+                             {"f1", QObject::tr("f1"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
+                             {"f2", QObject::tr("f2"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
+                             {"comments", QObject::tr("Comments"), DBTableFieldInfo::wtype_textEdit, 0}
                          }
         },
 
         /* injectors_types */
-        new DBTableInfo {"injectors_types", QObject::tr("injector types"),
+        new DBTableInfo {"injectors_types", QObject::tr("Injector types"),
                          {
-                             {QObject::tr("id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("name"), DBTableFieldInfo::wtype_lineEdit, 0}
+                             {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
                          }
         },
 
         /* combustion_chambers */
-        new DBTableInfo {"combustion_chambers", QObject::tr("combustion chamber"),
+        new DBTableInfo {"combustion_chambers", QObject::tr("Combustion chamber"),
                          {
-                             {QObject::tr("id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("draft number"), DBTableFieldInfo::wtype_lineEdit, 0},
-                             {QObject::tr("injector type"), DBTableFieldInfo::wtype_comboBox, 0},
-                             {QObject::tr("igniters quantity"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("comments"), DBTableFieldInfo::wtype_textEdit, 0}
+                             {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"draft number", QObject::tr("Draft number"), DBTableFieldInfo::wtype_lineEdit, 0},
+                             {"injector type", QObject::tr("Injector type"), DBTableFieldInfo::wtype_comboBox, 0},
+                             {"igniters quantity", QObject::tr("Igniters quantity"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"comments", QObject::tr("Comments"), DBTableFieldInfo::wtype_textEdit, 0}
                          }
         },
 
         /* engines */
-        new DBTableInfo {"engines", QObject::tr("engine"),
+        new DBTableInfo {"engines", QObject::tr("Engine"),
                          {
-                             {QObject::tr("id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("name"), DBTableFieldInfo::wtype_comboBox, 0},
-                             {QObject::tr("number"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("fuel type"), DBTableFieldInfo::wtype_comboBox, 0},
-                             {QObject::tr("combustion chamber"), DBTableFieldInfo::wtype_label, 0},
-                             {QObject::tr("start device"), DBTableFieldInfo::wtype_label, 0},
-                             {QObject::tr("start device quantity"), DBTableFieldInfo::wtype_spinBoxInt, 0},
-                             {QObject::tr("comments"), DBTableFieldInfo::wtype_textEdit, 0}
+                             {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_comboBox, 0},
+                             {"number", QObject::tr("Number"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"fuel type", QObject::tr("Fuel type"), DBTableFieldInfo::wtype_comboBox, 0},
+                             {"combustion chamber", QObject::tr("Combustion chamber"), DBTableFieldInfo::wtype_label, 0},
+                             {"start device", QObject::tr("Start device"), DBTableFieldInfo::wtype_label, 0},
+                             {"start device quantity", QObject::tr("Start device quantity"), DBTableFieldInfo::wtype_spinBoxInt, 0},
+                             {"comments", QObject::tr("Comments"), DBTableFieldInfo::wtype_textEdit, 0}
                          }
         }
     };
@@ -94,25 +143,8 @@ DBInfo::~DBInfo()
 
 }
 
-/* Comparison a some database table (the name passed in QString format) with pointer to the DBTableInfo class instance */
-struct CompareDBTableInfoWithString
-{
-    CompareDBTableInfoWithString(const QString &tableName)
-    {
-        m_DBTableInfo.m_nameInDB = tableName;
-    }
-
-    inline bool operator()(const DBTableInfo *item)
-    {
-        return item->m_nameInDB == m_DBTableInfo.m_nameInDB;
-    }
-
-private:
-    DBTableInfo m_DBTableInfo;
-};
-
 DBTableInfo * DBInfo::findTable(const QString &tableName) const
 {
-    auto it = std::find_if(m_tables.begin(), m_tables.end(), CompareDBTableInfoWithString(tableName));
+    auto it = std::find_if(m_tables.begin(), m_tables.end(), CompareInfoWithString<DBTableInfo>(tableName));
     return it == m_tables.end() ? 0 : *it;
 }

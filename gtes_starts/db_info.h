@@ -20,7 +20,9 @@ struct DBTableFieldInfo
         wtype_textEdit
     };
 
-//    QString m_nameInDB;
+    bool isValid() const;
+
+    QString m_nameInDB;
     QString m_nameInUI;
     WidgetsTypes m_widgetType;
     DBTableInfo *m_ptrForeignTable;
@@ -37,6 +39,9 @@ struct DBTableInfo
         ttype_complex,  // has many columns. Relation with other table - "one to many"
         ttype_composite // has many columns. Relation with other tables - "one to many", but implement relationship between them as "many to many"
     };
+
+    int tableDegree() const;
+    const DBTableFieldInfo & findField(const QString &fieldName) const;
 
     QString m_nameInDB;
     QString m_nameInUI;
