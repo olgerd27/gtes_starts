@@ -41,7 +41,8 @@ struct DBTableInfo
     };
 
     int tableDegree() const;
-    const DBTableFieldInfo & findField(const QString &fieldName) const;
+    DBTableFieldInfo fieldByName(const QString &fieldName) const;
+    DBTableFieldInfo fieldByIndex(int index) const;
 
     QString m_nameInDB;
     QString m_nameInUI;
@@ -60,6 +61,7 @@ struct DBInfo
     }
 
     ~DBInfo();
+    QString name() const;
     DBTableInfo *findTable(const QString &tableName) const;
 
 private:

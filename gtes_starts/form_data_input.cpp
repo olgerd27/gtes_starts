@@ -38,7 +38,7 @@ FormDataInput::~FormDataInput()
 DBTableDialog * FormDataInput::createDBTableDialog(DBTableInfo *info)
 {
     int degree = info->tableDegree();
-    bool fieldWasFound = info->findField("id").isValid();
+    bool fieldWasFound = info->fieldByName("id").isValid();
     if ( fieldWasFound && degree == 2 )
         return new SimpleDBTableDialog(info, this);
     else if ( fieldWasFound && degree > 2 )
