@@ -5,6 +5,9 @@
 #include <QPushButton>
 #include <QDebug>
 
+/*
+ * The custom QListWidget class, that resize itself for making all content data visible.
+ */
 class ResizableWidgetList : public QListWidget
 {
 public:
@@ -21,6 +24,9 @@ public:
     }
 };
 
+/*
+ * The custom QPushButton class, that store name of the database table, with which this button related.
+ */
 class PushButtonKnowsDBTable : public QPushButton
 {
     Q_OBJECT

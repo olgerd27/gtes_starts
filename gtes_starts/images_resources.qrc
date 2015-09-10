@@ -7,7 +7,6 @@
         <file>images/edit.png</file>
         <file>images/File_Doc_Text_Word.png</file>
         <file>images/db.Routine.64x64.png</file>
-        <file>images/rotated_trash.png</file>
         <file>images/record_next.png</file>
         <file>images/record_back.png</file>
         <file>images/record_first.png</file>
@@ -26,5 +25,7 @@
         <file>images/1438203865_gtk-refresh.png</file>
         <file>images/turbina.png</file>
         <file>images/Add_Symbol.png</file>
+        <file>images/rotated_trash_1.png</file>
+        <file>images/rotated_trash_2.png</file>
     </qresource>
 </RCC>

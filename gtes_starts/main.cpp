@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     db.setPort(3306);
     db.setUserName("root");
     db.setPassword("optimus27");
+    db.setDatabaseName("gtes_starts");
     if (!db.open()) {
         QMessageBox::critical(0, "Don't connected", QString("Cannot connect to database with the next settings:\n"
                                                             "\thostname: '%1'\n"

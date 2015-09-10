@@ -1,26 +1,30 @@
-#include <QItemDelegate>
+#include <QListView>
+#include <QStyledItemDelegate>
 #include <QPainter>
-#include <QStringListModel>
-#include <QSortFilterProxyModel>
+#include <QSqlTableModel>
+#include <QStringListModel> // TODO: delete?
+#include <QSortFilterProxyModel> // TODO: delete?
 #include <QDebug>
 
 #include "simple_db_table_dialog.h"
 #include "ui_simple_db_table_dialog.h"
+#include "db_info.h"
 
 /*
- * HighlightDelegate
+ * HighlightListDelegate
  */
-class HighlightDelegate : public QItemDelegate
+class HighlightListDelegate : public QStyledItemDelegate
 {
 public:
-    HighlightDelegate(QObject *parent = 0)
-        : QItemDelegate(parent)
+    HighlightListDelegate(QObject *parent = 0)
+        : QStyledItemDelegate(parent)
     {
     }
 
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option,
-               const QModelIndex          &index) const {
+               const QModelIndex          &index) const
+    {
         if(option.state & QStyle::State_MouseOver) {
             QRect rect = option.rect;
             QLinearGradient gradient(0, 0, rect.width(), rect.height());
@@ -32,7 +36,7 @@ public:
             painter->setPen(Qt::NoPen);
             painter->drawRect(rect);
         }
-        QItemDelegate::paint(painter, option, index); // paint part of the base class
+        QStyledItemDelegate::paint(painter, option, index); // paint part of the base class
     }
 };
 
@@ -52,16 +56,17 @@ void SimpleDBTableDialog::setDBdataView()
 {
     // ListView settings
     QListView *view = ui->m_listvData;
-    view->setItemDelegate(new HighlightDelegate(view));
+    view->setItemDelegate(new HighlightListDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
+    view->setModel(m_model);
+    view->setModelColumn(1);
 
-    // ListView model setting
-    m_sourceModel = new QStringListModel(this);
-    QSortFilterProxyModel *filterModel = new QSortFilterProxyModel(this);
-    filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    filterModel->setSourceModel(m_sourceModel);
-    view->setModel(filterModel);
-    connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), filterModel, SLOT(setFilterFixedString(QString)));
+//    m_sourceModel = new QStringListModel(this);
+//    QSortFilterProxyModel *filterModel = new QSortFilterProxyModel(this);
+//    filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+//    filterModel->setSourceModel(m_sourceModel);
+//    view->setModel(filterModel);
+//    connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), filterModel, SLOT(setFilterFixedString(QString)));
 }
 
 SimpleDBTableDialog::~SimpleDBTableDialog()

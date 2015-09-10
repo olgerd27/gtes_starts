@@ -1,5 +1,6 @@
 #include <QSqlQuery>
 #include <QDebug>
+#include <memory>
 
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
@@ -70,8 +71,8 @@ void FormDataInput::slotOpenDBTableDialog()
         return;
     }
 
-    DBTableDialog *dialog = createDBTableDialog(dbTableInfo);
-    if ( !dialog ) {
+    std::shared_ptr<DBTableDialog> dialog(createDBTableDialog(dbTableInfo));
+    if ( !dialog.operator bool() ) {
         // TODO: Generate the error #XXX: Invalid push button. Cannot define the created dialog type. Consult with a application developer.
         qDebug() << "Generate the error #3: Invalid push button. Cannot define the created dialog type. Consult with a application developer.";
         return;

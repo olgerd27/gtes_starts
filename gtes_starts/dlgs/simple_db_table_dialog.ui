@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
+    <width>300</width>
     <height>280</height>
    </rect>
   </property>
@@ -14,7 +14,7 @@
    <string>Simple table correction</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="images_resources.qrc">
+   <iconset resource="../images_resources.qrc">
     <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
   </property>
   <property name="locale">
@@ -33,7 +33,7 @@
       <string>&amp;Add</string>
      </property>
      <property name="icon">
-      <iconset resource="images_resources.qrc">
+      <iconset resource="../images_resources.qrc">
        <normaloff>:/images/Add_Symbol.png</normaloff>:/images/Add_Symbol.png</iconset>
      </property>
     </widget>
@@ -109,7 +109,7 @@
       <string>&amp;Delete</string>
      </property>
      <property name="icon">
-      <iconset resource="images_resources.qrc">
+      <iconset resource="../images_resources.qrc">
        <normaloff>:/images/clear_output.png</normaloff>:/images/clear_output.png</iconset>
      </property>
     </widget>
@@ -145,7 +145,7 @@
       <string>&amp;Edit</string>
      </property>
      <property name="icon">
-      <iconset resource="images_resources.qrc">
+      <iconset resource="../images_resources.qrc">
        <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
      </property>
     </widget>
@@ -159,7 +159,7 @@
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
-  <include location="images_resources.qrc"/>
+  <include location="../images_resources.qrc"/>
  </resources>
  <connections>
   <connection>

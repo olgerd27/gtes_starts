@@ -25,9 +25,9 @@
      <property name="title">
       <string>Contents of the [table_name]</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" rowspan="3">
-       <widget class="QListView" name="m_listvTableContents">
+       <widget class="QTableView" name="m_tableContents">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -37,12 +37,30 @@
         <property name="toolTip">
          <string>Available database table data</string>
         </property>
-        <property name="locale">
-         <locale language="Russian" country="Ukraine"/>
-        </property>
         <property name="editTriggers">
-         <set>QAbstractItemView::DoubleClicked</set>
+         <set>QAbstractItemView::AnyKeyPressed</set>
         </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+        <property name="cornerButtonEnabled">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
        </widget>
       </item>
       <item row="0" column="1">
@@ -54,7 +72,7 @@
          <string>&amp;Add</string>
         </property>
         <property name="icon">
-         <iconset resource="images_resources.qrc">
+         <iconset resource="../images_resources.qrc">
           <normaloff>:/images/Add_Symbol.png</normaloff>:/images/Add_Symbol.png</iconset>
         </property>
        </widget>
@@ -68,7 +86,7 @@
          <string>&amp;Delete</string>
         </property>
         <property name="icon">
-         <iconset resource="images_resources.qrc">
+         <iconset resource="../images_resources.qrc">
           <normaloff>:/images/clear_output.png</normaloff>:/images/clear_output.png</iconset>
         </property>
        </widget>
@@ -115,7 +133,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="images_resources.qrc"/>
+  <include location="../images_resources.qrc"/>
  </resources>
  <connections>
   <connection>
