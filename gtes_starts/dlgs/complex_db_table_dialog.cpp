@@ -1,14 +1,16 @@
 #include <QSqlTableModel>
 #include <QStyledItemDelegate>
 #include <QPainter>
+#include <QTableView>
 #include <QDebug>
 #include "complex_db_table_dialog.h"
 #include "ui_complex_db_table_dialog.h"
+#include "db_info.h"
 
 class HighlightTableDelegate : public QStyledItemDelegate
 {
 public:
-    enum { DONT_HIGHLIGHTED = -1 };
+    enum { DONT_HIGHLIGHTED = -1 }; // number of a table row that is not highlighted (need for highlighting removing)
 
     HighlightTableDelegate(QObject *parent = 0)
         : QStyledItemDelegate(parent)
@@ -17,21 +19,33 @@ public:
 
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        // variant 3 - The issue:
+        static int hRow = DONT_HIGHLIGHTED; /* initialization of the highlighted row number.
+                                             * Use static variable, bacause this is const method and it cannot to change any class data.
+                                             * Also you may use global variable, defined outside of current class.
+                                             */
         QTableView *tableView = qobject_cast<QTableView *>(this->parent());
-        static int prevRow = DONT_HIGHLIGHTED;
+
+        /* Definition the fact of necessity of highlighting removing */
+        if ( isMouseOutTable(tableView) )
+            hRow = DONT_HIGHLIGHTED;
+
+        /* Definition the table row number for highlighting, and initiate highlighting of the current row
+         * and highlighting removing of the previous highlighted row
+         */
         if (option.state & QStyle::State_MouseOver) {
-            if (index.row() != prevRow) {
-                // mouse is over item, placed in another row, than previous "mouse over" item
+            if (index.row() != hRow) {
+                // mouse is over item, that placed in another row, than previous "mouse over" item
                 const QAbstractItemModel *model = index.model();
                 for (int col = 0; col < model->columnCount(); ++col) {
-                    tableView->update(model->index(index.row(), col)); // update items from current row for painting visual highlighting
-                    tableView->update(model->index(prevRow, col)); // update items from previous row for removing visual highlighting
+                    tableView->update(model->index(index.row(), col)); // update items from current row for painting visual row highlighting
+                    tableView->update(model->index(hRow, col)); // update items from previous row for removing visual row highlighting
                 }
-                prevRow = index.row();
+                hRow = index.row();
             }
         }
-        if (index.row() == prevRow) {
+
+        /* Creation a visual view of the highlighted row items */
+        if (index.row() == hRow && hRow != DONT_HIGHLIGHTED) {
             QRect rect = option.rect;
             QLinearGradient gradient(0, 0, rect.width(), rect.height());
 
@@ -52,6 +66,14 @@ public:
         }
         QStyledItemDelegate::paint(painter, option, index);
     }
+
+private:
+    bool isMouseOutTable(const QTableView * const table) const
+    {
+        /*  Check - is a mouse out of the viewport of a table view or not */
+        QPoint viewportCursorPos = table->viewport()->mapFromGlobal(QCursor::pos());
+        return !table->indexAt(viewportCursorPos).isValid();
+    }
 };
 
 ComplexDBTableDialog::ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent)
@@ -60,12 +82,15 @@ ComplexDBTableDialog::ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
+
+    // table view settings
     QTableView *view = ui->m_tableContents;
-    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents); // TODO: resize to contents OR NOT?
-//    view->horizontalHeader()->resizeSection(
     view->setModel(m_model);
     view->setItemDelegate(new HighlightTableDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
+    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents); // TODO: resize to contents OR NOT?
+//    view->horizontalHeader()->resizeSection(
+    view->setColumnHidden(m_model->fieldIndex("id"), true); // hide "id"
 }
 
 ComplexDBTableDialog::~ComplexDBTableDialog()
