@@ -2,6 +2,7 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QTableView>
+#include <QHeaderView>
 #include <QDebug>
 #include "complex_db_table_dialog.h"
 #include "ui_complex_db_table_dialog.h"
@@ -46,23 +47,26 @@ public:
 
         /* Creation a visual view of the highlighted row items */
         if (index.row() == hRow && hRow != DONT_HIGHLIGHTED) {
-            QRect rect = option.rect;
-            QLinearGradient gradient(0, 0, rect.width(), rect.height());
-
-            // color variant #1
+            // color variant #1 - horizontal linear gradient. Highlighting is the same as in simple DB table dialog
+            QRect rectView = tableView->rect();
+            QPoint topLeft = rectView.topLeft();
+            QLinearGradient gradient( topLeft.x(), topLeft.y(),
+                                      topLeft.x() + tableView->horizontalHeader()->length(), rectView.topRight().y() );
             gradient.setColorAt(0, Qt::white);
             gradient.setColorAt(0.8, Qt::lightGray);
             gradient.setColorAt(1, Qt::gray);
 
-            // color varian #2
+            // color variant #2 - vertical linear gradient
+//            QRect rectItem = option.rect;
+//            QLinearGradient gradient(rectItem.topLeft(), rectItem.bottomLeft());
 //            gradient.setColorAt(0, Qt::white);
-//            gradient.setColorAt(0.9, QColor(190, 200, 250));
-//            gradient.setColorAt(1.0, QColor(135, 150, 250));
+//            gradient.setColorAt(0.5, Qt::lightGray);
+//            gradient.setColorAt(1, Qt::white);
 
             // painter paint a rectangle with setted gradient
             painter->setBrush(gradient);
             painter->setPen(Qt::NoPen);
-            painter->drawRect(rect);
+            painter->drawRect(option.rect);
         }
         QStyledItemDelegate::paint(painter, option, index);
     }
@@ -88,9 +92,9 @@ ComplexDBTableDialog::ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent
     view->setModel(m_model);
     view->setItemDelegate(new HighlightTableDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
+    view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents); // TODO: resize to contents OR NOT?
-//    view->horizontalHeader()->resizeSection(
-    view->setColumnHidden(m_model->fieldIndex("id"), true); // hide "id"
+//    view->setColumnHidden(m_model->fieldIndex("id"), true); // hide "id"
 }
 
 ComplexDBTableDialog::~ComplexDBTableDialog()
