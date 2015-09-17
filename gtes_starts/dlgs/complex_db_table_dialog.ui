@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>620</width>
+    <width>669</width>
     <height>476</height>
    </rect>
   </property>
@@ -49,7 +49,16 @@
         <property name="selectionBehavior">
          <enum>QAbstractItemView::SelectRows</enum>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>18</width>
+          <height>26</height>
+         </size>
+        </property>
         <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+        <property name="horizontalScrollMode">
          <enum>QAbstractItemView::ScrollPerPixel</enum>
         </property>
         <property name="cornerButtonEnabled">

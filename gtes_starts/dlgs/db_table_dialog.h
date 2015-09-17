@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QSqlTableModel>
+#include <QIcon>
 
 class DBTableInfo;
 
@@ -10,12 +11,21 @@ class DBTableInfo;
  * The custom QSqlTableModel class, that remove unnecessary characters from the end of every data item.
  * (Return "trimmed" data).
  */
-class TrimmedSqlTableModel : public QSqlTableModel
+class CustomSqlTableModel : public QSqlTableModel
 {
     Q_OBJECT
 public:
-    TrimmedSqlTableModel(QObject *parent);
+    CustomSqlTableModel(QObject *parent);
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &idx, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+
+private:
+    enum { NO_CHECKED_ROW = -1 };
+
+    int m_checkedRow;
+    QIcon m_checkIcon;
 };
 
 /*
@@ -30,7 +40,7 @@ public:
 
 protected:
     DBTableInfo *m_dbTableInfo;
-    TrimmedSqlTableModel *m_model;
+    CustomSqlTableModel *m_model;
 };
 
 #endif // DB_TABLE_DIALOG_H

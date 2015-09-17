@@ -3,6 +3,7 @@
 
 #include "db_table_dialog.h"
 
+class QItemSelection;
 namespace Ui {
     class ComplexDBTableDialog;
 }
@@ -14,6 +15,11 @@ class ComplexDBTableDialog : public DBTableDialog
 public:
     explicit ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent = 0);
     virtual ~ComplexDBTableDialog();
+
+private slots:
+    void slotSelectionTemp(const QItemSelection &selected, const QItemSelection &deselected);
+    void slotChooseRow(const QModelIndex &currIndex, const QModelIndex &prevIndex);
+    void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     Ui::ComplexDBTableDialog *ui;

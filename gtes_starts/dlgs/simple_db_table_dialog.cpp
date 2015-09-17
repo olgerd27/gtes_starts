@@ -60,13 +60,7 @@ void SimpleDBTableDialog::setDBdataView()
     view->viewport()->setAttribute(Qt::WA_Hover);
     view->setModel(m_model);
     view->setModelColumn(1);
-
-//    m_sourceModel = new QStringListModel(this);
-//    QSortFilterProxyModel *filterModel = new QSortFilterProxyModel(this);
-//    filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-//    filterModel->setSourceModel(m_sourceModel);
-//    view->setModel(filterModel);
-//    connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), filterModel, SLOT(setFilterFixedString(QString)));
+    connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), this, SLOT(slotSetFilter(QString)));
 }
 
 SimpleDBTableDialog::~SimpleDBTableDialog()
@@ -74,13 +68,7 @@ SimpleDBTableDialog::~SimpleDBTableDialog()
     delete ui;
 }
 
-void SimpleDBTableDialog::setData(const QStringList &data)
+void SimpleDBTableDialog::slotSetFilter(const QString &strFilter)
 {
-    m_sourceModel->setStringList(data);
-}
-
-QStringList SimpleDBTableDialog::SQLstatements() const
-{
-    // TODO: forming queries with help of some QueryCreator class
-    return QStringList();
+    m_model->setFilter("name LIKE '%" + strFilter + "%'");
 }
