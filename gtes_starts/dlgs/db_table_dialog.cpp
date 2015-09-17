@@ -32,6 +32,10 @@ QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
         if (role == Qt::DisplayRole) data = QVariant();
         if (role == Qt::DecorationRole && idx.row() == m_checkedRow) data = m_checkIcon;
     }
+    if (role == Qt::TextAlignmentRole) {
+        if ( this->data(idx, Qt::DisplayRole).convert(QMetaType::Float) )
+            data = Qt::AlignCenter; // center alignment of the numerical values
+    }
     return data;
 }
 
