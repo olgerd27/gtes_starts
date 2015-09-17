@@ -17,8 +17,6 @@ public:
     virtual ~ComplexDBTableDialog();
 
 private slots:
-    void slotSelectionTemp(const QItemSelection &selected, const QItemSelection &deselected);
-    void slotChooseRow(const QModelIndex &currIndex, const QModelIndex &prevIndex);
     void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:

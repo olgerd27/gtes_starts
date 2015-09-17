@@ -75,7 +75,7 @@ public:
 private:
     bool isMouseOutTable(const QTableView * const table) const
     {
-        /*  Check - is a mouse out of the viewport of a table view or not */
+        /*  Checking - is a mouse out of the viewport of a table view or not */
         QPoint viewportCursorPos = table->viewport()->mapFromGlobal(QCursor::pos());
         return !table->indexAt(viewportCursorPos).isValid();
     }
@@ -93,13 +93,8 @@ ComplexDBTableDialog::ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent
     view->setModel(m_model);
     view->setItemDelegate(new HighlightTableRowsDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
+    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents); // TODO: resize to contents OR NOT?
-
-//    connect(view->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-//            this, SLOT(slotChooseRow(QModelIndex,QModelIndex)));
-//    connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-//            this, SLOT(slotSelectionTemp(QItemSelection,QItemSelection)));
 
     connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
@@ -110,109 +105,24 @@ ComplexDBTableDialog::~ComplexDBTableDialog()
     delete ui;
 }
 
-#include <QMessageBox>
-void ComplexDBTableDialog::slotChooseRow(const QModelIndex &currIndex, const QModelIndex &prevIndex)
-{
-    if (!prevIndex.isValid()) return;
-    qDebug() << "1";
-    QModelIndex firstItemIndex = currIndex.model()->index(currIndex.row(), 0, currIndex.parent());
-    qDebug() << "2";
-    qDebug() << "firstItemIndex: is valid =" << firstItemIndex.isValid() << ", col =" << firstItemIndex.column() << ", row =" << firstItemIndex.row();
-    ui->m_tableContents->selectionModel()->select(firstItemIndex, QItemSelectionModel::Deselect);
-
-    QMessageBox::information(this, "title", "after deselection");
-
-    QModelIndex firstItemIndex2 = currIndex.model()->index(currIndex.row() + 1, currIndex.column() + 1);
-    ui->m_tableContents->selectionModel()->select(firstItemIndex2, QItemSelectionModel::Select);
-
-    QMessageBox::information(this, "title", "after selection");
-
-    qDebug() << "3";
-    ui->m_tableContents->model()->setData(firstItemIndex, QVariant(), Qt::DecorationRole);
-    qDebug() << "------------";
-}
-
-void showList(const QModelIndexList &list, const QString &listName)
-{
-    qDebug() << listName << "count =" << list.size() << ":";
-    int counter = 0;
-    if (list.size())
-        foreach (QModelIndex index, list) {
-            qDebug() << "   index #" << counter++ << ": row =" << index.row() << ", col =" << index.column();
-        }
-    else
-        qDebug() << "   NONE";
-}
-
-void ComplexDBTableDialog::slotSelectionTemp(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    QModelIndexList selectedList = selected.indexes();
-    showList(selectedList, "selected");
-    QModelIndexList deselectedList = deselected.indexes();
-    showList(deselectedList, "deselected");
-}
-
-// rows selection - bad behaviour - not updated previous selected rows
 void ComplexDBTableDialog::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    qDebug() << "1";
-    QModelIndexList selectedList = selected.indexes();
-    showList(selectedList, "selected");
     QModelIndexList deselectedList = deselected.indexes();
-    showList(deselectedList, "deselected");
 
-    qDebug() << "2";
+    // catch a deselection of the first left item in current row and setting icons decoration on it
     if (deselectedList.size() == 1) {
-        // there are recursive slot calling for deselection first item in current row
-        qDebug() << "selection is empty";
         ui->m_tableContents->model()->setData(deselectedList.first(), QVariant(), Qt::DecorationRole);
         return;
     }
-//    else {
-        // forced deselection of the first item in current row
-//        qDebug() << "not empty - forced deselection of the first item in current row";
-//        QModelIndex someDeselected = deselected.indexes().first();
-//        QModelIndex needDeselect = someDeselected.model()->index(someDeselected.row(), 0);
-//        ui->m_tableContents->selectionModel()->select(needDeselect, QItemSelectionModel::Deselect);
-//        return;
-//    }
-    qDebug() << "3";
 
-    // update first row items in the previous selected row
+    // update the first left items in the previous selected row for clearing icons decoration
     if (deselectedList.size() > 1) {
-        QModelIndex someSelected = deselectedList.first();
-        QModelIndex firstDeselectedIndex = someSelected.model()->index(someSelected.row(), 0);
-        ui->m_tableContents->update(firstDeselectedIndex);
-        qDebug() << "update deselected item: row =" << firstDeselectedIndex.row() << ", col =" << firstDeselectedIndex.column();
+        QModelIndex someDeselected = deselectedList.first();
+        QModelIndex firstDeselected = someDeselected.model()->index(someDeselected.row(), 0);
+        ui->m_tableContents->update(firstDeselected); // clear remained icons decoration
     }
 
-    QModelIndex firstSelectedIndex = selectedList.first();
-    qDebug() << "4";
-
-//    QMessageBox::information(this, "title", "before deselect");
-//    ui->m_tableContents->model()->setData(firstItemIndex, QVariant(), Qt::DecorationRole);
-
-
-//    QMessageBox::information(this, "title", "after deselect");
-    qDebug() << "5";
-    ui->m_tableContents->selectionModel()->select(firstSelectedIndex, QItemSelectionModel::Deselect);
-//    QMessageBox::information(this, "title", "after setData");
-
-    qDebug() << "----";
+    QModelIndexList selectedList = selected.indexes();
+    QModelIndex firstSelected = selectedList.first();
+    ui->m_tableContents->selectionModel()->select(firstSelected, QItemSelectionModel::Deselect); // this make recursive calling of this slot
 }
-
-// items selection - bad behaviour - not updated previous selected rows
-//void ComplexDBTableDialog::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
-//{
-//    QModelIndexList selectedList = selected.indexes();
-//    if (selectedList.size() == 1) {
-//        QModelIndex selectedIndex = selectedList.first();
-//        const QAbstractItemModel *model = selectedIndex.model();
-//        int selectedRow = selectedIndex.row();
-//        QItemSelection selection( model->index(selectedRow, 1), model->index(selectedRow, model->columnCount() - 1) );
-//        ui->m_tableContents->selectionModel()->select(selection, QItemSelectionModel::Select);
-//        QModelIndex firstIndex = model->index(selectedRow, 0);
-//        ui->m_tableContents->model()->setData(firstIndex, QVariant(), Qt::DecorationRole);
-//    }
-//    qDebug() << "----";
-//}

@@ -17,12 +17,9 @@ CustomSqlTableModel::CustomSqlTableModel(QObject *parent)
 
 QVariant CustomSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    QVariant data;
-    if (orientation == Qt::Horizontal && section == 0 && role == Qt::DisplayRole)
-        data = QVariant();
-    else
-        data = QSqlTableModel::headerData(section, orientation, role);
-    return data;
+    return (orientation == Qt::Horizontal && section == 0 && role == Qt::DisplayRole)
+            ? QVariant()
+            : QSqlTableModel::headerData(section, orientation, role);
 }
 
 QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
@@ -41,49 +38,10 @@ QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
 bool CustomSqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_UNUSED(value)
-    if ( index.column() == 0 && role == Qt::DecorationRole ) {
+    if ( index.column() == 0 && role == Qt::DecorationRole )
         m_checkedRow = index.row();
-        qDebug() << "set decoration in the first column";
-    }
     emit dataChanged(index, index);
     return true;
-}
-
-void checkItemFlags(Qt::ItemFlags f)
-{
-    if (f & Qt::NoItemFlags)
-        qDebug() << "NoItemFlags";
-    if (f & Qt::ItemIsSelectable)
-        qDebug() << "ItemIsSelectable";
-    if (f & Qt::ItemIsEditable)
-        qDebug() << "ItemIsEditable";
-    if (f & Qt::ItemIsDragEnabled)
-        qDebug() << "ItemIsDragEnabled";
-    if (f & Qt::ItemIsDropEnabled)
-        qDebug() << "ItemIsDropEnabled";
-    if (f & Qt::ItemIsUserCheckable)
-        qDebug() << "ItemIsUserCheckable";
-    if (f & Qt::ItemIsEnabled)
-        qDebug() << "ItemIsEnabled";
-    if (f & Qt::ItemIsTristate)
-        qDebug() << "ItemIsTristate";
-    if (f & Qt::ItemNeverHasChildren)
-        qDebug() << "ItemNeverHasChildren";
-    qDebug() << "********";
-}
-
-Qt::ItemFlags CustomSqlTableModel::flags(const QModelIndex &index) const
-{
-    Qt::ItemFlags itemFlags = QSqlTableModel::flags(index);
-    if (!index.isValid()) return itemFlags;
-//    if (index.column() == 0) {
-//        checkItemFlags(itemFlags);
-//        itemFlags &= ~Qt::ItemIsSelectable;
-//        checkItemFlags(itemFlags);
-//    }
-//    if (index.column() == 0)
-//        itemFlags &= ~Qt::ItemIsEnabled;
-    return itemFlags;
 }
 
 /*
