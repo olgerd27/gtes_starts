@@ -27,7 +27,9 @@ void FormDataInput::setDBTableNames()
     ui->m_pbEditNames->setDBTableName("engines_names");
     ui->m_pbEditFuels->setDBTableName("fuels_types");
     ui->m_pbEditChambers->setDBTableName("combustion_chambers");
+    ui->m_pbEditChambers->setDataLabel( ui->m_lblChamberData );
     ui->m_pbEditStartDevices->setDBTableName("start_devices");
+    ui->m_pbEditStartDevices->setDataLabel( ui->m_lblStartDeviceData );
 }
 
 FormDataInput::~FormDataInput()
@@ -51,7 +53,7 @@ DBTableDialog * FormDataInput::createDBTableDialog(DBTableInfo *info)
 void FormDataInput::slotOpenDBTableDialog()
 {
     QSqlDatabase::database().isOpen(); // FIXME: the connection loses without this checking
-    PushButtonKnowsDBTable *pbKDBT = qobject_cast<PushButtonKnowsDBTable *>(sender());
+    PushButtonForEditDBTable *pbKDBT = qobject_cast<PushButtonForEditDBTable *>(sender());
     if ( !pbKDBT ) {
         // TODO: Generate the error #XXX: Invalid push button. Consult with a application developer.
         qDebug() << "Generate the error #1: Invalid push button. Consult with a application developer.";
@@ -79,6 +81,7 @@ void FormDataInput::slotOpenDBTableDialog()
     }
 
     if (dialog->exec()) {
-        // TODO: exec INSERT, UPDATE and/or DELETE SQL-statement, returned by the SimpleDBTableDialog class object
+        QString identStr = dialog->identityString();
+        if (!identStr.isEmpty()) pbKDBT->dataLabel()->setText( identStr );
     }
 }

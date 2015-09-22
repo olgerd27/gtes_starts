@@ -22,10 +22,10 @@ struct DBTableFieldInfo
 
     bool isValid() const;
 
-    QString m_nameInDB;
-    QString m_nameInUI;
-    WidgetsTypes m_widgetType;
-    DBTableInfo *m_ptrForeignTable;
+    QString m_nameInDB;             /* a field name, used in database */
+    QString m_nameInUI;             /* a field name, used in user interface */
+    WidgetsTypes m_widgetType;      /* a type of a widget, used for showing data of this table filed */
+    DBTableInfo *m_ptrForeignTable; /* a pointer to the other table. It is a foreign key */
 };
 
 /*
@@ -33,6 +33,16 @@ struct DBTableFieldInfo
  */
 struct DBTableInfo
 {
+    struct IdentityInfo
+    {
+        /* An identity string is: [m_strName + m_NField] */
+        QString m_strName;  /* comment to the identity field number */
+        int m_NField;       /* number of an identity field */
+    };
+
+    typedef std::vector<DBTableFieldInfo> T_arrTableInfos;
+    typedef std::vector<IdentityInfo> T_arrIdentityFields;
+
     enum TableTypes
     {
         ttype_simple,   // has two columns - "id" and, for example, "name". Relation with other table - "one to many"
@@ -40,13 +50,16 @@ struct DBTableInfo
         ttype_composite // has many columns. Relation with other tables - "one to many", but implement relationship between them as "many to many"
     };
 
+    enum { NO_IDENTITY_FIELD = -1 };
+
     int tableDegree() const;
     DBTableFieldInfo fieldByName(const QString &fieldName) const;
     DBTableFieldInfo fieldByIndex(int index) const;
 
-    QString m_nameInDB;
-    QString m_nameInUI;
-    std::vector<DBTableFieldInfo> m_fields;
+    QString m_nameInDB;                 /* a table name, used in database */
+    QString m_nameInUI;                 /* a table name, used in user interface */
+    T_arrTableInfos m_fields;           /* array of the table fileds */
+    T_arrIdentityFields m_idnFields;    /* array of the identity fields information, that use for forming the identity string */
 };
 
 /*
@@ -69,7 +82,7 @@ private:
     DBInfo(const DBInfo &) = delete;
     DBInfo & operator=(const DBInfo &) = delete;
 
-    std::vector<DBTableInfo *> m_tables;
+    std::vector<DBTableInfo *> m_tables; /* array of all DB tables */
 };
 #define DBINFO DBInfo::Instance()
 

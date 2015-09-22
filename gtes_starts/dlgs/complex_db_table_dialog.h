@@ -11,7 +11,6 @@ namespace Ui {
 class ComplexDBTableDialog : public DBTableDialog
 {
     Q_OBJECT
-
 public:
     explicit ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent = 0);
     virtual ~ComplexDBTableDialog();
@@ -20,6 +19,10 @@ private slots:
     void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
+    void setContentsUI();
+    void setEditingUI();
+    void setIdentityString(const QModelIndex &indexInSelectRow);
+
     Ui::ComplexDBTableDialog *ui;
 };
 

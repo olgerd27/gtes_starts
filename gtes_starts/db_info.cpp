@@ -61,16 +61,14 @@ DBTableFieldInfo DBTableInfo::fieldByIndex(int index) const
  */
 DBInfo::DBInfo()
 {
-//    DBTableFieldInfo fieldInfo {QObject::tr("Id"), DBTableFieldInfo::wtype_lineEdit, 0};
-//    {QObject::tr("Id"), DBTableFieldInfo::wtype_lineEdit, 0};
-
     m_tables = {
         /* engines_names */
         new DBTableInfo {"engines_names", QObject::tr("Engine name"),
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
-                         }
+                         },
+                         { { "#", 0 }, {", ", 1 } }
         },
 
         /* fuels_types */
@@ -78,7 +76,8 @@ DBInfo::DBInfo()
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
-                         }
+                         },
+                         { { "#", 0 }, {", ", 1 } }
         },
 
         /* start_devices_types */
@@ -86,7 +85,8 @@ DBInfo::DBInfo()
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
-                         }
+                         },
+                         { { "#", 0 }, {", ", 1 } }
         },
 
         /* start_devices */
@@ -101,7 +101,8 @@ DBInfo::DBInfo()
                              {"f1", QObject::tr("f1"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
                              {"f2", QObject::tr("f2"), DBTableFieldInfo::wtype_spinBoxDouble, 0},
                              {"comments", QObject::tr("Comments"), DBTableFieldInfo::wtype_textEdit, 0}
-                         }
+                         },
+                         { { "#", 0 }, {", ", 2 } }
         },
 
         /* injectors_types */
@@ -109,7 +110,8 @@ DBInfo::DBInfo()
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
-                         }
+                         },
+                         { { "#", 0 }, {", ", 1 } }
         },
 
         /* combustion_chambers */
@@ -121,7 +123,8 @@ DBInfo::DBInfo()
                              {"injectors_type_id", QObject::tr("Injector type"), DBTableFieldInfo::wtype_comboBox, 0},
                              {"igniters_quantity", QObject::tr("Igniters quantity"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"comments", QObject::tr("Comments"), DBTableFieldInfo::wtype_textEdit, 0}
-                         }
+                         },
+                         { { "#", 0 }, {", ", 1 } }
         },
 
         /* engines */
@@ -135,7 +138,8 @@ DBInfo::DBInfo()
                              {"start_device_id", QObject::tr("Start device"), DBTableFieldInfo::wtype_label, 0},
                              {"start_devices_quantity", QObject::tr("Start device quantity"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"comments", QObject::tr("Comments"), DBTableFieldInfo::wtype_textEdit, 0}
-                         }
+                         },
+                         { { "#", 0 }, {", ", 1 }, { ", ", 2 } }
         }
     };
 }

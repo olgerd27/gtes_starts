@@ -9,6 +9,9 @@
 #include "ui_complex_db_table_dialog.h"
 #include "db_info.h"
 
+/*
+ * HighlightTableRowsDelegate
+ */
 class HighlightTableRowsDelegate : public QStyledItemDelegate
 {
 public:
@@ -81,14 +84,21 @@ private:
     }
 };
 
+/*
+ * ComplexDBTableDialog
+ */
 ComplexDBTableDialog::ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent)
     : DBTableDialog(dbTable, parent)
     , ui(new Ui::ComplexDBTableDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
+    setContentsUI();
+    setEditingUI();
+}
 
-    // table view settings
+void ComplexDBTableDialog::setContentsUI()
+{
     QTableView *view = ui->m_tableContents;
     view->setModel(m_model);
     view->setItemDelegate(new HighlightTableRowsDelegate(view));
@@ -100,11 +110,17 @@ ComplexDBTableDialog::ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent
             this, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
 }
 
+void ComplexDBTableDialog::setEditingUI()
+{
+    // TODO: code here
+}
+
 ComplexDBTableDialog::~ComplexDBTableDialog()
 {
     delete ui;
 }
 
+/* perform choosing by a user some row of a table view */
 void ComplexDBTableDialog::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
 {
     QModelIndexList deselectedList = deselected.indexes();
@@ -122,7 +138,17 @@ void ComplexDBTableDialog::slotChooseRow(const QItemSelection &selected, const Q
         ui->m_tableContents->update(firstDeselected); // clear remained icons decoration
     }
 
-    QModelIndexList selectedList = selected.indexes();
-    QModelIndex firstSelected = selectedList.first();
+    QModelIndex firstSelected = selected.indexes().first();
     ui->m_tableContents->selectionModel()->select(firstSelected, QItemSelectionModel::Deselect); // this make recursive calling of this slot
+    setIdentityString(firstSelected);
+}
+
+void ComplexDBTableDialog::setIdentityString(const QModelIndex &indexInSelectRow)
+{
+    const QAbstractItemModel *model = indexInSelectRow.model();
+    m_identityData.clear();
+    for (unsigned i = 0; i < m_dbTableInfo->m_idnFields.size(); ++i) {
+        const DBTableInfo::IdentityInfo &info = m_dbTableInfo->m_idnFields.at(i);
+        m_identityData += info.m_strName + model->index(indexInSelectRow.row(), info.m_NField + 1).data().toString();
+    }
 }

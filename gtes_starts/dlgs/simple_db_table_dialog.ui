@@ -63,6 +63,9 @@
    </item>
    <item row="3" column="0" rowspan="5">
     <widget class="QListView" name="m_listvData">
+     <property name="cursor" stdset="0">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Available database table data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>

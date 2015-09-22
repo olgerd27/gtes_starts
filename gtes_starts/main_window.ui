@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>780</width>
+    <width>706</width>
     <height>530</height>
    </rect>
   </property>
@@ -31,6 +31,9 @@
       </property>
       <property name="locale">
        <locale language="Russian" country="Ukraine"/>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="sizeAdjustPolicy">
        <enum>QAbstractScrollArea::AdjustToContents</enum>
@@ -142,8 +145,8 @@ input</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>780</width>
-     <height>25</height>
+     <width>706</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_menuHelp">

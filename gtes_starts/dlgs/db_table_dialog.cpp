@@ -10,28 +10,36 @@
  */
 CustomSqlTableModel::CustomSqlTableModel(QObject *parent)
     : QSqlTableModel(parent)
-    , m_checkedRow(NO_CHECKED_ROW)
-    , m_checkIcon(":/images/ok.png")
+    , m_selectedRow(DONT_SELECTED_ROW)
+    , m_selectIcon(":/images/ok.png")
 {
 }
 
 QVariant CustomSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    return (orientation == Qt::Horizontal && section == 0 && role == Qt::DisplayRole)
-            ? QVariant()
-            : QSqlTableModel::headerData(section, orientation, role);
+    QVariant data;
+    if (orientation == Qt::Horizontal)
+        data = section > SELECT_ICON_COLUMN
+               ? QSqlTableModel::headerData(section - 1, orientation, role)
+               : QVariant();
+    return data;
 }
 
 QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
 {
-    if (!idx.isValid()) return QVariant();
     QVariant data;
-    if (role == Qt::DisplayRole)
-        data = QSqlTableModel::data(idx, Qt::DisplayRole).toString().trimmed();
-    if (idx.column() == 0) {
-        if (role == Qt::DisplayRole) data = QVariant();
-        if (role == Qt::DecorationRole && idx.row() == m_checkedRow) data = m_checkIcon;
+    if (!idx.isValid()) return data;
+
+    if (idx.column() > SELECT_ICON_COLUMN) {
+        QModelIndex indexLeftCell = QSqlTableModel::index(idx.row(), idx.column() - 1);
+        data = QSqlTableModel::data(indexLeftCell, role); // set a data, getted from the neighbor's left cell
+        if (role == Qt::DisplayRole) data = data.toString().trimmed();
     }
+    else {
+        if (role == Qt::DisplayRole) data = QVariant();
+        if (role == Qt::DecorationRole && idx.row() == m_selectedRow) data = m_selectIcon; // set selection icon
+    }
+
     if (role == Qt::TextAlignmentRole) {
         if ( this->data(idx, Qt::DisplayRole).convert(QMetaType::Float) )
             data = Qt::AlignCenter; // center alignment of the numerical values
@@ -42,10 +50,22 @@ QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
 bool CustomSqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_UNUSED(value)
-    if ( index.column() == 0 && role == Qt::DecorationRole )
-        m_checkedRow = index.row();
+    if ( index.column() == SELECT_ICON_COLUMN && role == Qt::DecorationRole )
+        m_selectedRow = index.row();
     emit dataChanged(index, index);
     return true;
+}
+
+int CustomSqlTableModel::columnCount(const QModelIndex &parent) const
+{
+    return QSqlTableModel::columnCount(parent) + 1;
+}
+
+Qt::ItemFlags CustomSqlTableModel::flags(const QModelIndex &index) const
+{
+    return index.column() == columnCount(index.parent()) - 1
+            ? QSqlTableModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable
+            : QSqlTableModel::flags(index) & ~Qt::ItemIsEditable;
 }
 
 /*
@@ -75,4 +95,9 @@ DBTableDialog::DBTableDialog(DBTableInfo *dbTable, QWidget *parent)
 DBTableDialog::~DBTableDialog()
 {
     delete m_model;
+}
+
+QString DBTableDialog::identityString() const
+{
+    return m_identityData;
 }

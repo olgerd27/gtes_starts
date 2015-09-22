@@ -15,16 +15,19 @@ class CustomSqlTableModel : public QSqlTableModel
 {
     Q_OBJECT
 public:
-    CustomSqlTableModel(QObject *parent);
+    CustomSqlTableModel(QObject *parent = 0);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
+    int columnCount(const QModelIndex &parent) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
 private:
-    enum { NO_CHECKED_ROW = -1 };
+    enum { DONT_SELECTED_ROW = -1 };
+    enum { SELECT_ICON_COLUMN = 0 };
 
-    int m_checkedRow;
-    QIcon m_checkIcon;
+    int m_selectedRow;
+    QIcon m_selectIcon;
 };
 
 /*
@@ -37,9 +40,12 @@ public:
     explicit DBTableDialog(DBTableInfo *dbTable, QWidget *parent = 0);
     virtual ~DBTableDialog();
 
+    QString identityString() const;
+
 protected:
     DBTableInfo *m_dbTableInfo;
     CustomSqlTableModel *m_model;
+    QString m_identityData;
 };
 
 #endif // DB_TABLE_DIALOG_H

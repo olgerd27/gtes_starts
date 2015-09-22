@@ -3,6 +3,7 @@
 
 #include <QListWidget>
 #include <QPushButton>
+#include <QLabel>
 #include <QDebug>
 
 /*
@@ -27,20 +28,25 @@ public:
 /*
  * The custom QPushButton class, that store name of the database table, with which this button related.
  */
-class PushButtonKnowsDBTable : public QPushButton
+class PushButtonForEditDBTable : public QPushButton
 {
     Q_OBJECT
 public:
-    PushButtonKnowsDBTable(QWidget *parent)
+    PushButtonForEditDBTable(QWidget *parent)
         : QPushButton(parent)
+        , m_lblData(0)
     {
     }
 
     void setDBTableName(const QString &name) { m_DBTableName = name; }
     QString DBTableName() const { return m_DBTableName; }
 
+    void setDataLabel(QLabel *label) { m_lblData = label; }
+    QLabel * dataLabel() const { return m_lblData; }
+
 private:
     QString m_DBTableName;
+    QLabel *m_lblData;
 };
 
 #endif // REIMPLEMENTED_WIDGETS_H
