@@ -63,7 +63,7 @@ DBInfo::DBInfo()
 {
     m_tables = {
         /* names_engines */
-        new DBTableInfo {"names_engines", QObject::tr("Engines names"),
+        new DBTableInfo { "names_engines", QObject::tr("Engine name"), DBTableInfo::ttype_simple,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
@@ -72,7 +72,7 @@ DBInfo::DBInfo()
         },
 
         /* names_modifications_engines */
-        new DBTableInfo {"names_modifications_engines", QObject::tr("Engines names and modifications"),
+        new DBTableInfo { "names_modifications_engines", QObject::tr("Engine name and modification"), DBTableInfo::ttype_complex,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name_id", QObject::tr("Name"), DBTableFieldInfo::wtype_comboBox, 0},
@@ -82,7 +82,7 @@ DBInfo::DBInfo()
         },
 
         /* identification_data_engines */
-        new DBTableInfo {"identification_data_engines", QObject::tr("Engines identification data"),
+        new DBTableInfo { "identification_data_engines", QObject::tr("Engines identification data"), DBTableInfo::ttype_complex,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name_modif_id", QObject::tr("Name and modification"), DBTableFieldInfo::wtype_comboBox, 0},
@@ -92,7 +92,7 @@ DBInfo::DBInfo()
         },
 
         /* fuels_types */
-        new DBTableInfo {"fuels_types", QObject::tr("Fuel type"),
+        new DBTableInfo { "fuels_types", QObject::tr("Fuel type"), DBTableInfo::ttype_simple,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
@@ -101,7 +101,7 @@ DBInfo::DBInfo()
         },
 
         /* start_devices_types */
-        new DBTableInfo {"start_devices_types", QObject::tr("Start device type"),
+        new DBTableInfo { "start_devices_types", QObject::tr("Start device type"), DBTableInfo::ttype_simple,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
@@ -110,7 +110,7 @@ DBInfo::DBInfo()
         },
 
         /* start_devices */
-        new DBTableInfo {"start_devices", QObject::tr("Start device"),
+        new DBTableInfo { "start_devices", QObject::tr("Start device"), DBTableInfo::ttype_complex,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"device_type_id", QObject::tr("Type"), DBTableFieldInfo::wtype_comboBox, 0},
@@ -126,7 +126,7 @@ DBInfo::DBInfo()
         },
 
         /* injectors_types */
-        new DBTableInfo {"injectors_types", QObject::tr("Injector types"),
+        new DBTableInfo { "injectors_types", QObject::tr("Injector types"), DBTableInfo::ttype_simple,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"name", QObject::tr("Name"), DBTableFieldInfo::wtype_lineEdit, 0}
@@ -135,7 +135,7 @@ DBInfo::DBInfo()
         },
 
         /* combustion_chambers */
-        new DBTableInfo {"combustion_chambers", QObject::tr("Combustion chamber"),
+        new DBTableInfo { "combustion_chambers", QObject::tr("Combustion chamber"), DBTableInfo::ttype_complex,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"draft_number", QObject::tr("Draft number"), DBTableFieldInfo::wtype_lineEdit, 0},
@@ -148,7 +148,7 @@ DBInfo::DBInfo()
         },
 
         /* engines */
-        new DBTableInfo {"engines", QObject::tr("Engine"),
+        new DBTableInfo { "engines", QObject::tr("Engine"), DBTableInfo::ttype_composite,
                          {
                              {"id", QObject::tr("Id"), DBTableFieldInfo::wtype_spinBoxInt, 0},
                              {"identification_id", QObject::tr("Identification"), DBTableFieldInfo::wtype_label, 0},

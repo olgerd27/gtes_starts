@@ -70,7 +70,7 @@
             <property name="maximumSize">
              <size>
               <width>65</width>
-              <height>16777215</height>
+              <height>20</height>
              </size>
             </property>
             <property name="font">
@@ -181,12 +181,6 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
@@ -218,12 +212,6 @@
           </item>
           <item row="3" column="2" colspan="3">
            <widget class="QLabel" name="m_lblChamberData">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
             <property name="frameShape">
              <enum>QFrame::Panel</enum>
             </property>
@@ -258,12 +246,6 @@
           </item>
           <item row="4" column="2" colspan="3">
            <widget class="QLabel" name="m_lblStartDeviceData">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
             <property name="frameShape">
              <enum>QFrame::Panel</enum>
             </property>
@@ -287,24 +269,24 @@
            </widget>
           </item>
           <item row="5" column="0" colspan="2">
-           <widget class="QLabel" name="m_lblStartDeviceQntyTitle">
+           <widget class="QLabel" name="m_lblStartDevicesQntyTitle">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
             <property name="text">
-             <string>Start device quantity:</string>
+             <string>Start devices quantity:</string>
             </property>
             <property name="buddy">
-             <cstring>m_sboxStartDeviceQnty</cstring>
+             <cstring>m_sboxStartDevicesQntyData</cstring>
             </property>
            </widget>
           </item>
           <item row="5" column="2">
-           <widget class="QSpinBox" name="m_sboxStartDeviceQnty">
+           <widget class="QSpinBox" name="m_sboxStartDevicesQntyData">
             <property name="minimumSize">
              <size>
               <width>65</width>
-              <height>20</height>
+              <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -554,7 +536,7 @@
   <tabstop>m_pbEditFuels</tabstop>
   <tabstop>m_pbEditChambers</tabstop>
   <tabstop>m_pbEditStartDevices</tabstop>
-  <tabstop>m_sboxStartDeviceQnty</tabstop>
+  <tabstop>m_sboxStartDevicesQntyData</tabstop>
   <tabstop>m_teComments</tabstop>
   <tabstop>m_tbRecordFirst</tabstop>
   <tabstop>m_tbRecordPrev</tabstop>

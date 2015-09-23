@@ -17,9 +17,9 @@ public:
 
 private:
     enum PanelsIndexes {
-        index_data_input,  // Data input panel index
-        index_queries,     // Queries panel index
-        index_options      // Options panel index
+          index_data_input  // Data input panel index
+        , index_queries     // Queries panel index
+        , index_options     // Options panel index
     };
 
     Ui::MainWindow *ui;

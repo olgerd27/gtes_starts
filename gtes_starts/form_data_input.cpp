@@ -45,14 +45,18 @@ FormDataInput::~FormDataInput()
 /* Factory method for creation some type of a database table dialog */
 DBTableDialog * FormDataInput::createDBTableDialog(DBTableInfo *info)
 {
-    int degree = info->tableDegree();
-    bool fieldWasFound = info->fieldByName("id").isValid();
-    if ( fieldWasFound && degree == 2 )
-        return new SimpleDBTableDialog(info, this);
-    else if ( fieldWasFound && degree > 2 )
-        return new ComplexDBTableDialog(info, this);
-    else
-        return 0;
+    DBTableDialog *dlg = 0;
+    switch (info->m_type) {
+    case DBTableInfo::ttype_simple:
+        dlg = new SimpleDBTableDialog(info, this);
+        break;
+    case DBTableInfo::ttype_complex:
+        dlg = new ComplexDBTableDialog(info, this);
+        break;
+    default:
+        break;
+    }
+    return dlg;
 }
 
 void FormDataInput::slotOpenDBTableDialog()
