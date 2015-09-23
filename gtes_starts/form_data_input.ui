@@ -6,26 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>586</width>
-    <height>416</height>
+    <width>626</width>
+    <height>396</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
-    <number>0</number>
-   </property>
    <item>
     <widget class="QTabWidget" name="m_tabWidget">
      <property name="locale">
@@ -119,290 +107,6 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="m_lblNameTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Name:</string>
-            </property>
-            <property name="buddy">
-             <cstring>m_cboxName</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2" colspan="3">
-           <widget class="QComboBox" name="m_cboxName">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>350</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="5">
-           <widget class="PushButtonForEditDBTable" name="m_pbEditNames">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Edit...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="images_resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="m_lblNumberTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Number:</string>
-            </property>
-            <property name="buddy">
-             <cstring>m_sboxNumber</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QSpinBox" name="m_sboxNumber">
-            <property name="minimumSize">
-             <size>
-              <width>65</width>
-              <height>23</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>65</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="maximum">
-             <number>99999</number>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="m_lblFuelTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Fuel:</string>
-            </property>
-            <property name="buddy">
-             <cstring>m_cboxFuel</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2" colspan="3">
-           <widget class="QComboBox" name="m_cboxFuel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>350</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="5">
-           <widget class="PushButtonForEditDBTable" name="m_pbEditFuels">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Edit...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="images_resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QLabel" name="m_lblChamberTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Combustion chamber:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2" colspan="3">
-           <widget class="QLabel" name="m_lblChamberData">
-            <property name="minimumSize">
-             <size>
-              <width>350</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="5">
-           <widget class="PushButtonForEditDBTable" name="m_pbEditChambers">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Edit...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="images_resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="m_lblStartDeviceTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Start device:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2" colspan="3">
-           <widget class="QLabel" name="m_lblStartDeviceData">
-            <property name="minimumSize">
-             <size>
-              <width>350</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="5">
-           <widget class="PushButtonForEditDBTable" name="m_pbEditStartDevices">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Edit...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="images_resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0" colspan="2">
-           <widget class="QLabel" name="m_lblStartDeviceQntyTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Start device quantity:</string>
-            </property>
-            <property name="buddy">
-             <cstring>m_sboxStartDeviceQnty</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="2">
-           <widget class="QSpinBox" name="m_sboxStartDeviceQnty">
-            <property name="minimumSize">
-             <size>
-              <width>65</width>
-              <height>23</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>65</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="maximum">
-             <number>10</number>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="m_lblCommentsTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Comments:</string>
-            </property>
-            <property name="buddy">
-             <cstring>m_teComments</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="2" rowspan="2" colspan="4">
-           <widget class="QTextEdit" name="m_teComments">
-            <property name="minimumSize">
-             <size>
-              <width>350</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="1">
-           <spacer name="verticalSpacer">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>108</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item row="0" column="4">
            <spacer name="horizontalSpacer">
             <property name="locale">
@@ -419,130 +123,248 @@
             </property>
            </spacer>
           </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QLabel" name="m_lblIdentifTitle">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Identification:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" colspan="3">
+           <widget class="QLabel" name="m_lblIdentifData">
+            <property name="frameShape">
+             <enum>QFrame::Panel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="PushButtonForEditDBTable" name="m_pbEditIdentif">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Edit...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QLabel" name="m_lblFuelTitle">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Fuel:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_cboxFuel</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2" colspan="3">
+           <widget class="QComboBox" name="m_cboxFuel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="5">
+           <widget class="PushButtonForEditDBTable" name="m_pbEditFuels">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Edit...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="m_lblChamberTitle">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Combustion chamber:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2" colspan="3">
+           <widget class="QLabel" name="m_lblChamberData">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Panel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="5">
+           <widget class="PushButtonForEditDBTable" name="m_pbEditChambers">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Edit...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QLabel" name="m_lblStartDeviceTitle">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Start device:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2" colspan="3">
+           <widget class="QLabel" name="m_lblStartDeviceData">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Panel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="5">
+           <widget class="PushButtonForEditDBTable" name="m_pbEditStartDevices">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Edit...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images_resources.qrc">
+              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QLabel" name="m_lblStartDeviceQntyTitle">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Start device quantity:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_sboxStartDeviceQnty</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QSpinBox" name="m_sboxStartDeviceQnty">
+            <property name="minimumSize">
+             <size>
+              <width>65</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>65</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="maximum">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QLabel" name="m_lblCommentsTitle">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="text">
+             <string>Comments:</string>
+            </property>
+            <property name="buddy">
+             <cstring>m_teComments</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2" rowspan="2" colspan="4">
+           <widget class="QTextEdit" name="m_teComments">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <spacer name="verticalSpacer">
+            <property name="locale">
+             <locale language="Russian" country="Ukraine"/>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>108</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
         </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="locale">
-            <locale language="Russian" country="Ukraine"/>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QToolButton" name="m_tbRecordFirst">
-           <property name="toolTip">
-            <string>Go to the first record</string>
-           </property>
-           <property name="locale">
-            <locale language="Russian" country="Ukraine"/>
-           </property>
-           <property name="icon">
-            <iconset resource="images_resources.qrc">
-             <normaloff>:/images/record_first.png</normaloff>:/images/record_first.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="m_tbRecordPrev">
-           <property name="toolTip">
-            <string>Go to the previous record</string>
-           </property>
-           <property name="locale">
-            <locale language="Russian" country="Ukraine"/>
-           </property>
-           <property name="icon">
-            <iconset resource="images_resources.qrc">
-             <normaloff>:/images/record_back.png</normaloff>:/images/record_back.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="m_leRecordId">
-           <property name="minimumSize">
-            <size>
-             <width>75</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>75</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="locale">
-            <locale language="Russian" country="Ukraine"/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="m_tbRecordNext">
-           <property name="toolTip">
-            <string>Go to the next record</string>
-           </property>
-           <property name="locale">
-            <locale language="Russian" country="Ukraine"/>
-           </property>
-           <property name="icon">
-            <iconset resource="images_resources.qrc">
-             <normaloff>:/images/record_next.png</normaloff>:/images/record_next.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="m_tbRecordLast">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the last record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="locale">
-            <locale language="Russian" country="Ukraine"/>
-           </property>
-           <property name="icon">
-            <iconset resource="images_resources.qrc">
-             <normaloff>:/images/record_last.png</normaloff>:/images/record_last.png</iconset>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
        </item>
       </layout>
      </widget>
@@ -593,6 +415,128 @@
      </widget>
     </widget>
    </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="locale">
+        <locale language="Russian" country="Ukraine"/>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="m_tbRecordFirst">
+       <property name="toolTip">
+        <string>Go to the first record</string>
+       </property>
+       <property name="locale">
+        <locale language="Russian" country="Ukraine"/>
+       </property>
+       <property name="icon">
+        <iconset resource="images_resources.qrc">
+         <normaloff>:/images/record_first.png</normaloff>:/images/record_first.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="m_tbRecordPrev">
+       <property name="toolTip">
+        <string>Go to the previous record</string>
+       </property>
+       <property name="locale">
+        <locale language="Russian" country="Ukraine"/>
+       </property>
+       <property name="icon">
+        <iconset resource="images_resources.qrc">
+         <normaloff>:/images/record_back.png</normaloff>:/images/record_back.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="m_leRecordId">
+       <property name="minimumSize">
+        <size>
+         <width>75</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>75</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="locale">
+        <locale language="Russian" country="Ukraine"/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="m_tbRecordNext">
+       <property name="toolTip">
+        <string>Go to the next record</string>
+       </property>
+       <property name="locale">
+        <locale language="Russian" country="Ukraine"/>
+       </property>
+       <property name="icon">
+        <iconset resource="images_resources.qrc">
+         <normaloff>:/images/record_next.png</normaloff>:/images/record_next.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="m_tbRecordLast">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Go to the last record&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="locale">
+        <locale language="Russian" country="Ukraine"/>
+       </property>
+       <property name="icon">
+        <iconset resource="images_resources.qrc">
+         <normaloff>:/images/record_last.png</normaloff>:/images/record_last.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -605,9 +549,7 @@
  <tabstops>
   <tabstop>m_tabWidget</tabstop>
   <tabstop>m_tbDeleteEngine</tabstop>
-  <tabstop>m_cboxName</tabstop>
-  <tabstop>m_pbEditNames</tabstop>
-  <tabstop>m_sboxNumber</tabstop>
+  <tabstop>m_pbEditIdentif</tabstop>
   <tabstop>m_cboxFuel</tabstop>
   <tabstop>m_pbEditFuels</tabstop>
   <tabstop>m_pbEditChambers</tabstop>

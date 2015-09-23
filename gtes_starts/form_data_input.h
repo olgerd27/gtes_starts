@@ -21,7 +21,7 @@ private slots:
     void slotOpenDBTableDialog();
 
 private:
-    void setDBTableNames();
+    void setPBtnsForEditDBTables();
     DBTableDialog * createDBTableDialog(DBTableInfo *info);
 
     Ui::FormDataInput *ui;

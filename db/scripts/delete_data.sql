@@ -22,7 +22,10 @@ DELETE FROM gtes_starts.settings_names;
 
 DELETE FROM gtes_starts.engines;
 
-DELETE FROM gtes_starts.engines_names;
+DELETE FROM gtes_starts.identification_data_engines;
+DELETE FROM gtes_starts.names_modifications_engines;
+DELETE FROM gtes_starts.names_engines;
+
 DELETE FROM gtes_starts.fuels_types;
 DELETE FROM gtes_starts.start_devices;
 DELETE FROM gtes_starts.start_devices_types;

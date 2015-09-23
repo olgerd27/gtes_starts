@@ -13,23 +13,28 @@ FormDataInput::FormDataInput(QWidget *parent)
     , ui(new Ui::FormDataInput)
 {
     ui->setupUi(this);
-    setDBTableNames();
-
-    const char *slotMethod = SLOT(slotOpenDBTableDialog());
-    connect(ui->m_pbEditNames, SIGNAL(clicked()), this, slotMethod);
-    connect(ui->m_pbEditFuels, SIGNAL(clicked()), this, slotMethod);
-    connect(ui->m_pbEditChambers, SIGNAL(clicked()), this, slotMethod);
-    connect(ui->m_pbEditStartDevices, SIGNAL(clicked()), this, slotMethod);
+    setPBtnsForEditDBTables();
 }
 
-void FormDataInput::setDBTableNames()
+void FormDataInput::setPBtnsForEditDBTables()
 {
-    ui->m_pbEditNames->setDBTableName("engines_names");
+    const char *sigCommon = SIGNAL(clicked()); // the common signal for all push buttons
+    const char *slotCommon = SLOT(slotOpenDBTableDialog()); // the common slot for all push buttons
+
+    ui->m_pbEditIdentif->setDBTableName("identification_data_engines");
+    ui->m_pbEditIdentif->setDataLabel( ui->m_lblIdentifData );
+    connect(ui->m_pbEditIdentif, sigCommon, slotCommon);
+
     ui->m_pbEditFuels->setDBTableName("fuels_types");
+    connect(ui->m_pbEditFuels, sigCommon, slotCommon);
+
     ui->m_pbEditChambers->setDBTableName("combustion_chambers");
     ui->m_pbEditChambers->setDataLabel( ui->m_lblChamberData );
+    connect(ui->m_pbEditChambers, sigCommon, slotCommon);
+
     ui->m_pbEditStartDevices->setDBTableName("start_devices");
     ui->m_pbEditStartDevices->setDataLabel( ui->m_lblStartDeviceData );
+    connect(ui->m_pbEditStartDevices, sigCommon, slotCommon);
 }
 
 FormDataInput::~FormDataInput()

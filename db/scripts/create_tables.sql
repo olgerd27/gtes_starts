@@ -49,13 +49,34 @@ CREATE TABLE IF NOT EXISTS start_devices (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# engines
-CREATE TABLE IF NOT EXISTS engines_names (
+# identification data
+CREATE TABLE IF NOT EXISTS names_engines (
     id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
+CREATE TABLE IF NOT EXISTS names_modifications_engines (
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+    name_id SMALLINT UNSIGNED NOT NULL,
+    modification VARCHAR(20),
+    PRIMARY KEY (id),
+    FOREIGN KEY (name_id)
+        REFERENCES names_engines (id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+)  ENGINE InnoDB CHARACTER SET cp1251;
+
+CREATE TABLE IF NOT EXISTS identification_data_engines (
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+    name_modif_id MEDIUMINT UNSIGNED NOT NULL,
+    number SMALLINT UNSIGNED,
+    PRIMARY KEY (id),
+        FOREIGN KEY (name_modif_id)
+        REFERENCES names_modifications_engines (id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+)  ENGINE InnoDB CHARACTER SET cp1251;
+
+# engines
 CREATE TABLE IF NOT EXISTS fuels_types (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(20) NOT NULL,
@@ -64,16 +85,15 @@ CREATE TABLE IF NOT EXISTS fuels_types (
 
 CREATE TABLE IF NOT EXISTS engines (
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-    name_id SMALLINT UNSIGNED NOT NULL,
-    number SMALLINT UNSIGNED,
+    identification_id MEDIUMINT UNSIGNED NOT NULL,
     fuel_type_id TINYINT UNSIGNED NOT NULL,
     combustion_chamber_id MEDIUMINT UNSIGNED,
     start_device_id SMALLINT UNSIGNED,
     start_devices_quantity TINYINT UNSIGNED,
     comments VARCHAR(250),
     PRIMARY KEY (id),
-    FOREIGN KEY (name_id)
-        REFERENCES engines_names (id)
+    FOREIGN KEY (identification_id)
+        REFERENCES identification_data_engines (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (fuel_type_id)
         REFERENCES fuels_types (id)

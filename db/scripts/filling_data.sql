@@ -1,8 +1,18 @@
 # Insertion the test data to the DB
 
-LOAD DATA LOCAL INFILE 'D:/work/Starts_data_base/development/project/db/scripts/test_data/engines_names.dat'
+LOAD DATA LOCAL INFILE 'D:/work/Starts_data_base/development/project/db/scripts/test_data/names_engines.dat'
 REPLACE
-INTO TABLE gtes_starts.engines_names
+INTO TABLE gtes_starts.names_engines
+CHARACTER SET cp1251;
+
+LOAD DATA LOCAL INFILE 'D:/work/Starts_data_base/development/project/db/scripts/test_data/names_modifications_engines.dat'
+REPLACE
+INTO TABLE gtes_starts.names_modifications_engines
+CHARACTER SET cp1251;
+
+LOAD DATA LOCAL INFILE 'D:/work/Starts_data_base/development/project/db/scripts/test_data/identification_data_engines.dat'
+REPLACE
+INTO TABLE gtes_starts.identification_data_engines
 CHARACTER SET cp1251;
 
 LOAD DATA LOCAL INFILE 'D:/work/Starts_data_base/development/project/db/scripts/test_data/fuels_types.dat'
