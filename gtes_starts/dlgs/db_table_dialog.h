@@ -43,6 +43,8 @@ public:
     QString identityString() const;
 
 protected:
+    void setWidgetTitle();
+
     DBTableInfo *m_dbTableInfo;
     CustomSqlTableModel *m_model;
     QString m_identityData;

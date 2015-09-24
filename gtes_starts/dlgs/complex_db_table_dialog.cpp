@@ -92,6 +92,7 @@ ComplexDBTableDialog::ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent
     , ui(new Ui::ComplexDBTableDialog)
 {
     ui->setupUi(this);
+    setWidgetTitle();
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
     setContentsUI();
     setEditingUI();

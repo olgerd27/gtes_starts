@@ -101,3 +101,8 @@ QString DBTableDialog::identityString() const
 {
     return m_identityData;
 }
+
+void DBTableDialog::setWidgetTitle()
+{
+    setWindowTitle( tr("Edit the table: ") + m_dbTableInfo->m_nameInUI );
+}

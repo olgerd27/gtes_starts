@@ -13,17 +13,21 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../images_resources.qrc">
+    <normaloff>:/images/choice_list_data_input.png</normaloff>:/images/choice_list_data_input.png</iconset>
+  </property>
   <property name="locale">
    <locale language="Russian" country="Ukraine"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="m_gboxDBTable">
+    <widget class="QGroupBox" name="m_gboxSelectData">
      <property name="locale">
       <locale language="Russian" country="Ukraine"/>
      </property>
      <property name="title">
-      <string>Contents of the [table_name]</string>
+      <string>Data selection</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" rowspan="3">
@@ -126,7 +130,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="m_gboxEditing">
+    <widget class="QGroupBox" name="m_gboxEditingData">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -134,7 +138,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Editing the [table_name]</string>
+      <string>Data editing</string>
      </property>
     </widget>
    </item>

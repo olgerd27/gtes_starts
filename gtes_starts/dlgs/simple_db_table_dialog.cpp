@@ -48,6 +48,7 @@ SimpleDBTableDialog::SimpleDBTableDialog(DBTableInfo *dbTable, QWidget *parent)
     , ui(new Ui::SimpleDBTableDialog)
 {
     ui->setupUi(this);
+    setWidgetTitle();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setDBdataView();
 }
