@@ -2,8 +2,6 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QSqlTableModel>
-#include <QStringListModel> // TODO: delete?
-#include <QSortFilterProxyModel> // TODO: delete?
 #include <QDebug>
 
 #include "simple_db_table_dialog.h"

@@ -1,4 +1,6 @@
 #include <QSqlQuery>
+#include <QDataWidgetMapper>
+#include <QSqlRecord> // TODO: delete?
 #include <QDebug>
 #include <memory>
 
@@ -11,12 +13,18 @@
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FormDataInput)
+    , m_enginesModel(new QSqlQueryModel(this))
+    , m_mapper(new QDataWidgetMapper(this))
 {
     ui->setupUi(this);
-    setPBtnsForEditDBTables();
+    setPushBtnsForEditDBTables();
+    populateData();
+    setRecordsNavigation();
+    // TODO: set int validator for ui->m_leRecordId line edit
 }
 
-void FormDataInput::setPBtnsForEditDBTables()
+/* set push buttons, that call some widget for editing DB tables */
+void FormDataInput::setPushBtnsForEditDBTables()
 {
     const char *sigCommon = SIGNAL(clicked()); // the common signal for all push buttons
     const char *slotCommon = SLOT(slotOpenDBTableDialog()); // the common slot for all push buttons
@@ -37,9 +45,49 @@ void FormDataInput::setPBtnsForEditDBTables()
     connect(ui->m_pbEditStartDevices, sigCommon, slotCommon);
 }
 
+void FormDataInput::populateData()
+{
+    m_enginesModel->setQuery("SELECT * FROM engines");
+    m_mapper->setModel(m_enginesModel);
+    m_mapper->addMapping(ui->m_lblIdData, 0);
+    m_mapper->addMapping(ui->m_lblIdentifData, 1);
+    m_mapper->addMapping(ui->m_cboxFuel, 2);
+    m_mapper->addMapping(ui->m_lblChamberData, 3);
+    m_mapper->addMapping(ui->m_lblStartDeviceData, 4);
+    m_mapper->addMapping(ui->m_sboxStartDevicesQntyData, 5);
+    m_mapper->addMapping(ui->m_teComments, 6);
+    m_mapper->toFirst();
+}
+
+void FormDataInput::setRecordsNavigation()
+{
+    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst()));
+    connect(ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(toLast()));
+    connect(ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper, SLOT(toPrevious()));
+    connect(ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper, SLOT(toNext()));
+    connect(ui->m_leRecordId, SIGNAL(returnPressed()), this, SLOT(slotNeedChangeMapperIndex()));
+    connect(this, SIGNAL(sigChangeMapperIndex(int)), m_mapper, SLOT(setCurrentIndex(int)));
+    connect(this, SIGNAL(sigWrongIdEntered()), ui->m_leRecordId, SLOT(clear()));
+}
+
 FormDataInput::~FormDataInput()
 {
     delete ui;
+}
+
+
+void FormDataInput::slotNeedChangeMapperIndex()
+{
+    int enteredId = ui->m_leRecordId->text().toInt();
+    for (int row = 0; row < m_enginesModel->rowCount(); ++row) {
+        if (m_enginesModel->record(row).value(0).toInt() == enteredId) {
+            emit sigChangeMapperIndex(row);
+            return;
+        }
+    }
+    // TODO: implement showing the error message box
+    qDebug() << tr("The engine with id=%1 does not exists. Please enter id value of an existent engine").arg(enteredId);
+    emit sigWrongIdEntered();
 }
 
 /* Factory method for creation some type of a database table dialog */
@@ -93,4 +141,9 @@ void FormDataInput::slotOpenDBTableDialog()
         QString identStr = dialog->identityString();
         if (!identStr.isEmpty()) pbKDBT->dataLabel()->setText( identStr );
     }
+}
+
+void FormDataInput::slotTemp()
+{
+    qDebug() << "calling temp slot";
 }

@@ -469,6 +469,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Inputing concrete engine id value</string>
+       </property>
        <property name="locale">
         <locale language="Russian" country="Ukraine"/>
        </property>
