@@ -7,7 +7,6 @@
 /*
  * Field
  */
-class DBTableInfo;
 struct DBTableFieldInfo
 {
     enum WidgetsTypes
@@ -23,10 +22,10 @@ struct DBTableFieldInfo
 
     bool isValid() const;
 
-    QString m_nameInDB;             /* a field name, used in database */
-    QString m_nameInUI;             /* a field name, used in user interface */
-    WidgetsTypes m_widgetType;      /* a type of a widget, used for showing data of this table filed */
-    DBTableInfo *m_ptrForeignTable; /* a pointer to the other table. It is a foreign key */
+    QString m_nameInDB;         /* a field name, used in database */
+    QString m_nameInUI;         /* a field name, used in user interface */
+    WidgetsTypes m_widgetType;  /* a type of a widget, used for showing data of this table filed */
+    QString m_relationDBTable;  /* a name of another relational database table. It is like a foreign key */
 };
 
 /*
