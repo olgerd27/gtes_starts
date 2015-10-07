@@ -2,12 +2,10 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QSqlTableModel>
-#include <QStringListModel> // TODO: delete?
-#include <QSortFilterProxyModel> // TODO: delete?
 #include <QDebug>
 
-#include "simple_db_table_dialog.h"
-#include "ui_simple_db_table_dialog.h"
+#include "simple_dbt_editor.h"
+#include "ui_simple_dbt_editor.h"
 #include "db_info.h"
 
 /*
@@ -41,19 +39,19 @@ public:
 };
 
 /*
- * SimpleDBTableDialog
+ * SimpleDBTEditor
  */
-SimpleDBTableDialog::SimpleDBTableDialog(DBTableInfo *dbTable, QWidget *parent)
-    : DBTableDialog(dbTable, parent)
-    , ui(new Ui::SimpleDBTableDialog)
+SimpleDBTEditor::SimpleDBTEditor(DBTInfo *dbtInfo, QWidget *parent)
+    : DBTEditor(dbtInfo, parent)
+    , ui(new Ui::SimpleDBTEditor)
 {
     ui->setupUi(this);
-    setWidgetTitle();
+    setWindowName();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setDBdataView();
 }
 
-void SimpleDBTableDialog::setDBdataView()
+void SimpleDBTEditor::setDBdataView()
 {
     // ListView settings
     QListView *view = ui->m_listvData;
@@ -64,12 +62,12 @@ void SimpleDBTableDialog::setDBdataView()
     connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), this, SLOT(slotSetFilter(QString)));
 }
 
-SimpleDBTableDialog::~SimpleDBTableDialog()
+SimpleDBTEditor::~SimpleDBTEditor()
 {
     delete ui;
 }
 
-void SimpleDBTableDialog::slotSetFilter(const QString &strFilter)
+void SimpleDBTEditor::slotSetFilter(const QString &strFilter)
 {
     m_model->setFilter("name LIKE '%" + strFilter + "%'");
 }

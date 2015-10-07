@@ -60,17 +60,17 @@
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QLabel" name="m_lblIdData">
-            <property name="minimumSize">
-             <size>
-              <width>65</width>
-              <height>20</height>
-             </size>
+           <widget class="QLineEdit" name="m_leIdData">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
             <property name="maximumSize">
              <size>
               <width>65</width>
-              <height>20</height>
+              <height>16777215</height>
              </size>
             </property>
             <property name="font">
@@ -79,35 +79,12 @@
               <bold>true</bold>
              </font>
             </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
           <item row="0" column="3">
-           <widget class="QToolButton" name="m_tbDeleteEngine">
-            <property name="toolTip">
-             <string>Delete current engine</string>
-            </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="icon">
-             <iconset resource="images_resources.qrc">
-              <normaloff>:/images/clear_output.png</normaloff>:/images/clear_output.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
            <spacer name="horizontalSpacer">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
@@ -124,35 +101,32 @@
            </spacer>
           </item>
           <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="m_lblIdentifTitle">
+           <widget class="QLabel" name="m_lblFullNameTitle">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
             <property name="text">
-             <string>Identification:</string>
+             <string>Full name:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="2" colspan="3">
-           <widget class="QLabel" name="m_lblIdentifData">
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
-            </property>
-            <property name="text">
-             <string/>
+          <item row="1" column="2" colspan="2">
+           <widget class="QLineEdit" name="m_leFullNameData">
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="5">
-           <widget class="PushButtonForEditDBTable" name="m_pbEditIdentif">
+          <item row="1" column="4">
+           <widget class="PBtnForEditDBT" name="m_pbEditFullName">
+            <property name="styleSheet">
+             <string notr="true">text-align: left</string>
+            </property>
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
             <property name="text">
-             <string>Edit...</string>
+             <string>Select/Edit</string>
             </property>
             <property name="icon">
              <iconset resource="images_resources.qrc">
@@ -160,7 +134,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
+          <item row="2" column="0">
            <widget class="QLabel" name="m_lblFuelTitle">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
@@ -173,7 +147,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="2" colspan="3">
+          <item row="2" column="2" colspan="2">
            <widget class="QComboBox" name="m_cboxFuel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -186,13 +160,16 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="5">
-           <widget class="PushButtonForEditDBTable" name="m_pbEditFuels">
+          <item row="2" column="4">
+           <widget class="PBtnForEditDBT" name="m_pbEditFuels">
+            <property name="styleSheet">
+             <string notr="true">text-align: left</string>
+            </property>
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
             <property name="text">
-             <string>Edit...</string>
+             <string>Edit</string>
             </property>
             <property name="icon">
              <iconset resource="images_resources.qrc">
@@ -210,23 +187,23 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2" colspan="3">
-           <widget class="QLabel" name="m_lblChamberData">
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
+          <item row="3" column="2" colspan="2">
+           <widget class="QLineEdit" name="m_leChamberData">
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="3" column="5">
-           <widget class="PushButtonForEditDBTable" name="m_pbEditChambers">
+          <item row="3" column="4">
+           <widget class="PBtnForEditDBT" name="m_pbEditChambers">
+            <property name="styleSheet">
+             <string notr="true">text-align: left</string>
+            </property>
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
             <property name="text">
-             <string>Edit...</string>
+             <string>Select/Edit</string>
             </property>
             <property name="icon">
              <iconset resource="images_resources.qrc">
@@ -244,23 +221,23 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2" colspan="3">
-           <widget class="QLabel" name="m_lblStartDeviceData">
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
+          <item row="4" column="2" colspan="2">
+           <widget class="QLineEdit" name="m_leStartDeviceData">
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="4" column="5">
-           <widget class="PushButtonForEditDBTable" name="m_pbEditStartDevices">
+          <item row="4" column="4">
+           <widget class="PBtnForEditDBT" name="m_pbEditStartDevices">
+            <property name="styleSheet">
+             <string notr="true">text-align: left</string>
+            </property>
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
             </property>
             <property name="text">
-             <string>Edit...</string>
+             <string>Select/Edit</string>
             </property>
             <property name="icon">
              <iconset resource="images_resources.qrc">
@@ -283,12 +260,6 @@
           </item>
           <item row="5" column="2">
            <widget class="QSpinBox" name="m_sboxStartDevicesQntyData">
-            <property name="minimumSize">
-             <size>
-              <width>65</width>
-              <height>0</height>
-             </size>
-            </property>
             <property name="maximumSize">
              <size>
               <width>65</width>
@@ -303,7 +274,7 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
+          <item row="6" column="0">
            <widget class="QLabel" name="m_lblCommentsTitle">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
@@ -316,7 +287,7 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="2" rowspan="2" colspan="4">
+          <item row="6" column="2" rowspan="2" colspan="3">
            <widget class="QTextEdit" name="m_teComments">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -469,6 +440,9 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Inputing concrete engine id value</string>
+       </property>
        <property name="locale">
         <locale language="Russian" country="Ukraine"/>
        </property>
@@ -523,15 +497,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButtonForEditDBTable</class>
+   <class>PBtnForEditDBT</class>
    <extends>QPushButton</extends>
    <header>reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>m_tabWidget</tabstop>
-  <tabstop>m_tbDeleteEngine</tabstop>
-  <tabstop>m_pbEditIdentif</tabstop>
+  <tabstop>m_pbEditFullName</tabstop>
   <tabstop>m_cboxFuel</tabstop>
   <tabstop>m_pbEditFuels</tabstop>
   <tabstop>m_pbEditChambers</tabstop>

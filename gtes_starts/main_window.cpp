@@ -1,12 +1,15 @@
+#include <QStyledItemDelegate>
+#include <QMessageBox>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
+
 #include "main_window.h"
 #include "ui_main_window.h"
 #include "form_data_input.h"
 #include "form_queries.h"
 #include "form_options.h"
-#include "core_app.h"
-
-#include <QStyledItemDelegate>
-#include <QDebug>
 
 class DelegateListIconsLeft : public QStyledItemDelegate
 {
@@ -31,6 +34,45 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(ui->m_listChoice));
 
+    /*
+     * Open database connection
+     * TODO: move to the external class for manipulation with DB
+     */
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("localhost");
+    db.setPort(3306);
+    db.setUserName("root");
+    db.setPassword("optimus27");
+    db.setDatabaseName("gtes_starts");
+    if (!db.open()) {
+        QMessageBox::critical(0, "Don't connected", QString("Cannot connect to database with the next settings:\n"
+                                                            "\thostname: '%1'\n"
+                                                            "\tport: '%2'\n"
+                                                            "\tusername: '%3'\n"
+                                                            "\tpassword: '%4'\n\n"
+                                                            "The error message: %5")
+                              .arg(db.hostName()).arg(db.port()).arg(db.userName()).arg(db.password()).arg(db.lastError().text()));
+    }
+//    qDebug() << "main: Is DB open? " << db.isOpen();
+
+//    QSqlQuery query("SELECT * FROM gtes_starts.graphs_parameters_type;");
+//    while (query.next()) {
+//        int id = query.value(0).toInt();
+//        QString symbol = query.value(1).toString();
+//        QString fullname = query.value(2).toString();
+//        QString units = query.value(3).toString().trimmed();
+//        qDebug() << id << "\t" << symbol << "\t" << fullname << "\t" << units;
+//    }
+
+//    QSqlQuery query("SELECT * FROM gtes_starts.graphs_parameters_values;");
+//    while (query.next()) {
+//        int id = query.value(0).toInt();
+//        int par_type_id = query.value(1).toInt();
+//        QByteArray par_values = query.value(2).toByteArray().trimmed();
+//        qDebug() << id << "\t" << par_type_id << "\t" << par_values;
+//    }
+//    qDebug() << "Last error:" << db.lastError().text();
+
     QStackedWidget *sw = ui->m_stackForms;
     sw->insertWidget(index_data_input, new FormDataInput(sw));
     sw->insertWidget(index_queries, new FormQueries(sw));
@@ -43,4 +85,5 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    QSqlDatabase::database().close(); // TODO: move to the external class for manipulation with DB
 }

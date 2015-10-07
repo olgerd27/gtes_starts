@@ -7,7 +7,7 @@
 /*
  * Field
  */
-struct DBTableFieldInfo
+struct DBTFieldInfo
 {
     enum WidgetsTypes
     {
@@ -29,9 +29,9 @@ struct DBTableFieldInfo
 };
 
 /*
- * Table
+ * Table (DBT - database table)
  */
-struct DBTableInfo
+struct DBTInfo
 {
     struct IdentityInfo
     {
@@ -40,7 +40,7 @@ struct DBTableInfo
         int m_NField;       /* number of an identity field */
     };
 
-    typedef std::vector<DBTableFieldInfo> T_arrTableInfos;
+    typedef std::vector<DBTFieldInfo> T_arrTableInfos;
     typedef std::vector<IdentityInfo> T_arrIdentityFields;
 
     enum TableTypes
@@ -53,8 +53,8 @@ struct DBTableInfo
     enum { NO_IDENTITY_FIELD = -1 };
 
     int tableDegree() const;
-    DBTableFieldInfo fieldByName(const QString &fieldName) const;
-    DBTableFieldInfo fieldByIndex(int index) const;
+    DBTFieldInfo fieldByName(const QString &fieldName) const;
+    DBTFieldInfo fieldByIndex(int index) const;
 
     QString m_nameInDB;                 /* a table name, used in database */
     QString m_nameInUI;                 /* a table name, used in user interface */
@@ -76,14 +76,14 @@ struct DBInfo
 
     ~DBInfo();
     QString name() const;
-    DBTableInfo *findTable(const QString &tableName) const;
+    DBTInfo *findTable(const QString &tableName) const;
 
 private:
     DBInfo();
     DBInfo(const DBInfo &) = delete;
     DBInfo & operator=(const DBInfo &) = delete;
 
-    std::vector<DBTableInfo *> m_tables; /* array of all DB tables */
+    std::vector<DBTInfo *> m_tables; /* array of all DB tables */
 };
 #define DBINFO DBInfo::Instance()
 
