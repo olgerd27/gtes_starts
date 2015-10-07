@@ -2,7 +2,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QDebug>
-#include "db_table_dialog.h"
+#include "editor_dbt.h"
 #include "db_info.h"
 
 /*
@@ -69,12 +69,12 @@ Qt::ItemFlags CustomSqlTableModel::flags(const QModelIndex &index) const
 }
 
 /*
- * DBTableDialog
+ * DBTEditor
  */
-DBTableDialog::DBTableDialog(DBTableInfo *dbTable, QWidget *parent)
+DBTEditor::DBTEditor(DBTInfo *dbTable, QWidget *parent)
     : QDialog(parent)
-    , m_dbTableInfo(dbTable)
-    , m_model(new CustomSqlTableModel(this))
+    , m_DBTInfo(dbTable)
+    , m_model(new CustomSqlTableModel)
 {
     m_model->setTable(dbTable->m_nameInDB);
     m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -83,7 +83,7 @@ DBTableDialog::DBTableDialog(DBTableInfo *dbTable, QWidget *parent)
         return;
     }
     for (int field = 0; field < dbTable->tableDegree(); ++field) {
-        DBTableFieldInfo fieldInfo = dbTable->fieldByIndex(field);
+        DBTFieldInfo fieldInfo = dbTable->fieldByIndex(field);
         if (!fieldInfo.isValid()) {
             qDebug() << "Error #XXX. Cannot forming the header of the database table \"" + dbTable->m_nameInDB << "\"";
             return;
@@ -92,17 +92,17 @@ DBTableDialog::DBTableDialog(DBTableInfo *dbTable, QWidget *parent)
     }
 }
 
-DBTableDialog::~DBTableDialog()
+DBTEditor::~DBTEditor()
 {
     delete m_model;
 }
 
-QString DBTableDialog::identityString() const
+QString DBTEditor::identificationData() const
 {
-    return m_identityData;
+    return m_identificationData;
 }
 
-void DBTableDialog::setWidgetTitle()
+void DBTEditor::setWindowName()
 {
-    setWindowTitle( tr("Edit the table: ") + m_dbTableInfo->m_nameInUI );
+    setWindowTitle( tr("Editing the table: ") + m_DBTInfo->m_nameInUI );
 }

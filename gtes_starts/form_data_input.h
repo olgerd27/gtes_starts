@@ -6,10 +6,11 @@
 namespace Ui {
     class FormDataInput;
 }
-class DBTableDialog;
-class DBTableInfo;
-class QSqlQueryModel;
+class DBTEditor;
+class DBTInfo;
+class QSqlTableModel;
 class QDataWidgetMapper;
+class PBtnForEditDBT;
 
 class FormDataInput : public QWidget
 {
@@ -21,21 +22,24 @@ public:
 
 signals:
     void sigChangeMapperIndex(int index);
+    void sigSaveData(); // NOTE: for signals connection
     void sigWrongIdEntered();
 
 private slots:
     void slotNeedChangeMapperIndex();
-    void slotOpenDBTableDialog();
+    void slotSubmit();
+    void slotEditDBT();
     void slotTemp();
 
 private:
-    void setPushBtnsForEditDBTables();
+    void setEditDBTPushButtons();
+    void setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, QWidget *identWidget);
     void populateData();
     void setRecordsNavigation();
-    DBTableDialog * createDBTableDialog(DBTableInfo *info);
+    DBTEditor * createDBTEditor(DBTInfo *info);
 
     Ui::FormDataInput *ui;
-    QSqlQueryModel *m_enginesModel;
+    QSqlTableModel *m_enginesModel;
     QDataWidgetMapper *m_mapper;
 };
 

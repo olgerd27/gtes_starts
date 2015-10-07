@@ -3,8 +3,6 @@
 
 #include <QListWidget>
 #include <QPushButton>
-#include <QLabel>
-#include <QDebug>
 
 /*
  * The custom QListWidget class, that resize itself for making all content data visible.
@@ -12,41 +10,28 @@
 class ResizableWidgetList : public QListWidget
 {
 public:
-    ResizableWidgetList(QWidget *parent = 0)
-        : QListWidget(parent)
-    {
-    }
-
-    QSize sizeHint() const
-    {
-        QSize sizeContent = QListWidget::contentsSize();
-        sizeContent.rwidth() += 5;
-        return sizeContent;
-    }
+    ResizableWidgetList(QWidget *parent = 0);
+    QSize sizeHint() const;
 };
 
 /*
  * The custom QPushButton class, that store name of the database table, with which this button related.
  */
-class PushButtonForEditDBTable : public QPushButton
+class PBtnForEditDBT : public QPushButton
 {
     Q_OBJECT
 public:
-    PushButtonForEditDBTable(QWidget *parent)
-        : QPushButton(parent)
-        , m_lblData(0)
-    {
-    }
+    PBtnForEditDBT(QWidget *parent = 0);
 
-    void setDBTableName(const QString &name) { m_DBTableName = name; }
-    QString DBTableName() const { return m_DBTableName; }
+    void setDBTableName(const QString &name);
+    QString DBTableName() const;
 
-    void setDataLabel(QLabel *label) { m_lblData = label; }
-    QLabel * dataLabel() const { return m_lblData; }
+    void setIdentDataWidget(QWidget *wgt);
+    void setIdentData(const QString &data);
 
 private:
     QString m_DBTableName;
-    QLabel *m_lblData;
+    QWidget *m_identWgt;
 };
 
 #endif // REIMPLEMENTED_WIDGETS_H

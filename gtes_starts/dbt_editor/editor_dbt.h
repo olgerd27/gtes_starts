@@ -1,11 +1,11 @@
-#ifndef DB_TABLE_DIALOG_H
-#define DB_TABLE_DIALOG_H
+#ifndef EDITER_DBT_H
+#define EDITER_DBT_H
 
-#include <QDialog>
 #include <QSqlTableModel>
 #include <QIcon>
+#include <QDialog>
 
-class DBTableInfo;
+class DBTInfo;
 
 /*
  * The custom QSqlTableModel class, that remove unnecessary characters from the end of every data item.
@@ -31,23 +31,24 @@ private:
 };
 
 /*
- * Base class for dialogs, used for editing database tables data.
+ * The base class for editing database tables (DBT)
  */
-class DBTableDialog : public QDialog
+class DBTEditor : public QDialog
 {
     Q_OBJECT
-public:
-    explicit DBTableDialog(DBTableInfo *dbTable, QWidget *parent = 0);
-    virtual ~DBTableDialog();
 
-    QString identityString() const;
+public:
+    explicit DBTEditor(DBTInfo *dbTable, QWidget *parent = 0);
+    virtual ~DBTEditor();
+
+    QString identificationData() const;
 
 protected:
-    void setWidgetTitle();
+    void setWindowName();
 
-    DBTableInfo *m_dbTableInfo;
+    DBTInfo *m_DBTInfo;
     CustomSqlTableModel *m_model;
-    QString m_identityData;
+    QString m_identificationData;
 };
 
-#endif // DB_TABLE_DIALOG_H
+#endif // EDITER_DBT_H

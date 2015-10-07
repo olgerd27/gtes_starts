@@ -5,8 +5,8 @@
 #include <QHeaderView>
 #include <QItemSelection>
 #include <QDebug>
-#include "complex_db_table_dialog.h"
-#include "ui_complex_db_table_dialog.h"
+#include "complex_dbt_editor.h"
+#include "ui_complex_dbt_editor.h"
 #include "db_info.h"
 
 /*
@@ -85,20 +85,20 @@ private:
 };
 
 /*
- * ComplexDBTableDialog
+ * ComplexDBTEditor
  */
-ComplexDBTableDialog::ComplexDBTableDialog(DBTableInfo *dbTable, QWidget *parent)
-    : DBTableDialog(dbTable, parent)
-    , ui(new Ui::ComplexDBTableDialog)
+ComplexDBTEditor::ComplexDBTEditor(DBTInfo *dbtInfo, QWidget *parent)
+    : DBTEditor(dbtInfo, parent)
+    , ui(new Ui::ComplexDBTEditor)
 {
     ui->setupUi(this);
-    setWidgetTitle();
+    setWindowName();
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
     setContentsUI();
     setEditingUI();
 }
 
-void ComplexDBTableDialog::setContentsUI()
+void ComplexDBTEditor::setContentsUI()
 {
     QTableView *view = ui->m_tableContents;
     view->setModel(m_model);
@@ -111,18 +111,18 @@ void ComplexDBTableDialog::setContentsUI()
             this, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
 }
 
-void ComplexDBTableDialog::setEditingUI()
+void ComplexDBTEditor::setEditingUI()
 {
     // TODO: code here
 }
 
-ComplexDBTableDialog::~ComplexDBTableDialog()
+ComplexDBTEditor::~ComplexDBTEditor()
 {
     delete ui;
 }
 
 /* perform choosing by a user some row of a table view */
-void ComplexDBTableDialog::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
+void ComplexDBTEditor::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
 {
     QModelIndexList deselectedList = deselected.indexes();
 
@@ -141,15 +141,15 @@ void ComplexDBTableDialog::slotChooseRow(const QItemSelection &selected, const Q
 
     QModelIndex firstSelected = selected.indexes().first();
     ui->m_tableContents->selectionModel()->select(firstSelected, QItemSelectionModel::Deselect); // this make recursive calling of this slot
-    setIdentityString(firstSelected);
+    setIdentificationData(firstSelected);
 }
 
-void ComplexDBTableDialog::setIdentityString(const QModelIndex &indexInSelectRow)
+void ComplexDBTEditor::setIdentificationData(const QModelIndex &indexInSelectRow)
 {
     const QAbstractItemModel *model = indexInSelectRow.model();
-    m_identityData.clear();
-    for (unsigned i = 0; i < m_dbTableInfo->m_idnFields.size(); ++i) {
-        const DBTableInfo::IdentityInfo &info = m_dbTableInfo->m_idnFields.at(i);
-        m_identityData += info.m_strName + model->index(indexInSelectRow.row(), info.m_NField + 1).data().toString();
+    m_identificationData.clear();
+    for (unsigned i = 0; i < m_DBTInfo->m_idnFields.size(); ++i) {
+        const DBTInfo::IdentityInfo &info = m_DBTInfo->m_idnFields.at(i);
+        m_identificationData += info.m_strName + model->index(indexInSelectRow.row(), info.m_NField + 1).data().toString();
     }
 }

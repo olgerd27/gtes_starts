@@ -14,29 +14,29 @@ SOURCES += main.cpp\
     form_queries.cpp \
     form_data_input.cpp \
     form_options.cpp \
-    core_app.cpp \
-    dlgs/db_table_dialog.cpp \
-    dlgs/simple_db_table_dialog.cpp \
-    dlgs/complex_db_table_dialog.cpp \
-    db_info.cpp
+    dbt_editor/editor_dbt.cpp \
+    db_info.cpp \
+    reimplemented_widgets.cpp \
+    dbt_editor/complex_dbt_editor.cpp \
+    dbt_editor/simple_dbt_editor.cpp
 
 HEADERS  += main_window.h \
     form_queries.h \
     form_data_input.h \
     form_options.h \
     reimplemented_widgets.h \
-    core_app.h \
-    dlgs/db_table_dialog.h \
-    dlgs/complex_db_table_dialog.h \
-    dlgs/simple_db_table_dialog.h \
-    db_info.h
+    dbt_editor/editor_dbt.h \
+    db_info.h \
+    dbt_editor/complex_dbt_editor.h \
+    dbt_editor/simple_dbt_editor.h
 
 FORMS    += main_window.ui \
     form_queries.ui \
     form_data_input.ui \
     form_options.ui \
-    dlgs/simple_db_table_dialog.ui \
-    dlgs/complex_db_table_dialog.ui
+    dbt_editor/complex_dbt_editor.ui \
+    dbt_editor/simple_dbt_editor.ui \
+    dbt_editor/simple_dbt_editor2.ui
 
 OTHER_FILES += \
     _aux/requirements.txt
