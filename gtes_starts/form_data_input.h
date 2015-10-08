@@ -8,7 +8,7 @@ namespace Ui {
 }
 class DBTEditor;
 class DBTInfo;
-class QSqlTableModel;
+class QSqlRelationalTableModel;
 class QDataWidgetMapper;
 class PBtnForEditDBT;
 
@@ -39,7 +39,7 @@ private:
     DBTEditor * createDBTEditor(DBTInfo *info);
 
     Ui::FormDataInput *ui;
-    QSqlTableModel *m_enginesModel;
+    QSqlRelationalTableModel *m_enginesModel;
     QDataWidgetMapper *m_mapper;
 };
 

@@ -160,10 +160,10 @@ DBInfo::DBInfo()
             "engines", QObject::tr("Engine"), DBTInfo::ttype_composite,
             {
                   {"id", QObject::tr("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
-                , {"identification_id", QObject::tr("Identification"), DBTFieldInfo::wtype_label, "identification_data_engines"}
+                , {"identification_id", QObject::tr("Identification"), DBTFieldInfo::wtype_lineEdit, "identification_data_engines"}
                 , {"fuel_type_id", QObject::tr("Fuel type"), DBTFieldInfo::wtype_comboBox, "fuels_types"}
-                , {"combustion_chamber_id", QObject::tr("Combustion chamber"), DBTFieldInfo::wtype_label, "combustion_chambers"}
-                , {"start_device_id", QObject::tr("Start device"), DBTFieldInfo::wtype_label, "start_devices"}
+                , {"combustion_chamber_id", QObject::tr("Combustion chamber"), DBTFieldInfo::wtype_lineEdit, "combustion_chambers"}
+                , {"start_device_id", QObject::tr("Start device"), DBTFieldInfo::wtype_lineEdit, "start_devices"}
                 , {"start_devices_quantity", QObject::tr("Start device quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"comments", QObject::tr("Comments"), DBTFieldInfo::wtype_textEdit, ""}
             },

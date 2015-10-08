@@ -150,6 +150,6 @@ void ComplexDBTEditor::setIdentificationData(const QModelIndex &indexInSelectRow
     m_identificationData.clear();
     for (unsigned i = 0; i < m_DBTInfo->m_idnFields.size(); ++i) {
         const DBTInfo::IdentityInfo &info = m_DBTInfo->m_idnFields.at(i);
-        m_identificationData += info.m_strName + model->index(indexInSelectRow.row(), info.m_NField + 1).data().toString();
+        m_identificationData += info.m_strBefore + model->index(indexInSelectRow.row(), info.m_NField + 1).data().toString();
     }
 }

@@ -1,4 +1,6 @@
 #include <QSqlQuery>
+#include <QSqlRelationalTableModel>
+#include <QSqlRelationalDelegate>
 #include <QDataWidgetMapper>
 #include <QSqlError>
 #include <QSqlRecord> // TODO: delete?
@@ -14,7 +16,7 @@
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FormDataInput)
-    , m_enginesModel(new QSqlTableModel(this))
+    , m_enginesModel(new QSqlRelationalTableModel(this))
     , m_mapper(new QDataWidgetMapper(this))
 {
     ui->setupUi(this);
@@ -44,15 +46,23 @@ void FormDataInput::populateData()
 {
     m_enginesModel->setTable("engines");
     m_enginesModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    m_enginesModel->setRelation(1, QSqlRelation("identification_data_engines", "id", "name_modif_id"));
+    m_enginesModel->setRelation(2, QSqlRelation("fuels_types", "id", "name"));
 
+    // set combo box
+    ui->m_cboxFuel->setModel(m_enginesModel->relationModel(2));
+    ui->m_cboxFuel->setModelColumn(1);
+
+    // set mapper
     m_mapper->setModel(m_enginesModel);
+    m_mapper->setItemDelegate(new QSqlRelationalDelegate(m_mapper));
     m_mapper->addMapping(ui->m_leIdData, 0);
     m_mapper->addMapping(ui->m_leFullNameData, 1);
     m_mapper->addMapping(ui->m_cboxFuel, 2);
     m_mapper->addMapping(ui->m_leChamberData, 3);
     m_mapper->addMapping(ui->m_leStartDeviceData, 4);
     m_mapper->addMapping(ui->m_sboxStartDevicesQntyData, 5);
-    m_mapper->addMapping(ui->m_teComments, 6);
+    m_mapper->addMapping(ui->m_teComments, 6); // TODO: save plain text (without any html tags)
 
     m_enginesModel->select();
     m_mapper->toFirst();
@@ -60,7 +70,7 @@ void FormDataInput::populateData()
 
 void FormDataInput::setRecordsNavigation()
 {
-//    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst()));
+//    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst())); // TODO: the right functional connection
     connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(submit()));
     connect(ui->m_tbRecordFirst, SIGNAL(clicked()), this, SLOT(slotSubmit()));
 

@@ -35,9 +35,9 @@ struct DBTInfo
 {
     struct IdentityInfo
     {
-        /* An identity string is: [m_strName + m_NField] */
-        QString m_strName;  /* comment to the identity field number */
-        int m_NField;       /* number of an identity field */
+        /* An identity string is: [m_strBefore + m_NField] */
+        QString m_strBefore;    /* string, before the identity field number (like a some comment) */
+        int m_NField;           /* number of an identity field */
     };
 
     typedef std::vector<DBTFieldInfo> T_arrTableInfos;
