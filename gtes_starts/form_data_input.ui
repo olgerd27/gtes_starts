@@ -506,5 +506,22 @@
  <resources>
   <include location="images_resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>m_leIdData</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>m_leRecordId</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>177</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

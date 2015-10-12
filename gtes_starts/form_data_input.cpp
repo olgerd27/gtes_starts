@@ -27,7 +27,6 @@ FormDataInput::FormDataInput(QWidget *parent)
 
     connect(this, SIGNAL(sigSaveData()), m_mapper, SLOT(submit())); // submit data from the mapper's widgets to the model
     connect(this, SIGNAL(sigSaveData()), this, SLOT(slotSubmit())); // submit data from the model to the DB
-    // TODO: set int validator for ui->m_leRecordId line edit
 }
 
 /* set push buttons, that call some widget for editing DB tables */
@@ -76,6 +75,8 @@ void FormDataInput::populateData()
 
 void FormDataInput::setRecordsNavigation()
 {
+    ui->m_leRecordId->setValidator(new QIntValidator(0, 1e6, this)); /* set validator that control inputing only integer values
+                                                                        in range between 0 and 1e6 */
     connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst()));
     connect(ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(toLast()));
     connect(ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper, SLOT(toPrevious()));
@@ -91,7 +92,6 @@ FormDataInput::~FormDataInput()
 {
     delete ui;
 }
-
 
 void FormDataInput::slotNeedChangeMapperIndex()
 {
