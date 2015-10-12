@@ -4,6 +4,7 @@
 #include <QDataWidgetMapper>
 #include <QSqlError>
 #include <QSqlRecord> // TODO: delete?
+#include <QMessageBox>
 #include <QDebug>
 #include <memory>
 
@@ -101,29 +102,24 @@ void FormDataInput::slotNeedChangeMapperIndex()
             return;
         }
     }
-    // TODO: implement showing the error message box
-    qDebug() << tr("The engine with id=%1 does not exists. Please enter id value of an existent engine").arg(enteredId);
+    QMessageBox::warning(this, tr("Error engine ""id"" value"),
+                         tr("The engine with id=%1 does not exists. Please enter id value of an existent engine").arg(enteredId));
     emit sigWrongIdEntered();
 }
 
 void FormDataInput::slotSubmit()
 {
-    qDebug() << "Submiting...";
-    if (!m_enginesModel->database().transaction()) {
-        qDebug() << "Critical error: The used database driver do not support the transactions operations";
-        // TODO: show message box
-    }
-    if (m_enginesModel->submitAll()) {
+    if (!m_enginesModel->database().transaction())
+        QMessageBox::critical(this, tr("Database transaction error"),
+                              tr("The database driver do not support the transactions operations"));
+    if (m_enginesModel->submitAll())
         m_enginesModel->database().commit();
-        qDebug() << "successfull submiting";
-    }
     else {
         m_enginesModel->database().rollback();
-        qDebug() << tr("Cannot submit data to the database. The database report an error: %1")
-                    .arg(m_enginesModel->lastError().text());
-        // TODO: show message box
+        QMessageBox::critical(this, tr("Error data submit to the database"),
+                              tr("Cannot submit data to the database. The database report an error: %1")
+                              .arg(m_enginesModel->lastError().text()));
     }
-    qDebug() << "DONE\n";
 }
 
 /* Factory method for creation some type of a database table dialog */
@@ -147,22 +143,28 @@ void FormDataInput::slotEditDBT()
 {
     PBtnForEditDBT *pbEditDBT = qobject_cast<PBtnForEditDBT *>(sender());
     if ( !pbEditDBT ) {
-        // TODO: Generate the error #XXX: Invalid push button. Consult with an application developer.
-        qDebug() << "Generate the error #1: Invalid push button. Consult with an application developer.";
+        QMessageBox::critical(this, tr("Invalid widget"),
+                              tr("Cannot open the dialog."
+                                 "The reason are: clicked on an unexpected widget."
+                                 "Please consult with the application developer for fixing this problem."));
         return;
     }
 
     DBTInfo *DBTInfo = DBINFO.tableByName(pbEditDBT->DBTableName());
     if ( !DBTInfo ) {
-        // TODO: Generate the error #XXX: Invalid push button. Cannot define the database table. Consult with an application developer.
-        qDebug() << "Generate the error #2: Invalid push button. Cannot define the database table. Consult with an application developer.";
+        QMessageBox::critical(this, tr("Invalid push button"),
+                              tr("Cannot open the dialog."
+                                 "The reason are: cannot define the database table - pressed unknown push button."
+                                 "Please consult with the application developer for fixing this problem."));
         return;
     }
 
     std::shared_ptr<DBTEditor> editor(createDBTEditor(DBTInfo));
     if ( !editor.operator bool() ) {
-        // TODO: Generate the error #XXX: Invalid push button. Cannot define the created dialog type. Consult with an application developer.
-        qDebug() << "Generate the error #3: Invalid push button. Cannot define the created dialog type. Consult with an application developer.";
+        QMessageBox::critical(this, tr("Invalid database table information"),
+                              tr("Cannot open the dialog."
+                                 "The reason are: cannot define the created dialog type, database table information is incorrect."
+                                 "Please consult with the application developer for fixing this problem."));
         return;
     }
 
