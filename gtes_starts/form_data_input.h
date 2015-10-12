@@ -22,7 +22,7 @@ public:
 
 signals:
     void sigChangeMapperIndex(int index);
-    void sigSaveData(); // NOTE: for signals connection
+    void sigSaveData();
     void sigWrongIdEntered();
 
 private slots:

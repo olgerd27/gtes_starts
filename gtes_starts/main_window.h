@@ -15,6 +15,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+private slots:
+    void slotAboutApp();
+
 private:
     enum PanelsIndexes {
           index_data_input  // Data input panel index

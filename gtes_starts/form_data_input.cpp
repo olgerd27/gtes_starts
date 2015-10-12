@@ -23,6 +23,9 @@ FormDataInput::FormDataInput(QWidget *parent)
     setEditDBTPushButtons();
     populateData();
     setRecordsNavigation();
+
+    connect(this, SIGNAL(sigSaveData()), m_mapper, SLOT(submit())); // submit data from the mapper's widgets to the model
+    connect(this, SIGNAL(sigSaveData()), this, SLOT(slotSubmit())); // submit data from the model to the DB
     // TODO: set int validator for ui->m_leRecordId line edit
 }
 
@@ -48,12 +51,14 @@ void FormDataInput::populateData()
     m_enginesModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
     m_enginesModel->setRelation(1, QSqlRelation("identification_data_engines", "id", "name_modif_id"));
     m_enginesModel->setRelation(2, QSqlRelation("fuels_types", "id", "name"));
+    m_enginesModel->setRelation(3, QSqlRelation("combustion_chambers", "id", "draft_number"));
 
     // set combo box
     ui->m_cboxFuel->setModel(m_enginesModel->relationModel(2));
     ui->m_cboxFuel->setModelColumn(1);
 
     // set mapper
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     m_mapper->setModel(m_enginesModel);
     m_mapper->setItemDelegate(new QSqlRelationalDelegate(m_mapper));
     m_mapper->addMapping(ui->m_leIdData, 0);
@@ -62,7 +67,7 @@ void FormDataInput::populateData()
     m_mapper->addMapping(ui->m_leChamberData, 3);
     m_mapper->addMapping(ui->m_leStartDeviceData, 4);
     m_mapper->addMapping(ui->m_sboxStartDevicesQntyData, 5);
-    m_mapper->addMapping(ui->m_teComments, 6); // TODO: save plain text (without any html tags)
+    m_mapper->addMapping(ui->m_pteComments, 6);
 
     m_enginesModel->select();
     m_mapper->toFirst();
@@ -70,10 +75,7 @@ void FormDataInput::populateData()
 
 void FormDataInput::setRecordsNavigation()
 {
-//    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst())); // TODO: the right functional connection
-    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(submit()));
-    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), this, SLOT(slotSubmit()));
-
+    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst()));
     connect(ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(toLast()));
     connect(ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper, SLOT(toPrevious()));
     connect(ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper, SLOT(toNext()));
@@ -106,25 +108,22 @@ void FormDataInput::slotNeedChangeMapperIndex()
 
 void FormDataInput::slotSubmit()
 {
-    qDebug() << "submiting:\n1";
+    qDebug() << "Submiting...";
     if (!m_enginesModel->database().transaction()) {
         qDebug() << "Critical error: The used database driver do not support the transactions operations";
         // TODO: show message box
     }
-    qDebug() << "2";
     if (m_enginesModel->submitAll()) {
-        qDebug() << "3";
         m_enginesModel->database().commit();
-        qDebug() << "4";
+        qDebug() << "successfull submiting";
     }
     else {
-        qDebug() << "5";
         m_enginesModel->database().rollback();
         qDebug() << tr("Cannot submit data to the database. The database report an error: %1")
                     .arg(m_enginesModel->lastError().text());
         // TODO: show message box
     }
-    qDebug() << "6";
+    qDebug() << "DONE\n";
 }
 
 /* Factory method for creation some type of a database table dialog */
@@ -153,7 +152,7 @@ void FormDataInput::slotEditDBT()
         return;
     }
 
-    DBTInfo *DBTInfo = DBINFO.findTable(pbEditDBT->DBTableName());
+    DBTInfo *DBTInfo = DBINFO.tableByName(pbEditDBT->DBTableName());
     if ( !DBTInfo ) {
         // TODO: Generate the error #XXX: Invalid push button. Cannot define the database table. Consult with an application developer.
         qDebug() << "Generate the error #2: Invalid push button. Cannot define the database table. Consult with an application developer.";

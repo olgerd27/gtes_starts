@@ -5,7 +5,7 @@
 #include <vector>
 
 /*
- * Field
+ * Database table (DBT) field info
  */
 struct DBTFieldInfo
 {
@@ -17,7 +17,7 @@ struct DBTFieldInfo
         , wtype_comboBox
         , wtype_spinBoxInt
         , wtype_spinBoxDouble
-        , wtype_textEdit
+        , wtype_plainTextEdit
     };
 
     bool isValid() const;
@@ -29,7 +29,7 @@ struct DBTFieldInfo
 };
 
 /*
- * Table (DBT - database table)
+ * Database table (DBT) info
  */
 struct DBTInfo
 {
@@ -64,7 +64,7 @@ struct DBTInfo
 };
 
 /*
- * Database
+ * Database info
  */
 struct DBInfo
 {
@@ -76,7 +76,7 @@ struct DBInfo
 
     ~DBInfo();
     QString name() const;
-    DBTInfo *findTable(const QString &tableName) const;
+    DBTInfo * tableByName(const QString &tableName) const;
 
 private:
     DBInfo();

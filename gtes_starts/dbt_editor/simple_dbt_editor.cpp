@@ -40,6 +40,7 @@ public:
 
 /*
  * SimpleDBTEditor
+ * TODO: add the revert push button on this window, as in example "Cached table"
  */
 SimpleDBTEditor::SimpleDBTEditor(DBTInfo *dbtInfo, QWidget *parent)
     : DBTEditor(dbtInfo, parent)

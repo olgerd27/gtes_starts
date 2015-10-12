@@ -86,6 +86,7 @@ private:
 
 /*
  * ComplexDBTEditor
+ * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
  */
 ComplexDBTEditor::ComplexDBTEditor(DBTInfo *dbtInfo, QWidget *parent)
     : DBTEditor(dbtInfo, parent)

@@ -175,7 +175,7 @@ input</string>
     <property name="title">
      <string>Operations</string>
     </property>
-    <addaction name="m_actNewEngine"/>
+    <addaction name="m_actCreateEngine"/>
     <addaction name="m_actDeleteEngine"/>
     <addaction name="m_actSave"/>
     <addaction name="m_actRefresh"/>
@@ -209,7 +209,7 @@ input</string>
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="m_actNewEngine"/>
+   <addaction name="m_actCreateEngine"/>
    <addaction name="m_actDeleteEngine"/>
    <addaction name="m_actSave"/>
    <addaction name="m_actRefresh"/>
@@ -218,13 +218,13 @@ input</string>
    <addaction name="m_actDisconnectFromDB"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="m_actNewEngine">
+  <action name="m_actCreateEngine">
    <property name="icon">
     <iconset resource="images_resources.qrc">
      <normaloff>:/images/Add.png</normaloff>:/images/Add.png</iconset>
    </property>
    <property name="text">
-    <string>New engine</string>
+    <string>Create engine</string>
    </property>
    <property name="toolTip">
     <string>Create a new engine</string>
@@ -260,7 +260,7 @@ input</string>
      <normaloff>:/images/document-properties.png</normaloff>:/images/document-properties.png</iconset>
    </property>
    <property name="text">
-    <string>About app</string>
+    <string>About application</string>
    </property>
    <property name="toolTip">
     <string>Show information about this application</string>

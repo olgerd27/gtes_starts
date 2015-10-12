@@ -69,7 +69,9 @@ DBInfo::DBInfo()
                   {"id", QObject::tr("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"name", QObject::tr("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
-            { {"#", 0}, {", ", 1} }
+            {
+                {"", 1}
+            }
         },
 
         /* names_modifications_engines */
@@ -80,7 +82,9 @@ DBInfo::DBInfo()
                 , {"name_id", QObject::tr("Name"), DBTFieldInfo::wtype_comboBox, "names_engines"}
                 , {"modification", QObject::tr("Modification"), DBTFieldInfo::wtype_lineEdit, ""}
             },
-            { {"#", 0}, {", ", 1}, {" ", 2} }
+            {
+                {"", 1}, {" ", 2}
+            }
         },
 
         /* identification_data_engines */
@@ -91,7 +95,9 @@ DBInfo::DBInfo()
                 , {"name_modif_id", QObject::tr("Name and modification"), DBTFieldInfo::wtype_comboBox, "names_modifications_engines"}
                 , {"number", QObject::tr("Number"), DBTFieldInfo::wtype_spinBoxInt, ""}
             },
-            { {"#", 0}, {", ", 1}, {QString(" %1").arg(QObject::tr("#")), 2} }
+            {
+                {"", 1}, {QString(" %1").arg(QObject::tr("#")), 2}
+            }
         },
 
         /* fuels_types */
@@ -101,7 +107,9 @@ DBInfo::DBInfo()
                   {"id", QObject::tr("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"name", QObject::tr("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
-            { {"#", 0}, {", ", 1} }
+            {
+                {"", 1}
+            }
         },
 
         /* start_devices_types */
@@ -111,7 +119,9 @@ DBInfo::DBInfo()
                   {"id", QObject::tr("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"name", QObject::tr("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
-            { {"#", 0}, {", ", 1} }
+            {
+                {"", 1}
+            }
         },
 
         /* start_devices */
@@ -126,9 +136,11 @@ DBInfo::DBInfo()
                 , {"kp", QObject::tr("kp"), DBTFieldInfo::wtype_spinBoxDouble, ""}
                 , {"f1", QObject::tr("f1"), DBTFieldInfo::wtype_spinBoxDouble, ""}
                 , {"f2", QObject::tr("f2"), DBTFieldInfo::wtype_spinBoxDouble, ""}
-                , {"comments", QObject::tr("Comments"), DBTFieldInfo::wtype_textEdit, ""}
+                , {"comments", QObject::tr("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
-            { {"#", 0}, {", ", 2} }
+            {
+                {"#", 0}, {", ", 2}
+            }
         },
 
         /* injectors_types */
@@ -138,7 +150,9 @@ DBInfo::DBInfo()
                   {"id", QObject::tr("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"name", QObject::tr("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
-            { {"#", 0}, {", ", 1} }
+            {
+                {"", 1}
+            }
         },
 
         /* combustion_chambers */
@@ -150,9 +164,11 @@ DBInfo::DBInfo()
                 , {"flue_tubes_quantity", QObject::tr("Flue tubes quantity"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"injectors_type_id", QObject::tr("Injector type"), DBTFieldInfo::wtype_comboBox, "injectors_types"}
                 , {"igniters_quantity", QObject::tr("Igniters quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
-                , {"comments", QObject::tr("Comments"), DBTFieldInfo::wtype_textEdit, ""}
+                , {"comments", QObject::tr("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
-            { {"#", 0}, {", ", 1} }
+            {
+                {"#", 0}, {", ", 1}
+            }
         },
 
         /* engines */
@@ -165,9 +181,11 @@ DBInfo::DBInfo()
                 , {"combustion_chamber_id", QObject::tr("Combustion chamber"), DBTFieldInfo::wtype_lineEdit, "combustion_chambers"}
                 , {"start_device_id", QObject::tr("Start device"), DBTFieldInfo::wtype_lineEdit, "start_devices"}
                 , {"start_devices_quantity", QObject::tr("Start device quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
-                , {"comments", QObject::tr("Comments"), DBTFieldInfo::wtype_textEdit, ""}
+                , {"comments", QObject::tr("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
-            { {"#", 0}, {", ", 1}, {QString(", %1: ").arg(QObject::tr("fuel")), 2} }
+            {
+                {"#", 0}, {", ", 1}, {QString(", %1: ").arg(QObject::tr("fuel")), 2}
+            }
         }
     };
 }
@@ -187,7 +205,7 @@ QString DBInfo::name() const
     return "gtes_starts";
 }
 
-DBTInfo * DBInfo::findTable(const QString &tableName) const
+DBTInfo * DBInfo::tableByName(const QString &tableName) const
 {
     auto it = std::find_if(m_tables.begin(), m_tables.end(), CompareInfoWithString<DBTInfo>(tableName));
     return it == m_tables.end() ? 0 : *it;

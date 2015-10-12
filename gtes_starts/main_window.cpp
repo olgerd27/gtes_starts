@@ -74,16 +74,38 @@ MainWindow::MainWindow(QWidget *parent) :
 //    qDebug() << "Last error:" << db.lastError().text();
 
     QStackedWidget *sw = ui->m_stackForms;
-    sw->insertWidget(index_data_input, new FormDataInput(sw));
+    FormDataInput *fDataInput = new FormDataInput(sw);
+    sw->insertWidget(index_data_input, fDataInput);
     sw->insertWidget(index_queries, new FormQueries(sw));
     sw->insertWidget(index_options, new FormOptions(sw));
 
     // signals & slots connections
     connect(ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));
+
+    // actions
+    connect(ui->m_actSave, SIGNAL(triggered()), fDataInput, SIGNAL(sigSaveData()));
+    connect(ui->m_actAboutApp, SIGNAL(triggered()), this, SLOT(slotAboutApp()));
+    connect(ui->m_actAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
     QSqlDatabase::database().close(); // TODO: move to the external class for manipulation with DB
+    delete ui;
+}
+
+void MainWindow::slotAboutApp()
+{
+    // TODO: figure out how to use QObject::tr() function and QString::arg() for inserting some data in a string dynamically.
+    QString winTitle = windowTitle();
+    // TODO: write correct "About application" text
+    QString text = QString("The <b>") + winTitle + "</b> application.<br>"
+                   "The application helps to study any language words and its translations.<br><br>"
+                   "<b>Version 1.0</b> (freeware).<br><br>"
+                   "The programm is provided \"AS IS\" with no warranty of any kind, "
+                   "including the warranty of design, merchantability and "
+                   "fitness for a particular purpose.<br><br>"
+                   "Copyright: (c) Matiyuk Oleg. Created by the group of starts characteristics of GTE's.<br>"
+                   "Mykolaiv, Ukraine - 2014-2015.";
+    QMessageBox::about(this, tr("About %1").arg(winTitle), tr(text.toUtf8()));
 }

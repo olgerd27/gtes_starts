@@ -100,7 +100,7 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="0" colspan="2">
+          <item row="1" column="0">
            <widget class="QLabel" name="m_lblFullNameTitle">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
@@ -211,7 +211,7 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="4" column="0">
            <widget class="QLabel" name="m_lblStartDeviceTitle">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
@@ -282,23 +282,10 @@
             <property name="text">
              <string>Comments:</string>
             </property>
-            <property name="buddy">
-             <cstring>m_teComments</cstring>
-            </property>
            </widget>
           </item>
           <item row="6" column="2" rowspan="2" colspan="3">
-           <widget class="QTextEdit" name="m_teComments">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-           </widget>
+           <widget class="QPlainTextEdit" name="m_pteComments"/>
           </item>
           <item row="7" column="1">
            <spacer name="verticalSpacer">
@@ -510,7 +497,6 @@
   <tabstop>m_pbEditChambers</tabstop>
   <tabstop>m_pbEditStartDevices</tabstop>
   <tabstop>m_sboxStartDevicesQntyData</tabstop>
-  <tabstop>m_teComments</tabstop>
   <tabstop>m_tbRecordFirst</tabstop>
   <tabstop>m_tbRecordPrev</tabstop>
   <tabstop>m_leRecordId</tabstop>
