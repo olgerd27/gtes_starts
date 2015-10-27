@@ -105,12 +105,14 @@ QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 QString CustomSqlTableModel::getDisplayData(const QString &tableName, QVariant varId) const
 {
     qDebug() << "getDisplayData()";
+    /* get the "id" integer value */
     bool b = false;
     int id = varId.toInt(&b);
     if (!b) {
         qDebug() << "Error! Title: Invalid conversion. Message: Cannot convert the foreign key value \"" << varId << "\" to the integer type";
         return varId.toString();
     }
+
     /******************************** Queries autogeneration **************************************/
 //    QString strQuery("SELECT ");
     QString strRes("");
@@ -185,19 +187,14 @@ CustomSqlRelationalDelegate::~CustomSqlRelationalDelegate()
 
 void CustomSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-//        qDebug() << "CustomSqlRelationalDelegate::setModelData(): row =" << index.row() << ", col =" << index.column();
-//        qDebug() << "dataD:" << index.data(Qt::DisplayRole).toString();
-//        qDebug() << "dataE:" << index.data(Qt::EditRole).toString();
-//        QSqlRelationalDelegate::setModelData(editor, model, index);
-//        qDebug() << "--- end setModeldata() ---";
+    if (!index.isValid())
+        return;
 
-//    if (!index.isValid())
-//        return;
-
-//    QSqlTableModel *sqlTable = qobject_cast<QSqlTableModel *>(model);
-//    if (!sqlTable) return;
-//    const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(sqlTable->tableName(), index.column());
-//    if ()
+    QSqlTableModel *sqlTable = qobject_cast<QSqlTableModel *>(model);
+    if (!sqlTable) return;
+    const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(sqlTable->tableName(), index.column());
+    if (!fieldInf.isForeign())
+        QItemDelegate::setModelData(editor, model, index);
 
 //    model->setData(index, "?", Qt::DisplayRole);
 //    QItemDelegate::setModelData(editor, model, index);
