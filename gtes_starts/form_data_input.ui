@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>626</width>
-    <height>396</height>
+    <height>406</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -111,11 +111,7 @@
            </widget>
           </item>
           <item row="1" column="2" colspan="2">
-           <widget class="QLineEdit" name="m_leFullNameData">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
+           <widget class="QLineEdit" name="m_leFullNameData"/>
           </item>
           <item row="1" column="4">
            <widget class="PBtnForEditDBT" name="m_pbEditFullName">
@@ -520,6 +516,22 @@
     <hint type="destinationlabel">
      <x>511</x>
      <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_leRecordId</sender>
+   <signal>editingFinished()</signal>
+   <receiver>m_leRecordId</receiver>
+   <slot>selectAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>485</x>
+     <y>382</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>534</x>
+     <y>382</y>
     </hint>
    </hints>
   </connection>

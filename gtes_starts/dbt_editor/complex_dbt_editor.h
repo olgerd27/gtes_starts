@@ -12,7 +12,7 @@ class ComplexDBTEditor : public DBTEditor
 {
     Q_OBJECT
 public:
-    explicit ComplexDBTEditor(DBTInfo *dbtInfo, QWidget *parent = 0);
+    explicit ComplexDBTEditor(dbi::DBTInfo *dbtInfo, QWidget *parent = 0);
     virtual ~ComplexDBTEditor();
 
 private slots:
@@ -21,7 +21,9 @@ private slots:
 private:
     void setContentsUI();
     void setEditingUI();
-    void setIdentificationData(const QModelIndex &indexInSelectRow);
+    virtual void makeSelect(int row);
+    void setSelectedId(int selectedRow);
+    void setIdentificationData(const QModelIndex &indexInSelectRow); // TODO: maybe delete?
 
     Ui::ComplexDBTEditor *ui;
 };

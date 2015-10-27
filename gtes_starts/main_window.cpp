@@ -105,7 +105,7 @@ void MainWindow::slotAboutApp()
                    "The programm is provided \"AS IS\" with no warranty of any kind, "
                    "including the warranty of design, merchantability and "
                    "fitness for a particular purpose.<br><br>"
-                   "Copyright: (c) Matiyuk Oleg. Created by the group of starts characteristics of GTE's.<br>"
+                   "Copyright: (c) Matiyuk Oleg. Created by the group of GTE's starts characteristics.<br>"
                    "Mykolaiv, Ukraine - 2014-2015.";
     QMessageBox::about(this, tr("About %1").arg(winTitle), tr(text.toUtf8()));
 }

@@ -2,6 +2,7 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QSqlTableModel>
+#include <QMessageBox>
 #include <QDebug>
 
 #include "simple_dbt_editor.h"
@@ -42,12 +43,11 @@ public:
  * SimpleDBTEditor
  * TODO: add the revert push button on this window, as in example "Cached table"
  */
-SimpleDBTEditor::SimpleDBTEditor(DBTInfo *dbtInfo, QWidget *parent)
+SimpleDBTEditor::SimpleDBTEditor(dbi::DBTInfo *dbtInfo, QWidget *parent)
     : DBTEditor(dbtInfo, parent)
     , ui(new Ui::SimpleDBTEditor)
 {
     ui->setupUi(this);
-    setWindowName();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setDBdataView();
 }
@@ -59,8 +59,13 @@ void SimpleDBTEditor::setDBdataView()
     view->setItemDelegate(new HighlightListDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
     view->setModel(m_model);
-    view->setModelColumn(2); // column number is 2, as the 0-th column is check icon and 1-th is "id"
+    view->setModelColumn(col_firstWithData); // column number is 2, as the 0-th column is check icon and 1-th is "id"
     connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), this, SLOT(slotSetFilter(QString)));
+}
+
+void SimpleDBTEditor::makeSelect(int row)
+{
+    ui->m_listvData->selectionModel()->select( m_model->index(row, col_firstWithData), QItemSelectionModel::Select );
 }
 
 SimpleDBTEditor::~SimpleDBTEditor()

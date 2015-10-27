@@ -88,12 +88,11 @@ private:
  * ComplexDBTEditor
  * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
  */
-ComplexDBTEditor::ComplexDBTEditor(DBTInfo *dbtInfo, QWidget *parent)
+ComplexDBTEditor::ComplexDBTEditor(dbi::DBTInfo *dbtInfo, QWidget *parent)
     : DBTEditor(dbtInfo, parent)
     , ui(new Ui::ComplexDBTEditor)
 {
     ui->setupUi(this);
-    setWindowName();
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
     setContentsUI();
     setEditingUI();
@@ -122,6 +121,11 @@ ComplexDBTEditor::~ComplexDBTEditor()
     delete ui;
 }
 
+void ComplexDBTEditor::makeSelect(int row)
+{
+    ui->m_tableContents->selectRow(row);
+}
+
 /* perform choosing by a user some row of a table view */
 void ComplexDBTEditor::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
 {
@@ -142,7 +146,14 @@ void ComplexDBTEditor::slotChooseRow(const QItemSelection &selected, const QItem
 
     QModelIndex firstSelected = selected.indexes().first();
     ui->m_tableContents->selectionModel()->select(firstSelected, QItemSelectionModel::Deselect); // this make recursive calling of this slot
-    setIdentificationData(firstSelected);
+    setSelectedId(firstSelected.row()); /* NOTE: sometimes the selected.indexes() list has only 1 item, because of it there are
+                                           used only a row number of the first item in the selected.indexes() list */
+    setIdentificationData(firstSelected); // TODO: maybe delete
+}
+
+void ComplexDBTEditor::setSelectedId(int selectedRow)
+{
+    m_selectedId = m_model->index(selectedRow, 1).data().toInt();
 }
 
 void ComplexDBTEditor::setIdentificationData(const QModelIndex &indexInSelectRow)
@@ -150,7 +161,7 @@ void ComplexDBTEditor::setIdentificationData(const QModelIndex &indexInSelectRow
     const QAbstractItemModel *model = indexInSelectRow.model();
     m_identificationData.clear();
     for (unsigned i = 0; i < m_DBTInfo->m_idnFields.size(); ++i) {
-        const DBTInfo::IdentityInfo &info = m_DBTInfo->m_idnFields.at(i);
+        const dbi::DBTInfo::IdentityInfo &info = m_DBTInfo->m_idnFields.at(i);
         m_identificationData += info.m_strBefore + model->index(indexInSelectRow.row(), info.m_NField + 1).data().toString();
     }
 }

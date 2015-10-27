@@ -10,9 +10,6 @@
     <height>476</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
   <property name="windowIcon">
    <iconset resource="../images_resources.qrc">
     <normaloff>:/images/choice_list_data_input.png</normaloff>:/images/choice_list_data_input.png</iconset>

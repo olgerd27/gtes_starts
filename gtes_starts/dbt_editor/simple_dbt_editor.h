@@ -13,7 +13,7 @@ class SimpleDBTEditor : public DBTEditor
     Q_OBJECT
 
 public:
-    explicit SimpleDBTEditor(DBTInfo *dbtInfo, QWidget *parent = 0);
+    explicit SimpleDBTEditor(dbi::DBTInfo *dbtInfo, QWidget *parent = 0);
     virtual ~SimpleDBTEditor();
 
 private slots:
@@ -21,6 +21,7 @@ private slots:
 
 private:
     void setDBdataView();
+    virtual void makeSelect(int row);
 
     Ui::SimpleDBTEditor *ui;
 };

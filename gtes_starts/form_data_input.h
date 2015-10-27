@@ -6,9 +6,11 @@
 namespace Ui {
     class FormDataInput;
 }
+namespace dbi {
+    class DBTInfo;
+}
 class DBTEditor;
-class DBTInfo;
-class QSqlRelationalTableModel;
+class CustomSqlTableModel;
 class QDataWidgetMapper;
 class PBtnForEditDBT;
 
@@ -29,17 +31,17 @@ private slots:
     void slotNeedChangeMapperIndex();
     void slotSubmit();
     void slotEditDBT();
-    void slotTemp();
 
 private:
     void setEditDBTPushButtons();
     void setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, QWidget *identWidget);
-    void populateData();
-    void setRecordsNavigation();
-    DBTEditor * createDBTEditor(DBTInfo *info);
+    void setDataOperating();
+    void setDataNavigation();
+    DBTEditor * createDBTEditor(dbi::DBTInfo *info);
+    bool getCurrentIdForSelection(int &id, QWidget *identWidget);
 
     Ui::FormDataInput *ui;
-    QSqlRelationalTableModel *m_enginesModel;
+    CustomSqlTableModel *m_enginesModel;
     QDataWidgetMapper *m_mapper;
 };
 

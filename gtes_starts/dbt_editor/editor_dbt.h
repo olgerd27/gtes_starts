@@ -1,21 +1,22 @@
-#ifndef EDITER_DBT_H
-#define EDITER_DBT_H
+#ifndef EDITOR_DBT_H
+#define EDITOR_DBT_H
 
 #include <QSqlTableModel>
 #include <QIcon>
 #include <QDialog>
 
-class DBTInfo;
+namespace dbi {
+    class DBTInfo;
+}
 
 /*
- * The custom QSqlTableModel class, that remove unnecessary characters from the end of every data item.
- * (Return "trimmed" data).
+ * The custom QSqlTableModel class, that add a new first column and show choice icon there for rows choosing.
  */
-class CustomSqlTableModel : public QSqlTableModel
+class RowsChooseSqlTableModel : public QSqlTableModel
 {
     Q_OBJECT
 public:
-    CustomSqlTableModel(QObject *parent = 0);
+    RowsChooseSqlTableModel(QObject *parent = 0);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
@@ -38,17 +39,29 @@ class DBTEditor : public QDialog
     Q_OBJECT
 
 public:
-    explicit DBTEditor(DBTInfo *dbTable, QWidget *parent = 0);
+    typedef int T_id;
+
+    explicit DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent = 0);
     virtual ~DBTEditor();
 
-    QString identificationData() const;
+    void selectInitial(T_id id);
+    QString identificationData() const; // TODO: maybe delete?
+    T_id selectedId() const;
 
 protected:
     void setWindowName();
+    virtual void makeSelect(int row) = 0;
 
-    DBTInfo *m_DBTInfo;
-    CustomSqlTableModel *m_model;
-    QString m_identificationData;
+    enum ColumnNumbers {
+          col_empty = 0
+        , col_id
+        , col_firstWithData
+    };
+
+    dbi::DBTInfo *m_DBTInfo;
+    RowsChooseSqlTableModel *m_model;
+    QString m_identificationData; // TODO: maybe delete?
+    T_id m_selectedId;
 };
 
-#endif // EDITER_DBT_H
+#endif // EDITOR_DBT_H

@@ -43,6 +43,14 @@ void PBtnForEditDBT::setIdentDataWidget(QWidget *wgt)
     m_identWgt = wgt;
 }
 
+QWidget *PBtnForEditDBT::identWidget() const
+{
+    return m_identWgt;
+}
+
+/*
+ * TODO: maybe delete?
+ */
 void PBtnForEditDBT::setIdentData(const QString &data)
 {
     if (QLabel *lbl = qobject_cast<QLabel *>(m_identWgt))

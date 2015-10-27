@@ -10,9 +10,6 @@
     <height>280</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Simple table correction</string>
-  </property>
   <property name="windowIcon">
    <iconset resource="../images_resources.qrc">
     <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
