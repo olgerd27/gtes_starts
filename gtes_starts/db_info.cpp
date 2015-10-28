@@ -98,9 +98,9 @@ dbi::DBInfo::DBInfo()
             }
         },
 
-        /* identification_data_engines */
+        /* full_names_engines */
         new DBTInfo {
-            "identification_data_engines", trans("Engines identification data"), DBTInfo::ttype_complex,
+            "full_names_engines", trans("Full name"), DBTInfo::ttype_complex,
             {
                   {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"name_modif_id", trans("Name and modification"), DBTFieldInfo::wtype_comboBox, "names_modifications_engines"}
@@ -187,7 +187,7 @@ dbi::DBInfo::DBInfo()
             "engines", trans("Engine"), DBTInfo::ttype_composite,
             {
                   {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
-                , {"identification_id", trans("Identification"), DBTFieldInfo::wtype_lineEdit, "identification_data_engines"}
+                , {"full_name_id", trans("Identification"), DBTFieldInfo::wtype_lineEdit, "full_names_engines"}
                 , {"fuel_type_id", trans("Fuel type"), DBTFieldInfo::wtype_comboBox, "fuels_types"}
                 , {"combustion_chamber_id", trans("Combustion chamber"), DBTFieldInfo::wtype_lineEdit, "combustion_chambers"}
                 , {"start_device_id", trans("Start device"), DBTFieldInfo::wtype_lineEdit, "start_devices"}

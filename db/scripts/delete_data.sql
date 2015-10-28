@@ -10,7 +10,8 @@ DELETE FROM gtes_starts.documents_types;
 
 DELETE FROM gtes_starts.engines_algorithms;
 DELETE FROM gtes_starts.alg_parameters_names;
-DELETE FROM gtes_starts.alg_par_types;
+DELETE FROM gtes_starts.on_off_parameters;
+DELETE FROM gtes_starts.on_off_units;
 
 DELETE FROM gtes_starts.engines_bypasses;
 DELETE FROM gtes_starts.bypasses;
@@ -22,7 +23,7 @@ DELETE FROM gtes_starts.settings_names;
 
 DELETE FROM gtes_starts.engines;
 
-DELETE FROM gtes_starts.identification_data_engines;
+DELETE FROM gtes_starts.full_names_engines;
 DELETE FROM gtes_starts.names_modifications_engines;
 DELETE FROM gtes_starts.names_engines;
 

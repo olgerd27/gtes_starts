@@ -25,7 +25,6 @@ FormDataInput::FormDataInput(QWidget *parent)
     setEditDBTPushButtons();
     setDataOperating();
     setDataNavigation();
-    // TODO: highlight the data in the line edit for inputing engines id value when user click on it (when line edit receive the focus)
 
     connect(this, SIGNAL(sigSaveData()), m_mapper, SLOT(submit())); // submit changes from the mapped widgets to the model
     connect(this, SIGNAL(sigSaveData()), this, SLOT(slotSubmit())); // submit changes from the model to the database
@@ -34,7 +33,7 @@ FormDataInput::FormDataInput(QWidget *parent)
 /* set push buttons, that call some widget for editing DB tables */
 void FormDataInput::setEditDBTPushButtons()
 {
-    setEditDBTOnePB( ui->m_pbEditFullName, "identification_data_engines", ui->m_leFullNameData );
+    setEditDBTOnePB( ui->m_pbEditFullName, "full_names_engines", ui->m_leFullNameData );
     setEditDBTOnePB( ui->m_pbEditFuels, "fuels_types", ui->m_cboxFuel );
     setEditDBTOnePB( ui->m_pbEditChambers, "combustion_chambers", ui->m_leChamberData );
     setEditDBTOnePB( ui->m_pbEditStartDevices, "start_devices", ui->m_leStartDeviceData );
@@ -51,7 +50,7 @@ void FormDataInput::setDataOperating()
 {
     m_enginesModel->setTable("engines");
     m_enginesModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-//    m_enginesModel->setRelation(1, QSqlRelation("identification_data_engines", "id", "name_modif_id"));
+//    m_enginesModel->setRelation(1, QSqlRelation("full_name_engines", "id", "name_modif_id"));
     m_enginesModel->setRelation(2, QSqlRelation("fuels_types", "id", "id"));
 //    m_enginesModel->setRelation(3, QSqlRelation("combustion_chambers", "id", "draft_number"));
 
@@ -62,7 +61,6 @@ void FormDataInput::setDataOperating()
     // set mapper
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     m_mapper->setModel(m_enginesModel);
-//    m_mapper->setItemDelegate(new QSqlRelationalDelegate(m_mapper));
     m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(m_mapper));
     m_mapper->addMapping(ui->m_leIdData, 0);
     m_mapper->addMapping(ui->m_leFullNameData, 1);

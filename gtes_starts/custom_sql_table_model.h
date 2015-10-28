@@ -22,6 +22,7 @@ public:
 private:
     QString getDisplayData(const QString &tableName, QVariant varId) const;
     QString & relationalDBTdata(dbi::DBTInfo *table, QString &data, int &fieldCounter) const;
+    QString generateQuery(dbi::DBTInfo *table) const;
 };
 
 

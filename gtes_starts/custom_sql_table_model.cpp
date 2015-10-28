@@ -59,7 +59,6 @@ void CustomSqlTableModel::setTable(const QString &table)
     QSqlRelationalTableModel::setTable(table);
 }
 
-//#include <QMessageBox>
 QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 {
     QVariant data = QSqlRelationalTableModel::data(item, role);
@@ -68,13 +67,6 @@ QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 //    qDebug() << "-data(): col =" << colNumb << ", role =" << role
 //             << ", mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(colNumb))
 //             << ", data =" << data.toString();
-
-//    if (ddm::displayDataMode(colNumb) == ddm::display_code) {
-//        QMessageBox::information( 0, "title", QString("col = %1, role = %2, mode = %3, data = %4")
-//                                  .arg(colNumb).arg(role)
-//                                  .arg(ddm::strDisplayDataMode(ddm::displayDataMode(colNumb)))
-//                                  .arg(data.toString()) );
-//    }
 
 //    if ( ddm::vDisplayedModes.at(colNumb) == ddm::display_text ) {
 //        qDebug() << "+data(): col =" << colNumb << ", role =" << role
@@ -92,6 +84,7 @@ QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
             dbi::DBTFieldInfo fieldInfo = dbi::fieldByNameIndex(tableName(), colNumb);
             if (fieldInfo.isForeign())
                 data = getDisplayData( fieldInfo.m_relationDBTable, data.toInt() );
+//            exit(1);
         }
 //    }
 //    else
@@ -109,31 +102,41 @@ QString CustomSqlTableModel::getDisplayData(const QString &tableName, QVariant v
     bool b = false;
     int id = varId.toInt(&b);
     if (!b) {
-        qDebug() << "Error! Title: Invalid conversion. Message: Cannot convert the foreign key value \"" << varId << "\" to the integer type";
+        // TODO: generate error message
+        qDebug() << "Error! Title: Conversion error. Message: Cannot convert the foreign key value \""
+                 << varId << "\" from the variant type to the integer type";
         return varId.toString();
     }
 
     /******************************** Queries autogeneration **************************************/
 //    QString strQuery("SELECT ");
     QString strRes("");
-    int counter = 1;
+    int counter = 0;
     strRes = relationalDBTdata(DBINFO.tableByName(tableName), strRes, counter);
 //    qDebug() << "with placeholders:" << strRes;
 
     /* Retrieve appropriate data for generating identification strings */
     QString strQuery1 =
             QString("SELECT "
-                    "names_engines.name, names_modifications_engines.modification, identification_data_engines.number "
+                    "names_engines.name, names_modifications_engines.modification, full_names_engines.number "
                     "FROM "
-                    "names_engines, names_modifications_engines, identification_data_engines "
+                    "names_engines, names_modifications_engines, full_names_engines "
                     "WHERE "
-                    "identification_data_engines.id = %1 "
-                    "AND identification_data_engines.name_modif_id = names_modifications_engines.id "
+                    "full_names_engines.id = %1 "
+                    "AND full_names_engines.name_modif_id = names_modifications_engines.id "
                     "AND names_modifications_engines.name_id = names_engines.id;").arg(id);
     QSqlQuery query(strQuery1);
     if (query.next()) {
-        for (int field = 0; field < 3; field++)
+        for (int field = 0; field < counter; field++)
             strRes = strRes.arg( query.value(field).toString() );
+    }
+    else {
+        // TODO: generate error message
+        qDebug() << tr("Title: Error data obtaining."
+                       "Message: Cannot get a data from the database for generating displayed data of the \"%1\" database table.\n"
+                       "The reason is: invalid database query.\n\n"
+                       "Please consult with the application developer for fixing this problem.").arg(tableName);
+        strRes.clear();
     }
 //    qDebug() << "result:" << strRes;
     return strRes;
@@ -147,9 +150,16 @@ QString & CustomSqlTableModel::relationalDBTdata(dbi::DBTInfo *table, QString &d
         data += idnField.m_strBefore;
         data = field.isForeign()
                ? relationalDBTdata(DBINFO.tableByName(field.m_relationDBTable), data, fieldCounter) /* recursive calling */
-               : data + QString("%%1").arg(fieldCounter++); /* when current field isn't foreign key -> exit from recursion */
+               : data + QString("%%1").arg(++fieldCounter); /* when current field isn't a foreign key -> exit from recursion */
     }
     return data;
+}
+
+QString CustomSqlTableModel::generateQuery(dbi::DBTInfo *table) const
+{
+    QString query("SELECT ");
+    table;
+    return query;
 }
 
 
@@ -171,7 +181,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value
 //             << ", data =" << value.toString();
     emit dataChanged(item, item);
 //    ++cc;
-    qDebug() << "===========================================================";
+//    qDebug() << "===========================================================";
     return true;
 }
 
@@ -195,10 +205,6 @@ void CustomSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemMod
     const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(sqlTable->tableName(), index.column());
     if (!fieldInf.isForeign())
         QItemDelegate::setModelData(editor, model, index);
-
-//    model->setData(index, "?", Qt::DisplayRole);
-//    QItemDelegate::setModelData(editor, model, index);
-
 
 //        QSqlRelationalTableModel *sqlModel = qobject_cast<QSqlRelationalTableModel *>(model);
 //        QSqlTableModel *childModel = sqlModel ? sqlModel->relationModel(index.column()) : 0;

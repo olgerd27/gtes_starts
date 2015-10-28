@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS names_modifications_engines (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-CREATE TABLE IF NOT EXISTS identification_data_engines (
+CREATE TABLE IF NOT EXISTS full_names_engines (
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name_modif_id MEDIUMINT UNSIGNED NOT NULL,
     number SMALLINT UNSIGNED,
@@ -85,15 +85,15 @@ CREATE TABLE IF NOT EXISTS fuels_types (
 
 CREATE TABLE IF NOT EXISTS engines (
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-    identification_id MEDIUMINT UNSIGNED NOT NULL,
+    full_name_id MEDIUMINT UNSIGNED NOT NULL,
     fuel_type_id TINYINT UNSIGNED NOT NULL,
     combustion_chamber_id MEDIUMINT UNSIGNED,
     start_device_id SMALLINT UNSIGNED,
     start_devices_quantity TINYINT UNSIGNED,
     comments VARCHAR(1500),
     PRIMARY KEY (id),
-    FOREIGN KEY (identification_id)
-        REFERENCES identification_data_engines (id)
+    FOREIGN KEY (full_name_id)
+        REFERENCES full_names_engines (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (fuel_type_id)
         REFERENCES fuels_types (id)
@@ -175,14 +175,24 @@ CREATE TABLE IF NOT EXISTS engines_bypasses (
 # algorithms
 CREATE TABLE IF NOT EXISTS alg_parameters_names (
     id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(150) NOT NULL,
     PRIMARY KEY (id)
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-CREATE TABLE IF NOT EXISTS alg_par_types (
+CREATE TABLE IF NOT EXISTS on_off_units (
     id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
+)  ENGINE InnoDB CHARACTER SET cp1251;
+
+CREATE TABLE IF NOT EXISTS on_off_parameters (
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
+    name VARCHAR(40) NOT NULL,
+    unit_id SMALLINT UNSIGNED,
+    PRIMARY KEY (id),
+    FOREIGN KEY (unit_id)
+        REFERENCES on_off_units (id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
 CREATE TABLE IF NOT EXISTS engines_algorithms (
@@ -202,10 +212,10 @@ CREATE TABLE IF NOT EXISTS engines_algorithms (
         REFERENCES alg_parameters_names (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (switching_on_id)
-        REFERENCES alg_par_types (id)
+        REFERENCES on_off_parameters (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (switching_off_id)
-        REFERENCES alg_par_types (id)
+        REFERENCES on_off_parameters (id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
