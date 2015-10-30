@@ -14,17 +14,10 @@ class CustomSqlTableModel : public QSqlRelationalTableModel
 
 public:
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
-
-    void setTable(const QString &table);
+    void setTable(const QString &tableName);
     QVariant data(const QModelIndex &item, int role) const;
     bool setData(const QModelIndex &item, const QVariant &value, int role);
-
-private:
-    QString getDisplayData(const QString &tableName, QVariant varId) const;
-    QString & relationalDBTdata(dbi::DBTInfo *table, QString &data, int &fieldCounter) const;
-    QString generateQuery(dbi::DBTInfo *table) const;
 };
-
 
 class CustomSqlRelationalDelegate : public QSqlRelationalDelegate
 {

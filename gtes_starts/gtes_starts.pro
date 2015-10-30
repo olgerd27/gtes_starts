@@ -30,7 +30,8 @@ HEADERS  += main_window.h \
     dbt_editor/editor_dbt.h \
     dbt_editor/simple_dbt_editor.h \
     dbt_editor/complex_dbt_editor.h \
-    custom_sql_table_model.h
+    custom_sql_table_model.h \
+    common_defines.h
 
 FORMS    += main_window.ui \
     form_queries.ui \

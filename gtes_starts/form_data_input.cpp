@@ -49,10 +49,6 @@ void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, Q
 void FormDataInput::setDataOperating()
 {
     m_enginesModel->setTable("engines");
-    m_enginesModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-//    m_enginesModel->setRelation(1, QSqlRelation("full_name_engines", "id", "name_modif_id"));
-    m_enginesModel->setRelation(2, QSqlRelation("fuels_types", "id", "id"));
-//    m_enginesModel->setRelation(3, QSqlRelation("combustion_chambers", "id", "draft_number"));
 
     // set combo box
     ui->m_cboxFuel->setModel(m_enginesModel->relationModel(2));

@@ -36,11 +36,11 @@ FROM
     names_modifications_engines,
     full_names_engines
 WHERE
-        full_names_engines.id = 3 
+        3 = full_names_engines.id
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
     
-# Retrieve full engines names for all available id values
+# Retrieve full engines names for all available foreign key id values
 SELECT 
     names_engines.name, 
     names_modifications_engines.modification, 

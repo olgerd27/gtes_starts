@@ -1,187 +1,193 @@
 #include <QSqlQuery>
-#include <QVector>
 #include <QDebug>
 #include "custom_sql_table_model.h"
 #include "db_info.h"
+#include "common_defines.h"
 
 /*
- * Display Data Mode namespace
+ * DisplayDataGenerator
  */
-//namespace ddm {
-//    enum DisplayDataMode {
-//        display_code,
-//        display_text,
-//        display_none
-//    };
-//    QVector<DisplayDataMode> vDisplayedModes;
+class DisplayDataGenerator
+{
+public:
+    QString generate(const QString &tableName, const QVariant &varId);
+private:
+    /* QueryGenerator */
+    class QueryGenerator
+    {
+    public:
+        inline void addSelect(const QString &str) { m_listSelect.push_back(str); }
+        inline void addFrom(const QString &str) { m_listFrom.push_back(str); }
+        inline void addWhere(const QString &str) { m_listWhere.push_back(str); }
+        QString generateQuery(int id); // there are ability to get only one time the particular generated query string
+    private:
+        void flush();
+        QStringList m_listSelect, m_listFrom, m_listWhere;
+    };
 
-//    void fillDisplayDataMode(ddm::DisplayDataMode mode, int size) { vDisplayedModes.fill(mode, size); }
-//    void setDisplayDataMode(int index, ddm::DisplayDataMode mode) { vDisplayedModes[index] = mode; }
+    int safeIdToInt(const QVariant &value) const;
+    void generate_Mask_QueryData(dbi::DBTInfo *table, QString &data, int &fieldCounter);
+    void generateResultData(int id, QString &strRes, int fieldsNumber, const QString &tableName);
 
-//    ddm::DisplayDataMode displayDataMode(int index)
-//    {
-//        return (index < 0 || index >= vDisplayedModes.size())
-//                ? ddm::display_none : vDisplayedModes.at(index);
-//    }
+    QueryGenerator m_queryGen;
+};
 
-//    QString strDisplayDataMode(DisplayDataMode mode)
-//    {
-//        QString str;
-//        switch (mode) {
-//        case display_code:
-//            str = "Display code";
-//            break;
-//        case display_text:
-//            str = "Display text";
-//            break;
-//        case display_none:
-//            str = "Display none";
-//            break;
-//        default:
-//            str = "Display unknow";
-//            break;
-//        }
-//        return str;
-//    }
-//}
+QString DisplayDataGenerator::generate(const QString &tableName, const QVariant &varId)
+{
+    QString strRes("");
+    try {
+        int fieldsCounter = 0;
+        generate_Mask_QueryData( DBINFO.tableByName(tableName), strRes, fieldsCounter );
+        qDebug() << "mask:" << strRes;
+        generateResultData( safeIdToInt(varId), strRes, fieldsCounter, tableName );
+    }
+    catch (const cmmn::MessageException &me) {
+        if (me.type() == cmmn::MessageException::type_critical)
+            strRes.clear();
+        qDebug() << "[ERROR]:" << me.title() << "\n" << me.message();
+//        QString("\n%1: [%2]").arg(tr("Error placement")).arg(me.placement()); // TODO: add this info to main message and pass all to the message box
+        return strRes;
+    }
+    catch (const std::exception &ex) {
+        strRes.clear();
+        return strRes;
+    }
+
+    qDebug() << "result:" << strRes;
+    return strRes;
+}
+
+int DisplayDataGenerator::safeIdToInt(const QVariant &value) const
+{
+    bool b = false;
+    int id = value.toInt(&b);
+    if (!b)
+        throw cmmn::MessageException( cmmn::MessageException::type_critical,
+                                      QObject::tr("Conversion error"),
+                                      QObject::tr("Cannot convert the foreign key value \"%1\" from the QVariant to the integer type")
+                                      .arg(value.toString()), "DisplayDataGenerator::safeIdToInt");
+    return id;
+}
+
+/* Generate data mask and data for generation query string */
+void DisplayDataGenerator::generate_Mask_QueryData(dbi::DBTInfo *table, QString &data, int &fieldCounter)
+{
+    const auto &idnFieldsArr = table->m_idnFields;
+    for (const auto &idnField : idnFieldsArr) {
+        const dbi::DBTFieldInfo &field = table->fieldByIndex( idnField.m_NField );
+        data += idnField.m_strBefore;
+        if (field.isForeign()) {
+//            qDebug() << "[" << fieldCounter << "] WHERE:" << table->m_nameInDB << "." << field.m_nameInDB;
+            m_queryGen.addWhere( table->m_nameInDB + ".id" );
+            m_queryGen.addWhere( table->m_nameInDB + "." + field.m_nameInDB );
+            generate_Mask_QueryData( DBINFO.tableByName(field.m_relationDBTable), data, fieldCounter ); /* recursive calling */
+        }
+        else {
+            data += QString("%%1").arg(++fieldCounter); /* when current field isn't a foreign key -> exit from recursion */
+//            qDebug() << "[" << fieldCounter << "] SELECT:" << table->m_nameInDB << "." << field.m_nameInDB;
+//            qDebug() << "[" << fieldCounter << "] FROM:" << table->m_nameInDB;
+            m_queryGen.addSelect( table->m_nameInDB + "." + field.m_nameInDB );
+            m_queryGen.addFrom( table->m_nameInDB );
+        }
+    }
+}
+
+/* Run query for retriving data from relational DB tables and generate result string data for displaying */
+void DisplayDataGenerator::generateResultData(int id, QString &strRes, int fieldsNumber, const QString &tableName)
+{
+    QString strQuery = m_queryGen.generateQuery(id);
+    qDebug() << "query:" << strQuery;
+    QSqlQuery query(strQuery);
+    if (query.next()) {
+        for (int field = 0; field < fieldsNumber; field++)
+            strRes = strRes.arg( query.value(field).toString() );
+    }
+    else {
+        throw cmmn::MessageException( cmmn::MessageException::type_critical,
+                                      QObject::tr("Error data getting"),
+                                      QObject::tr("Cannot get a data from the database for generation displayed data of the \"%1\" database table.\n"
+                                                  "The reason is: invalid database query.").arg(tableName), "DisplayDataGenerator::generateResultData" );
+    }
+}
+
+/*
+ * DisplayDataGenerator::QueryGenerator
+ */
+QString DisplayDataGenerator::QueryGenerator::generateQuery(int id)
+{
+    if (m_listFrom.isEmpty() || m_listSelect.isEmpty()) {
+        throw cmmn::MessageException( cmmn::MessageException::type_critical,
+                                      QObject::tr("Error query generation"),
+                                      QObject::tr("Too many attempts to get the query, used for generation displayed data"),
+                                      "DisplayDataGenerator::QueryGenerator::generateQuery" );
+    }
+//    if (m_listSelect.size() != m_listFrom.size())
+//        throw cmmn::MessageException( cmmn::MessageException::type_critical,
+//                                      QObject::tr("Query generation error"),
+//                                      QObject::tr("Error with result query generation.\n"
+//                                                  "The sizes of the \"SELECT\" list and the \"FROM\" list are not equal)"),
+//                                      "DisplayDataGenerator::QueryGenerator::generateQuery" );
+    /* preparing the FROM statement */
+    m_listFrom.removeDuplicates();
+    /* preparing the WHERE statements */
+    m_listWhere.push_front("%1");
+    m_listWhere.push_back(m_listFrom.first() + ".id");
+    QString strWhere("");
+    for (auto it = m_listWhere.cbegin(); it != m_listWhere.cend(); it += 2) {
+        if (it != m_listWhere.cbegin()) strWhere += "AND ";
+        strWhere += ( *it + " = " + *(it + 1) + " " );
+    }
+    strWhere += ";";
+    strWhere = strWhere.arg(id);
+
+    qDebug() << "SELECT:" << m_listSelect.join(", ");
+    qDebug() << "FROM:" << m_listFrom.join(", ");
+    qDebug() << "WHERE:" << strWhere;
+
+    QString strQuery = QString("SELECT %1 FROM %2 WHERE %3").arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( strWhere );
+    flush();
+    return strQuery;
+}
+
+void DisplayDataGenerator::QueryGenerator::flush()
+{
+    m_listSelect.clear();
+    m_listFrom.clear();
+    m_listWhere.clear();
+}
 
 /*
  * CustomSqlTableModel
  */
 CustomSqlTableModel::CustomSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlRelationalTableModel(parent, db)
-{
-}
+{ }
 
-void CustomSqlTableModel::setTable(const QString &table)
+void CustomSqlTableModel::setTable(const QString &tableName)
 {
-//    ddm::fillDisplayDataMode(ddm::display_text, size);
-    QSqlRelationalTableModel::setTable(table);
+    QSqlRelationalTableModel::setTable(tableName);
+    setEditStrategy(QSqlTableModel::OnManualSubmit);
+    setRelation(2, QSqlRelation("fuels_types", "id", "name"));
 }
 
 QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 {
     QVariant data = QSqlRelationalTableModel::data(item, role);
     int colNumb = item.column();
-
-//    qDebug() << "-data(): col =" << colNumb << ", role =" << role
-//             << ", mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(colNumb))
-//             << ", data =" << data.toString();
-
-//    if ( ddm::vDisplayedModes.at(colNumb) == ddm::display_text ) {
-//        qDebug() << "+data(): col =" << colNumb << ", role =" << role
-//                 << ", mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(colNumb))
-//                 << ", data =" << data.toString();
-//        if (role == Qt::DisplayRole)
-//            qDebug() << "display role: col =" << colNumb
-//                     << ", mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(colNumb))
-//                     << ", data =" << data.toString();
-//        if ( colNumb == 1 && (role == Qt::EditRole || role == Qt::DisplayRole) ) {
-        if ( colNumb == 1 && role == Qt::EditRole ) {
-//            qDebug() << "<data(): col =" << colNumb << ", role =" << role
-//                     << ", mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(colNumb))
-//                     << ", data =" << data.toString();
+        if ( /*colNumb == 2 &&*/ role == Qt::EditRole ) {
             dbi::DBTFieldInfo fieldInfo = dbi::fieldByNameIndex(tableName(), colNumb);
-            if (fieldInfo.isForeign())
-                data = getDisplayData( fieldInfo.m_relationDBTable, data.toInt() );
-//            exit(1);
+            if (fieldInfo.isForeign()) {
+                data = DisplayDataGenerator().generate( fieldInfo.m_relationDBTable, data );
+            }
         }
-//    }
-//    else
-//        ddm::setDisplayDataMode(colNumb, ddm::display_text);
-//    qDebug() << "!data(): col =" << colNumb << ", role =" << role
-//             << ", mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(colNumb))
-//             << ", data =" << data.toString();
     return data;
 }
-
-QString CustomSqlTableModel::getDisplayData(const QString &tableName, QVariant varId) const
-{
-    qDebug() << "getDisplayData()";
-    /* get the "id" integer value */
-    bool b = false;
-    int id = varId.toInt(&b);
-    if (!b) {
-        // TODO: generate error message
-        qDebug() << "Error! Title: Conversion error. Message: Cannot convert the foreign key value \""
-                 << varId << "\" from the variant type to the integer type";
-        return varId.toString();
-    }
-
-    /******************************** Queries autogeneration **************************************/
-//    QString strQuery("SELECT ");
-    QString strRes("");
-    int counter = 0;
-    strRes = relationalDBTdata(DBINFO.tableByName(tableName), strRes, counter);
-//    qDebug() << "with placeholders:" << strRes;
-
-    /* Retrieve appropriate data for generating identification strings */
-    QString strQuery1 =
-            QString("SELECT "
-                    "names_engines.name, names_modifications_engines.modification, full_names_engines.number "
-                    "FROM "
-                    "names_engines, names_modifications_engines, full_names_engines "
-                    "WHERE "
-                    "full_names_engines.id = %1 "
-                    "AND full_names_engines.name_modif_id = names_modifications_engines.id "
-                    "AND names_modifications_engines.name_id = names_engines.id;").arg(id);
-    QSqlQuery query(strQuery1);
-    if (query.next()) {
-        for (int field = 0; field < counter; field++)
-            strRes = strRes.arg( query.value(field).toString() );
-    }
-    else {
-        // TODO: generate error message
-        qDebug() << tr("Title: Error data obtaining."
-                       "Message: Cannot get a data from the database for generating displayed data of the \"%1\" database table.\n"
-                       "The reason is: invalid database query.\n\n"
-                       "Please consult with the application developer for fixing this problem.").arg(tableName);
-        strRes.clear();
-    }
-//    qDebug() << "result:" << strRes;
-    return strRes;
-}
-
-QString & CustomSqlTableModel::relationalDBTdata(dbi::DBTInfo *table, QString &data, int &fieldCounter) const
-{
-    const auto &idnFieldsArr = table->m_idnFields;
-    for (const auto &idnField : idnFieldsArr) {
-        const dbi::DBTFieldInfo &field = table->fieldByIndex( idnField.m_NField );
-        data += idnField.m_strBefore;
-        data = field.isForeign()
-               ? relationalDBTdata(DBINFO.tableByName(field.m_relationDBTable), data, fieldCounter) /* recursive calling */
-               : data + QString("%%1").arg(++fieldCounter); /* when current field isn't a foreign key -> exit from recursion */
-    }
-    return data;
-}
-
-QString CustomSqlTableModel::generateQuery(dbi::DBTInfo *table) const
-{
-    QString query("SELECT ");
-    table;
-    return query;
-}
-
 
 bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value, int role)
 {
     if (!item.isValid()) return false;
-//    static int cc = 0;
-//    int col = item.column();
-//    qDebug() << "setData(" << cc << ") start: col =" << col << ", role =" << role
-//             << ", mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(col))
-//             << ", data =" << value.toString();
-//    ddm::setDisplayDataMode(col, ddm::display_code);
-//    qDebug() << ">>>BEFORE, mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(col));
     QSqlRelationalTableModel::setData(item, value, role);
-//    qDebug() << "<<<AFTER, mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(col));
-//    ddm::setDisplayDataMode(col, ddm::display_text);
-//    qDebug() << "setData(" << cc << ") end: col =" << col << ", role =" << role
-//             << ", mode =" << ddm::strDisplayDataMode(ddm::displayDataMode(col))
-//             << ", data =" << value.toString();
     emit dataChanged(item, item);
-//    ++cc;
-//    qDebug() << "===========================================================";
     return true;
 }
 

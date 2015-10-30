@@ -178,7 +178,7 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
             {
-                {"#", 0}, {trans(", %1: ").arg("draft"), 1}
+                {"#", 0}, {QString(", %1: ").arg(trans("draft")), 1}
             }
         },
 
