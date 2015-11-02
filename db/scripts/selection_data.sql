@@ -12,7 +12,7 @@ WHERE
         engines.id = 2 
     AND engines.fuel_type_id = fuels_types.id;
 
-# Retrieve the engine name for the particular id value
+# Retrieve the full engine name for the particular id value, var.1
 SELECT 
     names_engines.name
 FROM
@@ -26,7 +26,7 @@ WHERE
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
 
-# Retrieve full engine name for the particular id value
+# Retrieve the full engine name for the particular id value, var.2
 SELECT 
     names_engines.name, 
     names_modifications_engines.modification, 
@@ -54,3 +54,13 @@ WHERE
         engines.full_name_id = full_names_engines.id 
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
+
+# Retrieve combustion chambers info
+SELECT 
+    combustion_chambers.id, 
+    combustion_chambers.draft_number
+FROM
+    combustion_chambers
+WHERE
+    3 = combustion_chambers.id;
+    

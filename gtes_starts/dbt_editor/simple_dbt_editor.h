@@ -1,7 +1,7 @@
 #ifndef SIMPLE_DBT_EDITOR_H
 #define SIMPLE_DBT_EDITOR_H
 
-#include "editor_dbt.h"
+#include "dbt_editor.h"
 
 namespace Ui {
     class SimpleDBTEditor;

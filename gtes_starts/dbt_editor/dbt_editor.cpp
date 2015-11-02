@@ -3,7 +3,7 @@
 #include <QSqlQuery>
 #include <QMessageBox>
 #include <QDebug>
-#include "editor_dbt.h"
+#include "dbt_editor.h"
 #include "db_info.h"
 
 /*
@@ -102,11 +102,6 @@ DBTEditor::~DBTEditor()
     delete m_model;
 }
 
-QString DBTEditor::identificationData() const
-{
-    return m_identificationData;
-}
-
 DBTEditor::T_id DBTEditor::selectedId() const
 {
     return m_selectedId;
@@ -117,17 +112,38 @@ void DBTEditor::setWindowName()
     setWindowTitle( tr("Editing the table: ") + m_DBTInfo->m_nameInUI );
 }
 
-void DBTEditor::selectInitial(T_id id)
+bool DBTEditor::selectInitial(const QVariant &value, DBTEditor::ColumnNumbers compareCol)
 {
-    QModelIndex selectRowIndex;
-    for (int row = 0; row < m_model->rowCount(); ++row)
-        if ( m_model->index(row, col_id).data().toInt() == id )
-            selectRowIndex = m_model->index(row, col_id);
-    if (selectRowIndex.isValid())
-        makeSelect(selectRowIndex.row()); // calling the virtual function for selection the found row
-    else
+    int selectedRow = -1;
+    for (int row = 0; row < m_model->rowCount(); ++row) {
+        if ( m_model->index(row, compareCol).data(Qt::DisplayRole) == value ) {
+            selectedRow = row;
+            break;
+        }
+    }
+    if (selectedRow != -1)
+        makeSelect(selectedRow); // the virtual function calling that select the found row
+    else {
         QMessageBox::warning( this, tr("Selection error"),
                               tr("Cannot select an item in the list.\n"
                                  "The reason is: cannot find in the database table \"%1\" the item with id = %2")
-                              .arg(m_DBTInfo->m_nameInUI).arg(id) );
+                              .arg(m_DBTInfo->m_nameInUI).arg(value.toString()) );
+        return false;
+    }
+    return true;
 }
+
+//void DBTEditor::selectInitial(const QVariant &value, ColumnNumbers compareCol)
+//{
+//    QModelIndex selectRowIndex;
+//    for (int row = 0; row < m_model->rowCount(); ++row)
+//        if ( m_model->index(row, compareCol).data() == value )
+//            selectRowIndex = m_model->index(row, compareCol);
+//    if (selectRowIndex.isValid())
+//        makeSelect(selectRowIndex.row()); // calling the virtual function for selection the found row
+//    else
+//        QMessageBox::warning( this, tr("Selection error"),
+//                              tr("Cannot select an item in the list.\n"
+//                                 "The reason is: cannot find in the database table \"%1\" the item: \"%2\" in the column #%3")
+//                              .arg( m_DBTInfo->m_nameInUI ).arg( value.toString() ).arg((int)compareCol) );
+//}

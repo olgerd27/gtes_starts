@@ -38,13 +38,13 @@ QString DisplayDataGenerator::generate(const QString &tableName, const QVariant 
     try {
         int fieldsCounter = 0;
         generate_Mask_QueryData( DBINFO.tableByName(tableName), strRes, fieldsCounter );
-        qDebug() << "mask:" << strRes;
+//        qDebug() << "mask:" << strRes;
         generateResultData( safeIdToInt(varId), strRes, fieldsCounter, tableName );
     }
     catch (const cmmn::MessageException &me) {
         if (me.type() == cmmn::MessageException::type_critical)
             strRes.clear();
-        qDebug() << "[ERROR]:" << me.title() << "\n" << me.message();
+        qDebug() << "[ERROR]: Title:" << me.title() << "| Message:" << me.message() << "| Place:" << me.placement();
 //        QString("\n%1: [%2]").arg(tr("Error placement")).arg(me.placement()); // TODO: add this info to main message and pass all to the message box
         return strRes;
     }
@@ -52,21 +52,8 @@ QString DisplayDataGenerator::generate(const QString &tableName, const QVariant 
         strRes.clear();
         return strRes;
     }
-
-    qDebug() << "result:" << strRes;
+//    qDebug() << "result:" << strRes;
     return strRes;
-}
-
-int DisplayDataGenerator::safeIdToInt(const QVariant &value) const
-{
-    bool b = false;
-    int id = value.toInt(&b);
-    if (!b)
-        throw cmmn::MessageException( cmmn::MessageException::type_critical,
-                                      QObject::tr("Conversion error"),
-                                      QObject::tr("Cannot convert the foreign key value \"%1\" from the QVariant to the integer type")
-                                      .arg(value.toString()), "DisplayDataGenerator::safeIdToInt");
-    return id;
 }
 
 /* Generate data mask and data for generation query string */
@@ -77,26 +64,35 @@ void DisplayDataGenerator::generate_Mask_QueryData(dbi::DBTInfo *table, QString 
         const dbi::DBTFieldInfo &field = table->fieldByIndex( idnField.m_NField );
         data += idnField.m_strBefore;
         if (field.isForeign()) {
-//            qDebug() << "[" << fieldCounter << "] WHERE:" << table->m_nameInDB << "." << field.m_nameInDB;
             m_queryGen.addWhere( table->m_nameInDB + ".id" );
             m_queryGen.addWhere( table->m_nameInDB + "." + field.m_nameInDB );
             generate_Mask_QueryData( DBINFO.tableByName(field.m_relationDBTable), data, fieldCounter ); /* recursive calling */
         }
         else {
             data += QString("%%1").arg(++fieldCounter); /* when current field isn't a foreign key -> exit from recursion */
-//            qDebug() << "[" << fieldCounter << "] SELECT:" << table->m_nameInDB << "." << field.m_nameInDB;
-//            qDebug() << "[" << fieldCounter << "] FROM:" << table->m_nameInDB;
             m_queryGen.addSelect( table->m_nameInDB + "." + field.m_nameInDB );
             m_queryGen.addFrom( table->m_nameInDB );
         }
     }
 }
 
+int DisplayDataGenerator::safeIdToInt(const QVariant &value) const
+{
+    bool b = false;
+    int id = value.toInt(&b);
+    if (!b)
+        throw cmmn::MessageException( cmmn::MessageException::type_critical,
+                                      QObject::tr("Conversion error"),
+                                      QObject::tr("Cannot convert the foreign key value \"%1\" from the QVariant to the integer type.")
+                                      .arg(value.toString()), "DisplayDataGenerator::safeIdToInt");
+    return id;
+}
+
 /* Run query for retriving data from relational DB tables and generate result string data for displaying */
 void DisplayDataGenerator::generateResultData(int id, QString &strRes, int fieldsNumber, const QString &tableName)
 {
     QString strQuery = m_queryGen.generateQuery(id);
-    qDebug() << "query:" << strQuery;
+//    qDebug() << "query:" << strQuery;
     QSqlQuery query(strQuery);
     if (query.next()) {
         for (int field = 0; field < fieldsNumber; field++)
@@ -108,6 +104,7 @@ void DisplayDataGenerator::generateResultData(int id, QString &strRes, int field
                                       QObject::tr("Cannot get a data from the database for generation displayed data of the \"%1\" database table.\n"
                                                   "The reason is: invalid database query.").arg(tableName), "DisplayDataGenerator::generateResultData" );
     }
+    qDebug() << "strRes data:" << strRes << "for id =" << id;
 }
 
 /*
@@ -121,14 +118,9 @@ QString DisplayDataGenerator::QueryGenerator::generateQuery(int id)
                                       QObject::tr("Too many attempts to get the query, used for generation displayed data"),
                                       "DisplayDataGenerator::QueryGenerator::generateQuery" );
     }
-//    if (m_listSelect.size() != m_listFrom.size())
-//        throw cmmn::MessageException( cmmn::MessageException::type_critical,
-//                                      QObject::tr("Query generation error"),
-//                                      QObject::tr("Error with result query generation.\n"
-//                                                  "The sizes of the \"SELECT\" list and the \"FROM\" list are not equal)"),
-//                                      "DisplayDataGenerator::QueryGenerator::generateQuery" );
     /* preparing the FROM statement */
     m_listFrom.removeDuplicates();
+
     /* preparing the WHERE statements */
     m_listWhere.push_front("%1");
     m_listWhere.push_back(m_listFrom.first() + ".id");
@@ -137,14 +129,12 @@ QString DisplayDataGenerator::QueryGenerator::generateQuery(int id)
         if (it != m_listWhere.cbegin()) strWhere += "AND ";
         strWhere += ( *it + " = " + *(it + 1) + " " );
     }
-    strWhere += ";";
-    strWhere = strWhere.arg(id);
+//    qDebug() << "SELECT:" << m_listSelect.join(", ");
+//    qDebug() << "FROM:" << m_listFrom.join(", ");
+//    qDebug() << "WHERE:" << strWhere;
 
-    qDebug() << "SELECT:" << m_listSelect.join(", ");
-    qDebug() << "FROM:" << m_listFrom.join(", ");
-    qDebug() << "WHERE:" << strWhere;
-
-    QString strQuery = QString("SELECT %1 FROM %2 WHERE %3").arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( strWhere );
+    QString strQuery = QString("SELECT %1 FROM %2 WHERE %3;")
+            .arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( strWhere.arg(id) );
     flush();
     return strQuery;
 }
@@ -158,37 +148,81 @@ void DisplayDataGenerator::QueryGenerator::flush()
 
 /*
  * CustomSqlTableModel
+ * Description of the spike #1.
+ * When user change a some field that is a foreign key (in particular, a foreign key of a related complex DB table), there are performs
+ * a calling of the QSqlRelationalTableModel::setData() method from the CustomSqlTableModel::setData().
+ * The QSqlRelationalTableModel::setData() method (or maybe the QSqlTableModel::setData() method (called from the
+ * QSqlRelationalTableModel::setData()) ) set some incorrect data to the items, that is different from present (current item).
+ * This setted data are: to the DisplayRole - a QString-type already generated data, to the EditRole - a QString-type empty instance.
+ * This invalid behaviour of data settings, which is protected from influent, need to prevent. This is achieved by usage saving and
+ * following restoring data, that must not change.
+ * Turn on the run of this operations performs by calling the public method setDataWithSavings(). Turn off the run of this operations
+ * performs without assistance from outside in the restoreData() method.
  */
 CustomSqlTableModel::CustomSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlRelationalTableModel(parent, db)
+    , m_bNeedSave(false) /* Spike #1 */
 { }
+
+void CustomSqlTableModel::setDataWithSavings()
+{
+    m_bNeedSave = true; /* Spike #1 */
+}
 
 void CustomSqlTableModel::setTable(const QString &tableName)
 {
     QSqlRelationalTableModel::setTable(tableName);
     setEditStrategy(QSqlTableModel::OnManualSubmit);
-    setRelation(2, QSqlRelation("fuels_types", "id", "name"));
+    setRelation(2, QSqlRelation("fuels_types", "id", "name")); // TODO: make an automatic relations set
 }
 
 QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 {
     QVariant data = QSqlRelationalTableModel::data(item, role);
+//    qDebug() << "data(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << data.toString();
     int colNumb = item.column();
-        if ( /*colNumb == 2 &&*/ role == Qt::EditRole ) {
-            dbi::DBTFieldInfo fieldInfo = dbi::fieldByNameIndex(tableName(), colNumb);
-            if (fieldInfo.isForeign()) {
-                data = DisplayDataGenerator().generate( fieldInfo.m_relationDBTable, data );
-            }
+    if ( colNumb != 2 && role == Qt::EditRole ) {
+        dbi::DBTFieldInfo fieldInfo = dbi::fieldByNameIndex(tableName(), colNumb);
+        if (fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == dbi::DBTInfo::ttype_complex) ) {
+            data = DisplayDataGenerator().generate( fieldInfo.m_relationDBTable, data );
         }
+    }
     return data;
 }
 
 bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value, int role)
 {
     if (!item.isValid()) return false;
-    QSqlRelationalTableModel::setData(item, value, role);
-    emit dataChanged(item, item);
-    return true;
+    qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << value.toString();
+    if (m_bNeedSave) saveData(item, role); // Spike #1
+    bool bSucc = QSqlRelationalTableModel::setData(item, value, role);
+    if (m_bNeedSave) restoreData(item.row(), role); // Spike #1
+    if (bSucc) emit dataChanged(item, item);
+    return bSucc;
+}
+
+/* Save data before calling the QSqlRelationalTableModel::setData() method. Spike #1 */
+void CustomSqlTableModel::saveData(const QModelIndex &currentIndex, int role)
+{
+    qDebug() << "saveData(), role =" << role;
+    const dbi::DBTInfo::T_arrDBTFieldsInfo &fieldsInf = DBINFO.tableByName(tableName())->m_fields;
+    for (int col = 0; (unsigned)col < fieldsInf.size(); ++col) {
+        /* if a field is not the current field and it is a foreign key to the complex DB table -> save its data */
+        if ( (col != currentIndex.column()) && (fieldsInf.at(col).relationDBTtype() == dbi::DBTInfo::ttype_complex) ) {
+            m_mSavedData.insert( col, QSqlRelationalTableModel::data( this->index(currentIndex.row(), col), role ) );
+        }
+    }
+}
+
+/* Restore saved data after calling the QSqlRelationalTableModel::setData() method. Spike #1 */
+void CustomSqlTableModel::restoreData(int currentRow, int role)
+{
+    for (auto it = m_mSavedData.cbegin(); it != m_mSavedData.cend(); ++it) {
+        qDebug() << "data restoring. col =" << it.key() << ", value =" << it.value().toString();
+        QSqlRelationalTableModel::setData( index(currentRow, it.key()), it.value(), role );
+    }
+    m_mSavedData.clear();
+    m_bNeedSave = false;
 }
 
 /*
@@ -206,30 +240,37 @@ void CustomSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemMod
     if (!index.isValid())
         return;
 
+    qDebug() << "delegate, row =" << index.row() << ", col =" << index.column();
+
     QSqlTableModel *sqlTable = qobject_cast<QSqlTableModel *>(model);
     if (!sqlTable) return;
     const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(sqlTable->tableName(), index.column());
-    if (!fieldInf.isForeign())
+    bool isForeign = fieldInf.isForeign();
+    if (!isForeign)
         QItemDelegate::setModelData(editor, model, index);
+    else if ( isForeign && (DBINFO.tableByName( fieldInf.m_relationDBTable )->m_type == dbi::DBTInfo::ttype_simple) )
+        setDataToSimpleDBT(editor, model, index);
+}
 
-//        QSqlRelationalTableModel *sqlModel = qobject_cast<QSqlRelationalTableModel *>(model);
-//        QSqlTableModel *childModel = sqlModel ? sqlModel->relationModel(index.column()) : 0;
-//        QComboBox *combo = qobject_cast<QComboBox *>(editor);
-//        if (!sqlModel || !childModel || !combo) {
-//            qDebug() << "Before QItemDelegate::setModelData(), sqlModel:" << (void *)sqlModel
-//                     << ", childModel:" << (void *)childModel << ", combo:" << (void *)combo;
-//            QItemDelegate::setModelData(editor, model, index);
-//            return;
-//        }
-//        qDebug() << "Skip QItemDelegate::setModelData()";
-
-//        int currentItem = combo->currentIndex();
-//        int childColIndex = childModel->fieldIndex(sqlModel->relation(index.column()).displayColumn());
-//        int childEditIndex = childModel->fieldIndex(sqlModel->relation(index.column()).indexColumn());
-//        sqlModel->setData(index,
-//                childModel->data(childModel->index(currentItem, childColIndex), Qt::DisplayRole),
-//                Qt::DisplayRole);
-//        sqlModel->setData(index,
-//                childModel->data(childModel->index(currentItem, childEditIndex), Qt::EditRole),
-//                Qt::EditRole);
+void CustomSqlRelationalDelegate::setDataToSimpleDBT(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+    /*
+     * Set data to the QSqlRelationalTableModel if the current field has relation with a simple DB table
+     * (with help of the QSqlRelation class instance and used a combo box for choosing records of a simple DB table).
+     * This code was taked from the QSqlRelationalDelegate::setModelData() method.
+     */
+    QSqlRelationalTableModel *sqlModel = qobject_cast<QSqlRelationalTableModel *>(model);
+    QSqlTableModel *childModel = sqlModel ? sqlModel->relationModel(index.column()) : 0;
+    QComboBox *combo = qobject_cast<QComboBox *>(editor);
+    if (sqlModel && childModel && combo) {
+        int currentItem = combo->currentIndex();
+        int childColIndex = childModel->fieldIndex(sqlModel->relation(index.column()).displayColumn());
+        int childEditIndex = childModel->fieldIndex(sqlModel->relation(index.column()).indexColumn());
+        sqlModel->setData(index,
+                          childModel->data(childModel->index(currentItem, childColIndex), Qt::DisplayRole),
+                          Qt::DisplayRole);
+        sqlModel->setData(index,
+                          childModel->data(childModel->index(currentItem, childEditIndex), Qt::EditRole),
+                          Qt::EditRole);
+    }
 }

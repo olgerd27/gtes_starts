@@ -52,7 +52,7 @@ void FormDataInput::setDataOperating()
 
     // set combo box
     ui->m_cboxFuel->setModel(m_enginesModel->relationModel(2));
-    ui->m_cboxFuel->setModelColumn(0);
+    ui->m_cboxFuel->setModelColumn(1);
 
     // set mapper
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
@@ -177,26 +177,46 @@ void FormDataInput::slotEditDBT()
         return;
     }
 
-    int id = 0;
-    if ( !getCurrentIdForSelection(id, pbEditDBT->identWidget()) ) return;
-    editor->selectInitial(id);
+//    int id = 0;
+//    QVariant vId = m_enginesModel->index( m_mapper->currentIndex(),
+//                                          m_mapper->mappedSection(pbEditDBT->identWidget()) ).data(Qt::DisplayRole);
+//    if ( !safeIdConverting(vId, id) || !editor->selectInitial(id) ) return;
+
+    /* define the column number, that used for defining the initial selection in dialog.
+     * As the relational table model return a related DB table data (not a foreign key), then there are need to use the next (after "id")
+     * column for definition the selection of a row in the table of an opened dialog */
+    DBTEditor::ColumnNumbers columnTtype = ( dbtInfo->m_type == dbi::DBTInfo::ttype_simple ? DBTEditor::col_firstWithData
+                                                                                           : DBTEditor::col_id );
+    int currentRow = m_mapper->currentIndex();
+    int currentCol = m_mapper->mappedSection(pbEditDBT->identWidget());
+//    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]"
+//             << ", dataD =" << m_enginesModel->index(currentRow, currentCol).data(Qt::DisplayRole).toString()
+//             << ", dataE =" << m_enginesModel->index(currentRow, currentCol).data(Qt::EditRole).toString();
+    if ( !editor->selectInitial( m_enginesModel->index(currentRow, currentCol).data(Qt::DisplayRole), columnTtype ) )
+        return;
+
     if ( editor->exec() == QDialog::Accepted ) {
-//        QString identifData = editor->identificationData(); // TODO: maybe delete?
-//        if (!identifData.isEmpty()) pbEditDBT->setIdentData( identifData ); // set identification data in appropriate widget - TODO: maybe delete?
-        m_enginesModel->setData( m_enginesModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(pbEditDBT->identWidget()) ),
-                                 editor->selectedId(), Qt::EditRole );
+        m_enginesModel->setDataWithSavings();
+        m_enginesModel->setData( m_enginesModel->index( currentRow, currentCol ), editor->selectedId(), Qt::EditRole );
+        qDebug() << "selected ID =" << editor->selectedId();
     }
+
+//    int row = 0;
+//    for (int col = 3; col <= 4; ++col)
+//        qDebug() << "after dialog, [" << row << "," << col << "]"
+//                 << ", dataD =" << m_enginesModel->data( m_enginesModel->index(row, col), Qt::DisplayRole ).toString()
+//                 << ", dataE =" << m_enginesModel->data( m_enginesModel->index(row, col), Qt::EditRole ).toString();
+    qDebug() << "=========================";
 }
 
-bool FormDataInput::getCurrentIdForSelection(int &id, QWidget *identWidget)
+bool FormDataInput::safeIdConverting(const QVariant &vId, int &id)
 {
-    QVariant vId = m_enginesModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(identWidget) ).data(Qt::DisplayRole);
     bool b = false;
     id = vId.toInt(&b);
     if (!b) {
         QMessageBox::critical( this, tr("Error id"),
                                tr("Cannot get the valid integer id value for select row with it.\n"
-                                  "The reason is: cannot convert the variant type value \"%1\" to the integer type value")
+                                  "The reason is: cannot convert the variant type value \"%1\" to the integer type value.")
                                .arg(vId.toString()) );
     }
     return b;

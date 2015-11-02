@@ -8,9 +8,9 @@
  * Database Info namespace
  */
 namespace dbi {
-/*
- * Database table (DBT) field info
- */
+    /*
+    * Database table (DBT) field info
+    */
     struct DBTFieldInfo
     {
         enum WidgetsTypes
@@ -26,6 +26,8 @@ namespace dbi {
 
         bool isSetted() const;
         bool isForeign() const;
+        int relationDBTtype() const; /* return DBTInfo::TableTypes value. Returned value has the int type,
+                                      * because the DBTInfo::TableTypes type is not known here */
 
         QString m_nameInDB;         /* a field name, used in database */
         QString m_nameInUI;         /* a field name, used in user interface */
@@ -33,9 +35,9 @@ namespace dbi {
         QString m_relationDBTable;  /* a name of another relational database table. It is like a foreign key */
     };
 
-/*
- * Database table (DBT) info
- */
+    /*
+    * Database table (DBT) info
+    */
     struct DBTInfo
     {
         struct IdentityInfo
@@ -45,7 +47,7 @@ namespace dbi {
             int m_NField;           /* number of an identity field */
         };
 
-        typedef std::vector<DBTFieldInfo> T_arrTableInfos;
+        typedef std::vector<DBTFieldInfo> T_arrDBTFieldsInfo;
         typedef std::vector<IdentityInfo> T_arrIdentityFields;
 
         enum TableTypes
@@ -53,6 +55,7 @@ namespace dbi {
               ttype_simple      // has two columns - "id" and, for example, "name". Relation with other table - "one to many"
             , ttype_complex     // has many columns. Relation with other table - "one to many"
             , ttype_composite   // has many columns. Relation with other tables - "one to many", but implement relationship between them as "many to many"
+            , ttype_invalid     // invalid type of database table
         };
 
         enum { NO_IDENTITY_FIELD = -1 };
@@ -64,13 +67,13 @@ namespace dbi {
         QString m_nameInDB;                 /* a table name, used in database */
         QString m_nameInUI;                 /* a table name, used in user interface */
         TableTypes m_type;                  /* a table type */
-        T_arrTableInfos m_fields;           /* array of the table fileds */
+        T_arrDBTFieldsInfo m_fields;        /* array of the table fileds */
         T_arrIdentityFields m_idnFields;    /* array of the identity fields information, that use for forming the identity string */
     };
 
-/*
- * Database info
- */
+    /*
+    * Database info
+    */
     struct DBInfo
     {
         static DBInfo & Instance()

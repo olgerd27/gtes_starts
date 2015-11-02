@@ -15,6 +15,11 @@ bool dbi::DBTFieldInfo::isForeign() const
     return !m_relationDBTable.isEmpty();
 }
 
+int dbi::DBTFieldInfo::relationDBTtype() const
+{
+    return isForeign() ? DBINFO.tableByName(m_relationDBTable)->m_type : DBTInfo::ttype_simple;
+}
+
 /*
  * Comparison a some database table (the name passed in QString format) with the template some "info" class instance.
  * A some template "info" class instance must have variable "m_nameInDB".
@@ -94,7 +99,7 @@ dbi::DBInfo::DBInfo()
                 , {"modification", trans("Modification"), DBTFieldInfo::wtype_lineEdit, ""}
             },
             {
-                {"", 1}, {" ", 2}
+                  {"", 1}, {" ", 2}
             }
         },
 
@@ -107,7 +112,7 @@ dbi::DBInfo::DBInfo()
                 , {"number", trans("Number"), DBTFieldInfo::wtype_spinBoxInt, ""}
             },
             {
-                {"", 1}, {QString(" %1").arg(trans("#")), 2}
+                  {"", 1}, {QString(" %1").arg(trans("#")), 2}
             }
         },
 
@@ -150,7 +155,7 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
             {
-                {"", 1}, {": ", 2}
+                  {"", 1}, {" ", 2}
             }
         },
 
@@ -178,7 +183,9 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
             {
-                {"#", 0}, {QString(", %1: ").arg(trans("draft")), 1}
+                  {"#", 0}
+                , {QString(", %1: ").arg(trans("draft")), 1}
+                /* , {QString(", %1 = ").arg(trans("FT", "This is a Flame Tube")), 2} */
             }
         },
 
@@ -195,7 +202,9 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
             {
-                {"#", 0}, {", ", 1}, {QString(", %1: ").arg(trans("fuel")), 2}
+                  {"#", 0}
+                , {", ", 1}
+                , {QString(", %1: ").arg(trans("fuel")), 2}
             }
         }
     };
@@ -221,7 +230,6 @@ dbi::DBTInfo * dbi::DBInfo::tableByName(const QString &tableName) const
     auto it = std::find_if(m_tables.begin(), m_tables.end(), CompareInfoWithString<DBTInfo>(tableName));
     return it == m_tables.end() ? 0 : *it;
 }
-
 
 /*
  * External convenient function

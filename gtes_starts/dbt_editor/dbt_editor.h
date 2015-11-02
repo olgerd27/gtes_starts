@@ -1,5 +1,5 @@
-#ifndef EDITOR_DBT_H
-#define EDITOR_DBT_H
+#ifndef DBT_EDITOR_H
+#define DBT_EDITOR_H
 
 #include <QSqlTableModel>
 #include <QIcon>
@@ -41,27 +41,25 @@ class DBTEditor : public QDialog
 public:
     typedef int T_id;
 
-    explicit DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent = 0);
-    virtual ~DBTEditor();
-
-    void selectInitial(T_id id);
-    QString identificationData() const; // TODO: maybe delete?
-    T_id selectedId() const;
-
-protected:
-    void setWindowName();
-    virtual void makeSelect(int row) = 0;
-
     enum ColumnNumbers {
           col_empty = 0
         , col_id
         , col_firstWithData
     };
 
+    explicit DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent = 0);
+    virtual ~DBTEditor();
+
+    bool selectInitial(const QVariant &value, DBTEditor::ColumnNumbers compareCol);
+    T_id selectedId() const;
+
+protected:
+    void setWindowName();
+    virtual void makeSelect(int row) = 0;
+
     dbi::DBTInfo *m_DBTInfo;
     RowsChooseSqlTableModel *m_model;
-    QString m_identificationData; // TODO: maybe delete?
     T_id m_selectedId;
 };
 
-#endif // EDITOR_DBT_H
+#endif // DBT_EDITOR_H

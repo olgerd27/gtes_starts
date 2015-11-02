@@ -38,7 +38,7 @@ private:
     void setDataOperating();
     void setDataNavigation();
     DBTEditor * createDBTEditor(dbi::DBTInfo *info);
-    bool getCurrentIdForSelection(int &id, QWidget *identWidget);
+    bool safeIdConverting(const QVariant &vId, int &id);
 
     Ui::FormDataInput *ui;
     CustomSqlTableModel *m_enginesModel;

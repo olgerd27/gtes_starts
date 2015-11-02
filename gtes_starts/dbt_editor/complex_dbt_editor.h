@@ -1,7 +1,7 @@
 #ifndef COMPLEX_DBT_EDITOR_H
 #define COMPLEX_DBT_EDITOR_H
 
-#include "editor_dbt.h"
+#include "dbt_editor.h"
 
 namespace Ui {
     class ComplexDBTEditor;
@@ -23,7 +23,6 @@ private:
     void setEditingUI();
     virtual void makeSelect(int row);
     void setSelectedId(int selectedRow);
-    void setIdentificationData(const QModelIndex &indexInSelectRow); // TODO: maybe delete?
 
     Ui::ComplexDBTEditor *ui;
 };

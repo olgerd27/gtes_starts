@@ -29,8 +29,6 @@ public:
     void setIdentDataWidget(QWidget *wgt);
     QWidget * identWidget() const;
 
-    void setIdentData(const QString &data); // TODO: maybe delete?
-
 private:
     QString m_DBTableName;
     QWidget *m_identWgt;

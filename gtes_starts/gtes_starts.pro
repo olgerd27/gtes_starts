@@ -16,7 +16,7 @@ SOURCES += main.cpp\
     form_options.cpp \
     db_info.cpp \
     reimplemented_widgets.cpp \
-    dbt_editor/editor_dbt.cpp \
+    dbt_editor/dbt_editor.cpp \
     dbt_editor/simple_dbt_editor.cpp \
     dbt_editor/complex_dbt_editor.cpp \
     custom_sql_table_model.cpp
@@ -27,7 +27,7 @@ HEADERS  += main_window.h \
     form_options.h \
     db_info.h \
     reimplemented_widgets.h \
-    dbt_editor/editor_dbt.h \
+    dbt_editor/dbt_editor.h \
     dbt_editor/simple_dbt_editor.h \
     dbt_editor/complex_dbt_editor.h \
     custom_sql_table_model.h \
