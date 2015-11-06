@@ -1,4 +1,4 @@
-# Delete data from the DB
+-- Delete data from the DB
 
 DELETE FROM gtes_starts.engines_graphs;
 DELETE FROM gtes_starts.graphs_parameters_values;

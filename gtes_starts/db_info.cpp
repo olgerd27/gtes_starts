@@ -1,11 +1,12 @@
 #include <QObject>
 #include <QDebug>
+#include <stdexcept>
 #include "db_info.h"
 
 /*
  * DBTFieldInfo
  */
-bool dbi::DBTFieldInfo::isSetted() const
+bool dbi::DBTFieldInfo::isValid() const
 {
     return !m_nameInDB.isEmpty() && !m_nameInUI.isEmpty();
 }
@@ -57,14 +58,19 @@ int dbi::DBTInfo::tableDegree() const
 
 dbi::DBTFieldInfo dbi::DBTInfo::fieldByName(const QString &fieldName) const
 {
-    if (fieldName.isEmpty()) return DBTFieldInfo();
+    if (fieldName.isEmpty())
+        throw std::invalid_argument("The string argument to dbi::DBTInfo::fieldByName(QString) function is empty. "
+                                    "Please set a valid data");
     auto it = std::find_if(m_fields.begin(), m_fields.end(), CompareInfoWithString<DBTFieldInfo>(fieldName));
     return it == m_fields.end() ? DBTFieldInfo() : *it;
 }
 
 dbi::DBTFieldInfo dbi::DBTInfo::fieldByIndex(int index) const
 {
-    return (index < 0 || index >= (int)m_fields.size()) ? DBTFieldInfo() : m_fields.at(index);
+    if (index < 0 || index >= (int)m_fields.size())
+        throw std::out_of_range( QString("Cannot return the dbi::DBTFieldInfo instance, the argument index \"%1\" is out of range")
+                                 .arg(index).toStdString() );
+    return m_fields.at(index);
 }
 
 /*
@@ -226,7 +232,9 @@ QString dbi::DBInfo::name() const
 
 dbi::DBTInfo * dbi::DBInfo::tableByName(const QString &tableName) const
 {
-    if (tableName.isEmpty()) return 0;
+    if (tableName.isEmpty())
+        throw std::invalid_argument("The string argument to dbi::DBInfo::tableByName(QString) function is empty. "
+                                    "Please set a valid data");
     auto it = std::find_if(m_tables.begin(), m_tables.end(), CompareInfoWithString<DBTInfo>(tableName));
     return it == m_tables.end() ? 0 : *it;
 }
@@ -236,11 +244,28 @@ dbi::DBTInfo * dbi::DBInfo::tableByName(const QString &tableName) const
  */
 dbi::DBTFieldInfo dbi::fieldByNames(const QString &tableName, const QString &fieldName)
 {
-    return DBINFO.tableByName(tableName)->fieldByName(fieldName);
+    DBTInfo *ti = DBINFO.tableByName(tableName);
+    return ti ? ti->fieldByName(fieldName) : DBTFieldInfo();
 }
 
 
 dbi::DBTFieldInfo dbi::fieldByNameIndex(const QString &tableName, int fieldIndex)
 {
-    return DBINFO.tableByName(tableName)->fieldByIndex(fieldIndex);
+    DBTInfo *ti = DBINFO.tableByName(tableName);
+    return ti ? ti->fieldByIndex(fieldIndex) : DBTFieldInfo();
+}
+
+
+bool dbi::isRelatedWithDBTType(const dbi::DBTFieldInfo &fieldInfo, dbi::DBTInfo::TableTypes tableType)
+{
+    return fieldInfo.isValid() && fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == tableType);
+}
+
+
+dbi::DBTInfo *dbi::relatedDBT(const dbi::DBTFieldInfo &fieldInf)
+{
+    if (!fieldInf.isValid() || !fieldInf.isForeign())
+        throw std::invalid_argument("Cannot get the info of the related database table (DBTInfo class instance). "
+                                    "The argument of the dbi::relatedDBT(dbi::DBTFieldInfo) method is invalid");
+    return DBINFO.tableByName(fieldInf.m_relationDBTable);
 }

@@ -88,7 +88,7 @@ DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
     }
     for (int field = 0; field < dbTable->tableDegree(); ++field) {
         dbi::DBTFieldInfo fieldInfo = dbTable->fieldByIndex(field);
-        if (!fieldInfo.isSetted()) {
+        if (!fieldInfo.isValid()) {
             qDebug() << "Error #XXX. Cannot forming the header of the database table \"" + dbTable->m_nameInDB << "\"";
             // TODO: send this error to the some class, inherited from the QWidget, for creating error message box
             return;

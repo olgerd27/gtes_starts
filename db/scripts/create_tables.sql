@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS gtes_starts;
 USE gtes_starts;
 
-# combustion chamber
+-- combustion chamber
 CREATE TABLE IF NOT EXISTS injectors_types (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(50) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS combustion_chambers (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# start device
+-- start device
 CREATE TABLE IF NOT EXISTS start_devices_types (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(50) NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS start_devices (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# identification data
+-- identification data
 CREATE TABLE IF NOT EXISTS names_engines (
     id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(20) NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS full_names_engines (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# engines
+-- engines
 CREATE TABLE IF NOT EXISTS fuels_types (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(20) NOT NULL,
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS engines (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# settings
+-- settings
 CREATE TABLE IF NOT EXISTS settings_names (
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(60),
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS engines_settings (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# bypass
+-- bypass
 CREATE TABLE IF NOT EXISTS bypass_types (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(30),
@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS engines_bypasses (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# algorithms
+-- algorithms
 CREATE TABLE IF NOT EXISTS alg_parameters_names (
     id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(150) NOT NULL,
@@ -219,7 +219,7 @@ CREATE TABLE IF NOT EXISTS engines_algorithms (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# documents
+-- documents
 CREATE TABLE IF NOT EXISTS documents_types (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     name VARCHAR(50) NOT NULL,
@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS engines_documents (
         ON DELETE RESTRICT ON UPDATE CASCADE
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
-# graphs
+-- graphs
 CREATE TABLE IF NOT EXISTS graphs_parameters_type (
     id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     symbol VARCHAR(15),
@@ -261,7 +261,6 @@ CREATE TABLE IF NOT EXISTS graphs_parameters_type (
     PRIMARY KEY (id)
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
--- what type use for storing float values array in the field "par_values"??
 CREATE TABLE IF NOT EXISTS graphs_parameters_values (
     id MEDIUMINT UNSIGNED NOT NULL,
     par_type_id SMALLINT UNSIGNED NOT NULL,

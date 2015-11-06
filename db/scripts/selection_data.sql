@@ -1,8 +1,8 @@
-#SELECT * FROM gtes_starts.engines;
+-- SELECT * FROM gtes_starts.engines;
 
 USE gtes_starts;
 
-# Retrieve the engine fuel for the particular id value
+--  Retrieve the engine fuel for the particular id value
 SELECT 
     fuels_types.name
 FROM
@@ -12,7 +12,7 @@ WHERE
         engines.id = 2 
     AND engines.fuel_type_id = fuels_types.id;
 
-# Retrieve the full engine name for the particular id value, var.1
+--  Retrieve the full engine name for the particular id value, var.1
 SELECT 
     names_engines.name
 FROM
@@ -26,7 +26,7 @@ WHERE
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
 
-# Retrieve the full engine name for the particular id value, var.2
+--  Retrieve the full engine name for the particular id value, var.2
 SELECT 
     names_engines.name, 
     names_modifications_engines.modification, 
@@ -40,8 +40,9 @@ WHERE
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
     
-# Retrieve full engines names for all available foreign key id values
+-- Retrieve full engines names for all available foreign key id values
 SELECT 
+    engines.id,
     names_engines.name, 
     names_modifications_engines.modification, 
     full_names_engines.number
@@ -55,7 +56,7 @@ WHERE
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
 
-# Retrieve combustion chambers info
+-- Retrieve combustion chambers info
 SELECT 
     combustion_chambers.id, 
     combustion_chambers.draft_number

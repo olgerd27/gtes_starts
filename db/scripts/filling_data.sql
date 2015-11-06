@@ -1,8 +1,8 @@
-# Insertion the test data to the DB
-# Windows: D:/work/Starts_data_base/development/project/db/scripts/test_data
-# Linux: ~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data
+-- Insertion the test data to the DB
+-- Windows: D:/work/Starts_data_base/development/project/db/scripts/test_data
+-- Linux: ~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data
 
-# --- engines names ---
+--- engines names ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/names_engines.dat'
 REPLACE
 INTO TABLE gtes_starts.names_engines
@@ -18,13 +18,13 @@ REPLACE
 INTO TABLE gtes_starts.full_names_engines
 CHARACTER SET cp1251;
 
-# --- fuel ---
+--- fuel ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/fuels_types.dat'
 REPLACE
 INTO TABLE gtes_starts.fuels_types
 CHARACTER SET cp1251;
 
-# --- start devices ---
+--- start devices ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/start_devices_types.dat'
 REPLACE
 INTO TABLE gtes_starts.start_devices_types
@@ -35,7 +35,7 @@ REPLACE
 INTO TABLE gtes_starts.start_devices
 CHARACTER SET cp1251;
 
-# --- combustion chambers ---
+--- combustion chambers ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/injectors_types.dat'
 REPLACE
 INTO TABLE gtes_starts.injectors_types
@@ -46,13 +46,13 @@ REPLACE
 INTO TABLE gtes_starts.combustion_chambers
 CHARACTER SET cp1251;
 
-# --- engines ---
+--- engines ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/engines.dat'
 REPLACE
 INTO TABLE gtes_starts.engines
 CHARACTER SET cp1251;
 
-# --- graphs ---
+--- graphs ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/graphs_parameters_type.dat'
 REPLACE
 INTO TABLE gtes_starts.graphs_parameters_type
@@ -68,7 +68,7 @@ REPLACE
 INTO TABLE gtes_starts.engines_graphs
 CHARACTER SET cp1251;
 
-# --- documents ---
+--- documents ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/documents_types.dat'
 REPLACE
 INTO TABLE gtes_starts.documents_types
@@ -84,7 +84,7 @@ REPLACE
 INTO TABLE gtes_starts.engines_documents
 CHARACTER SET cp1251;
 
-# --- algorithms ---
+--- algorithms ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/on_off_units.dat'
 REPLACE
 INTO TABLE gtes_starts.on_off_units
@@ -105,7 +105,7 @@ REPLACE
 INTO TABLE gtes_starts.engines_algorithms
 CHARACTER SET cp1251;
 
-# --- bypasses ---
+--- bypasses ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/bypass_types.dat'
 REPLACE
 INTO TABLE gtes_starts.bypass_types
@@ -126,7 +126,7 @@ REPLACE
 INTO TABLE gtes_starts.engines_bypasses
 CHARACTER SET cp1251;
 
-# --- settings ---
+--- settings ---
 LOAD DATA LOCAL INFILE '~/Programming/qt/projects/Starts_data_base/development/project/db/scripts/test_data/settings_names.dat'
 REPLACE
 INTO TABLE gtes_starts.settings_names
