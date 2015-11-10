@@ -166,6 +166,7 @@ void DisplayDataGenerator::QueryGenerator::flush()
 /*****************************************************************************************************************************/
 /*
  * CustomSqlTableModel
+ *
  * Description of the spike #1.
  * When user change a some field that is a foreign key (in particular, a foreign key of a related complex DB table), there are performs
  * a calling of the QSqlRelationalTableModel::setData() method from the CustomSqlTableModel::setData().
@@ -176,6 +177,14 @@ void DisplayDataGenerator::QueryGenerator::flush()
  * following restoring data, that must not change.
  * Turn on the run of this operations performs by calling the public method setDataWithSavings(). Turn off the run of this operations
  * performs without assistance from outside in the restoreData() method.
+ *
+ * Rules of data setting and getting:
+ * - in time of initial running of a view performs getting from the DB all data and saving it in the storage;
+ * - calling of the data() method only get data from the storage and put it in the view by current index (index is a row number);
+ * - if user performs the UPDATE or INSERT a some record (row) operations, changes sends to the DB and after this updates
+ *   the storage and view with appropriate index (row number);
+ * - if user performs the DELETE a some record (row) operation, changes sends to the DB and immediately deletes appropriate value in the storage;
+ * - if user click to the Refresh action, the custom model clear storage and get all data again.
  */
 CustomSqlTableModel::CustomSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlRelationalTableModel(parent, db)
@@ -205,29 +214,17 @@ void CustomSqlTableModel::setTable(const QString &tableName)
 
 void CustomSqlTableModel::fillTheStorage()
 {
-    defineFieldsRelations();
-    for (int field = 0; field < columnCount(QModelIndex()); ++field) {
-        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), field);
-        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex)) {
+    for (int col = 0; col < columnCount(QModelIndex()); ++col) {
+        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
+        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple))
+            setRelationsWithSimpleDBT(col);
+        else if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex)) {
+            m_indexComplex.push_back(col); // save index of the fields, that is foreign keys to the complex database table
             m_dataGen.setQueryPreparer( new QueryPreparerAll(tableName(), fieldInf.m_nameInDB) );
+//            m_dataGen.setQueryPreparer( new QueryPreparerOne(1) );
             int resDataQnt = m_dataGen.generate(fieldInf.m_relationDBTable);
             saveDisplayData(m_dataGen.mask(), m_dataGen.query(), resDataQnt);
         }
-    }
-}
-
-/* Define quantity of fields, that is foreign keys to the complex database table */
-void CustomSqlTableModel::defineFieldsRelations()
-{
-    dbi::DBTInfo *tableInf = DBINFO.tableByName(tableName());
-    for (int col = 0; (unsigned)col < tableInf->m_fields.size(); ++col) {
-        const dbi::DBTFieldInfo &fieldInf = tableInf->fieldByIndex(col);
-        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple)) {
-            m_indexSimple.push_back(col);
-            setRelationsWithSimpleDBT(col);
-        }
-        else if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex))
-            m_indexComplex.push_back(col);
     }
 }
 
@@ -238,6 +235,7 @@ void CustomSqlTableModel::setRelationsWithSimpleDBT(int fieldIndex)
     setRelation( fieldIndex, QSqlRelation( tableInf->m_nameInDB,
                                            tableInf->m_fields.at(0).m_nameInDB, tableInf->m_fields.at(1).m_nameInDB ) );
 }
+
 
 int safeQVariantIdToInt(const QVariant &value)
 {
@@ -260,10 +258,9 @@ void CustomSqlTableModel::saveDisplayData(const QString &strMask, const QString 
         strRes = strMask;
         id = safeQVariantIdToInt(query.value(0));
         for (int i = 1; i < resDataQuantity; ++i)
-            strRes = strRes.arg( query.value(i).toString() );
+            strRes = strRes.arg( query.value(i).toString() ); // forming result data
 //        qDebug() << "id:" << id << ", data:" << strRes;
-//        if (m_storage.contains(id))
-//        m_storage.insert(id, strRes);
+        m_storage[id].push_back(strRes); // save result data to the storage
     }
     if (id == -1) {
         throw cmmn::MessageException( cmmn::MessageException::type_critical,
@@ -274,32 +271,46 @@ void CustomSqlTableModel::saveDisplayData(const QString &strMask, const QString 
     }
 }
 
+//QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
+//{
+//    /*
+//     * Rules of data getting:
+//     * - in time of initial running of a view performs getting from the DB big data amount, save it in the storage and filling view by one index;
+//     * - next calling of the data() method must only get data from the storage and put it in the view by index (index is a row number);
+//     * - if user performs the UPDATE or INSERT a some record (row) operations, changes sends to the DB and after this updates
+//     *   the storage and view with appropriate index (row number);
+//     * - if user performs the DELETE a some record (row) operation, changes sends to the DB and immediately deletes appropriate value in the storage;
+//     * - the next getting a big amount of data performs only if the rows number of data in DB is bigger then items number in the storage.
+//     */
+//    QVariant data = QSqlRelationalTableModel::data(item, role);
+//    //    qDebug() << "data(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << data.toString();
+//    int colNumb = item.column();
+//    if ( role == Qt::EditRole ) {
+//        const dbi::DBTFieldInfo &fieldInfo = dbi::fieldByNameIndex(tableName(), colNumb);
+//        if ( fieldInfo.isValid() && fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == dbi::DBTInfo::ttype_complex) ) {
+//            /* TODO: generation must calls from the setData() method. When the storage is empty, there are need performs filling the storage by all
+//             * available data from the DB by one referencing to the DB. This operation performs in the setData() method, and this method must be called
+//             * from the setTable() method. In this method performs only getting data from the storage.
+//             */
+//            data = DisplayDataGenerator().generate( fieldInfo.m_relationDBTable, data ); // TODO: temporary generation -> delete later
+
+//            // TODO: convert the item.column() {1, 3, 4} values to the indexes of stored data {0, 1, 2}
+////            data = m_storage.value(QSqlRelationalTableModel::data( this->index(item.row(), 0), Qt::DisplayRole ).toInt()).at(item.column());
+//        }
+//    }
+//    return data;
+//}
+
 QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 {
-    /*
-     * Rules of data getting:
-     * - in time of initial running of a view performs getting from the DB big data amount, save it in the map and filling view by one index;
-     * - next calling of the data() method must only get data from the map and put it in the view by index (index is a row number);
-     * - if user performs the UPDATE or INSERT a some record (row) operations, changes sends to the DB and after this updates
-     *   the map and view with appropriate index (row number);
-     * - if user performs the DELETE a some record (row) operation, changes sends to the DB and at the same time deletes appropriate
-     *   value in the map;
-     * - the next getting a big amount of data performs only if the rows number of data in DB is bigger then items number in the map with saved data.
-     */
+
     // TODO: use try-catch
     QVariant data = QSqlRelationalTableModel::data(item, role);
-    //    qDebug() << "data(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << data.toString();
-    int colNumb = item.column();
-    if ( colNumb != 2 && role == Qt::EditRole ) {
-        const dbi::DBTFieldInfo &fieldInfo = dbi::fieldByNameIndex(tableName(), colNumb);
-        if ( fieldInfo.isValid() && fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == dbi::DBTInfo::ttype_complex) ) {
-            /* TODO: generation must calls from the setData() method. When the storage is empty, there are need performs filling the storage by all
-             * available data from the DB by one referencing to the DB. This operation performs in the setData() method, and this method must be called
-             * from the setTable() method. In this method performs only getting data from the storage.
-             */
-//            data = DisplayDataGenerator().generate( fieldInfo.m_relationDBTable, data ); // TODO: temporary generation -> delete later
-            // TODO: convert the item.column() {1, 3, 4} values to the indexes of stored data {0, 1, 2}
-//            data = m_mStorage.value(QSqlRelationalTableModel::data( this->index(item.row(), 0), Qt::DisplayRole ).toInt()).at(item.column());
+    if ( role == Qt::EditRole ) {
+        int indexStorage = m_indexComplex.indexOf( safeQVariantIdToInt(item.column()) ); // converting the column number to the storage index
+        if (indexStorage != -1) {
+            data = m_storage.value( QSqlRelationalTableModel::data( this->index(item.row(), 0), Qt::DisplayRole ).toInt() ).at(indexStorage);
+//            qDebug() << "column =" << item.column() << ", index =" << indexStorage << ", data:" << data;
         }
     }
     return data;

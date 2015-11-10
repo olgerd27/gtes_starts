@@ -61,18 +61,20 @@ public:
 
 private:
     void fillTheStorage();
-    void defineFieldsRelations();
     void setRelationsWithSimpleDBT(int fieldIndex);
     void saveDisplayData(const QString &strMask, const QString &strQuery, int resDataQuantity);
 
     void saveData(const QModelIndex &currentIndex, int role);
     void restoreData(int currentRow, int role);
 
+    typedef QVector<int> T_indexes;
+    typedef QMap<int, QVector<QVariant>> T_storage;
+    typedef QMap<int, QVariant> T_saveRestore;
+
     DisplayDataGenerator m_dataGen;
-    QVector<int> m_indexSimple;
-    QVector<int> m_indexComplex;
-    QMap<int, QVector<QVariant>> m_storage;
-    QMap<int, QVariant> m_saveRestore;
+    T_indexes m_indexComplex;
+    T_storage m_storage;
+    T_saveRestore m_saveRestore;
     bool m_bNeedSave;
 };
 

@@ -28,5 +28,6 @@
         <file>images/rotated_trash_1.png</file>
         <file>images/rotated_trash_2.png</file>
         <file>images/ok.png</file>
+        <file>images/window_icon.png</file>
     </qresource>
 </RCC>
