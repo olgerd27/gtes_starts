@@ -47,7 +47,7 @@ FROM
     names_modifications_engines,
     full_names_engines
 WHERE
-        engines.id = 1 
+        1 = engines.id
     AND engines.full_name_id = full_names_engines.id 
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;

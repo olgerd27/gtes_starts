@@ -65,8 +65,6 @@ void FormDataInput::setDataOperating()
     m_mapper->addMapping(ui->m_leStartDeviceData, 4);
     m_mapper->addMapping(ui->m_sboxStartDevicesQntyData, 5);
     m_mapper->addMapping(ui->m_pteComments, 6);
-
-    m_enginesModel->select();
     m_mapper->toFirst();
 }
 

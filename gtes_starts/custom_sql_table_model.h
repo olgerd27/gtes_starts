@@ -6,9 +6,11 @@
 
 namespace dbi {
     class DBTInfo;
+    class DBTFieldInfo;
 }
+class StorageChanger;
 
-/* Base strategy class */
+/* Base strategy class for final preparing DB query */
 struct IQueryPreparer
 {
     virtual void finalPrepare(QStringList &listSelect, QStringList &listFrom, QStringList &listWhere) = 0;
@@ -20,8 +22,9 @@ class DisplayDataGenerator
 public:
     DisplayDataGenerator();
     ~DisplayDataGenerator();
-    int generate(const QString &complexTableName); /* return the mask items quantity */
-    inline void setQueryPreparer(IQueryPreparer *qp);
+    int generate(const dbi::DBTFieldInfo &foreignFieldInf); /* return the mask items quantity */
+    void setQueryPreparer(IQueryPreparer *qp);
+    inline IQueryPreparer *queryPreparer() { return m_queryPrep; }
     inline QString mask() const { return m_strMask; }
     inline QString query() const { return m_strQuery; }
 private:
@@ -40,7 +43,7 @@ private:
         int m_quantityRes;
     };
 
-    void generate_Mask_QueryData(dbi::DBTInfo *table, int &fieldCounter);
+    void generate_Mask_QueryData(const dbi::DBTFieldInfo &ffield, int &fieldCounter);
     void flush();
 
     QueryGenerator m_queryGen;
@@ -53,27 +56,37 @@ class CustomSqlTableModel : public QSqlRelationalTableModel
     Q_OBJECT
 
 public:
+    typedef QVector<int> T_indexes;
+    typedef QMap<int, QVector<QVariant>> T_storage;
+    typedef QMap<int, QVariant> T_saveRestore;
+
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
+    ~CustomSqlTableModel();
+
     void setDataWithSavings();
     void setTable(const QString &tableName);
     QVariant data(const QModelIndex &item, int role) const;
     bool setData(const QModelIndex &item, const QVariant &value, int role);
 
+public slots:
+    void slotFillTheStorage();
+    void slotInsertToTheStorage(int id);
+    void slotUpdateTheStorage(int id, int colNumb);
+
 private:
-    void fillTheStorage();
+    void setStorageChanger(StorageChanger *changer);
+    void changeComplexDBTData(int colFrom, int colTo);
     void setRelationsWithSimpleDBT(int fieldIndex);
     void saveDisplayData(const QString &strMask, const QString &strQuery, int resDataQuantity);
+    void flush();
 
     void saveData(const QModelIndex &currentIndex, int role);
     void restoreData(int currentRow, int role);
 
-    typedef QVector<int> T_indexes;
-    typedef QMap<int, QVector<QVariant>> T_storage;
-    typedef QMap<int, QVariant> T_saveRestore;
-
     DisplayDataGenerator m_dataGen;
-    T_indexes m_indexComplex;
+    StorageChanger *m_storageChanger;
     T_storage m_storage;
+    T_indexes m_indexComplex;
     T_saveRestore m_saveRestore;
     bool m_bNeedSave;
 };
