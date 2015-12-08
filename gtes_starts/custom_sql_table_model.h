@@ -13,17 +13,23 @@ class CustomSqlTableModel : public QSqlRelationalTableModel
     Q_OBJECT
 
 public:
+    typedef QMap<int, QVector<QVariant>> T_storage; /* key -> model column, value -> generated data by the rows */
+    typedef QMap<int, QVariant> T_saveRestore;
+
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     void setDataWithSavings();
     void setTable(const QString &tableName);
     QVariant data(const QModelIndex &item, int role) const;
     bool setData(const QModelIndex &item, const QVariant &value, int role);
+    void print() const;
 
 private:
     void saveData(const QModelIndex &currentIndex, int role);
     void restoreData(int currentRow, int role);
+    void fillGeneratedData();
 
-    QMap<int, QVariant> m_mSavedData;
+    T_storage m_generatedData;
+    T_saveRestore m_mSavedData;
     bool m_bNeedSave;
 };
 

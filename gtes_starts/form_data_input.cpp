@@ -65,8 +65,6 @@ void FormDataInput::setDataOperating()
     m_mapper->addMapping(ui->m_leStartDeviceData, 4);
     m_mapper->addMapping(ui->m_sboxStartDevicesQntyData, 5);
     m_mapper->addMapping(ui->m_pteComments, 6);
-
-    m_enginesModel->select();
     m_mapper->toFirst();
 }
 
@@ -189,16 +187,29 @@ void FormDataInput::slotEditDBT()
                                                                                            : DBTEditor::col_id );
     int currentRow = m_mapper->currentIndex();
     int currentCol = m_mapper->mappedSection(pbEditDBT->identWidget());
-//    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]"
-//             << ", dataD =" << m_enginesModel->index(currentRow, currentCol).data(Qt::DisplayRole).toString()
-//             << ", dataE =" << m_enginesModel->index(currentRow, currentCol).data(Qt::EditRole).toString();
-    if ( !editor->selectInitial( m_enginesModel->index(currentRow, currentCol).data(Qt::DisplayRole), columnTtype ) )
+
+    /* temporary, print some data */
+    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]";
+    QVariant dataD = m_enginesModel->index(currentRow, currentCol).data(Qt::DisplayRole);
+    qDebug() << "dataD =" << dataD.toString();
+    QVariant dataE = m_enginesModel->index(currentRow, currentCol).data(Qt::EditRole);
+    qDebug() << "dataE =" << dataE.toString();
+    QVariant dataU = m_enginesModel->index(currentRow, currentCol).data(Qt::UserRole);
+    qDebug() << "dataU =" << dataU.toString();
+
+    if ( !editor->selectInitial( m_enginesModel->index(currentRow, currentCol).data(Qt::UserRole), columnTtype ) )
         return;
 
     if ( editor->exec() == QDialog::Accepted ) {
+        qDebug() << "Dialog Accepted";
+//        m_enginesModel->print();
         m_enginesModel->setDataWithSavings();
-        m_enginesModel->setData( m_enginesModel->index( currentRow, currentCol ), editor->selectedId(), Qt::EditRole );
+        m_enginesModel->setData( m_enginesModel->index( currentRow, currentCol ), editor->selectedId(), Qt::UserRole );
+//        qDebug() << "after setData(), [" << currentRow << "," << currentCol << "]"
+//                 << ", dataD:" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::DisplayRole )
+//                 << ", dataE:" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::EditRole );
         qDebug() << "selected ID =" << editor->selectedId();
+//        m_enginesModel->print();
     }
 
 //    int row = 0;

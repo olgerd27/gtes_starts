@@ -104,7 +104,7 @@ void DisplayDataGenerator::generateResultData(int id, QString &strRes, int field
                                       QObject::tr("Cannot get a data from the database for generation displayed data of the \"%1\" database table.\n"
                                                   "The reason is: invalid database query.").arg(tableName), "DisplayDataGenerator::generateResultData" );
     }
-    qDebug() << "strRes data:" << strRes << "for id =" << id;
+//    qDebug() << "strRes data:" << strRes << "for id =" << id;
 }
 
 /*
@@ -173,32 +173,60 @@ void CustomSqlTableModel::setTable(const QString &tableName)
 {
     QSqlRelationalTableModel::setTable(tableName);
     setEditStrategy(QSqlTableModel::OnManualSubmit);
+    select();
     setRelation(2, QSqlRelation("fuels_types", "id", "name")); // TODO: make an automatic relations set
+    fillGeneratedData();
 }
 
 QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 {
-    QVariant data = QSqlRelationalTableModel::data(item, role);
-//    qDebug() << "data(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << data.toString();
-    int colNumb = item.column();
-    if ( colNumb != 2 && role == Qt::EditRole ) {
-        dbi::DBTFieldInfo fieldInfo = dbi::fieldByNameIndex(tableName(), colNumb);
-        if (fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == dbi::DBTInfo::ttype_complex) ) {
-            data = DisplayDataGenerator().generate( fieldInfo.m_relationDBTable, data );
-        }
-    }
+    if (!item.isValid()) return QVariant();
+
+    QVariant data;
+    if (role == Qt::UserRole)
+        data = QSqlRelationalTableModel::data(item, role);
+    else if (role == Qt::DisplayRole || role == Qt::EditRole)
+        data = m_generatedData[]
+//    qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
+
+//    int colNumb = item.column();
+//    if ( colNumb != 2 && role == Qt::EditRole ) {
+//        dbi::DBTFieldInfo fieldInfo = dbi::fieldByNameIndex(tableName(), colNumb);
+//        if (fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == dbi::DBTInfo::ttype_complex) ) {
+//            data = DisplayDataGenerator().generate( fieldInfo.m_relationDBTable, data );
+//        }
+//    }
     return data;
 }
 
 bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value, int role)
 {
+    /* Note: "value" must be the "id" value for any role */
     if (!item.isValid()) return false;
-    qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << value.toString();
-    if (m_bNeedSave) saveData(item, role); // Spike #1
-    bool bSucc = QSqlRelationalTableModel::setData(item, value, role);
-    if (m_bNeedSave) restoreData(item.row(), role); // Spike #1
-    if (bSucc) emit dataChanged(item, item);
-    return bSucc;
+//    qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << value.toString();
+//    if (m_bNeedSave) saveData(item, role); // Spike #1
+
+    bool editSetted = false, userSetted = false;
+    int colNumb = item.column();
+    if ( colNumb != 2 && (role == Qt::EditRole || role == Qt::UserRole) ) {
+        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), colNumb);
+        if (fieldInf.isForeign() && (DBINFO.tableByName( fieldInf.m_relationDBTable )->m_type == dbi::DBTInfo::ttype_complex) ) {
+            QVariant generData = DisplayDataGenerator().generate(fieldInf.m_relationDBTable, value);
+            editSetted = QSqlRelationalTableModel::setData(item, value, Qt::EditRole);
+            userSetted = QSqlRelationalTableModel::setData(item, generData, Qt::UserRole);
+//            m_generatedData[item.column()]
+            qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << value << ", generData:" << generData;
+        }
+    }
+
+//    if (m_bNeedSave) restoreData(item.row(), role); // Spike #1
+//    qDebug() << "data after QSqlRelationalTableModel::setData:" << QSqlRelationalTableModel::data(item, role);
+    qDebug() << "edit setted:" << editSetted << ", user setted:" << userSetted;
+    if (editSetted && userSetted) {
+        qDebug() << "emit dataChanged()";
+        emit dataChanged(item, item);
+    }
+    return editSetted && userSetted;
 }
 
 /* Save data before calling the QSqlRelationalTableModel::setData() method. Spike #1 */
@@ -223,6 +251,31 @@ void CustomSqlTableModel::restoreData(int currentRow, int role)
     }
     m_mSavedData.clear();
     m_bNeedSave = false;
+}
+
+void CustomSqlTableModel::fillGeneratedData()
+{
+    int idValue = -1;
+    for (int col = 0; (unsigned)col < columnCount(QModelIndex()); ++col) {
+        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
+        if ( fieldInf.relationDBTtype() == dbi::DBTInfo::ttype_complex ) {
+            idValue = QSqlRelationalTableModel::data( index() )
+            QVariant generData = DisplayDataGenerator().generate(fieldInf.m_relationDBTable, idValue);
+            m_generatedData.insert(col, generData);
+        }
+    }
+}
+
+void CustomSqlTableModel::print() const
+{
+    qDebug() << "DB table content:";
+    for (int row = 0; row < rowCount(QModelIndex()); ++row) {
+        for (int col = 0; col < columnCount(QModelIndex()); ++col) {
+            qDebug() << "[" << row << "," << col << "], disp:" << QSqlRelationalTableModel::data(index(row, col), Qt::DisplayRole)
+                     << ", edit:" << QSqlRelationalTableModel::data(index(row, col), Qt::EditRole);
+        }
+        qDebug() << "---------";
+    }
 }
 
 /*
