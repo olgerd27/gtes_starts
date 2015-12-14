@@ -6,21 +6,22 @@
 #include "common_defines.h"
 
 /*
- * Strategy class, that help to prepare a query for obtaining all data from database for particular table and its field
+ * Strategy class, that help to prepare a query for obtaining data from database for a some id of a some main table.
+ * This class allow obtain all data, that correspond to all existent id values of a some main table.
  */
-struct QueryPreparerAllId : public IQueryPreparer
+struct QPMainTableId : public DisplayDataGenerator::IQueryPreparer
 {
-    QueryPreparerAllId(const QString &mainTableName = QString(), const QString &foreignFieldName = QString())
+    QPMainTableId(const QString &mainTableName = QString(), const QString &foreignFieldName = QString())
         : m_mTableName(mainTableName)
         , m_fFieldName(foreignFieldName)
     { }
 
-    virtual ~QueryPreparerAllId() { }
+    virtual ~QPMainTableId() { }
 
     virtual void finalPrepare(QStringList &listSelect, QStringList &listFrom, QStringList &listWhere)
     {
         if (m_mTableName.isEmpty() || m_fFieldName.isEmpty())
-            throw std::logic_error("QueryPreparerAllId::finalPrepare(), main table name or foreign field name was not setted.");
+            throw std::logic_error("QPMainTableId::finalPrepare(), main table name or foreign field name was not setted.");
         listSelect.push_front(m_mTableName + ".id");
         listFrom.push_front(m_mTableName);
         listWhere.push_front(m_mTableName + "." + m_fFieldName);
@@ -35,19 +36,20 @@ protected:
 
 /*
  * Strategy class, that help to prepare a query for obtaining data from database for particular one id value
+ * of a some main table.
  */
-struct QueryPreparerOneId : public QueryPreparerAllId
+struct QPOneId : public QPMainTableId
 {
-    QueryPreparerOneId(int id, const QString &mainTableName = QString(), const QString &foreignFieldName = QString())
-        : QueryPreparerAllId(mainTableName, foreignFieldName)
+    QPOneId(int id, const QString &mainTableName = QString(), const QString &foreignFieldName = QString())
+        : QPMainTableId(mainTableName, foreignFieldName)
         , m_id(id)
     { }
 
-    virtual ~QueryPreparerOneId() { }
+    virtual ~QPOneId() { }
 
     virtual void finalPrepare(QStringList &listSelect, QStringList &listFrom, QStringList &listWhere)
     {
-        QueryPreparerAllId::finalPrepare(listSelect, listFrom, listWhere);
+        QPMainTableId::finalPrepare(listSelect, listFrom, listWhere);
         // add additional SELECT query statement - id value of the main table record
         listWhere.push_front(m_mTableName + ".id");
         listWhere.push_front(QString::number(m_id));
@@ -58,40 +60,37 @@ protected:
 };
 
 /*****************************************************************************************************************************/
-
 /*
  * DisplayDataGenerator
  */
 DisplayDataGenerator::DisplayDataGenerator()
-    : m_queryPrep(0)
 { }
 
 DisplayDataGenerator::~DisplayDataGenerator()
-{
-    delete m_queryPrep;
-}
+{ }
 
 int DisplayDataGenerator::generate(const dbi::DBTFieldInfo &foreignFieldInf)
 {
-    if (!m_queryPrep)
+    if (!isReadyToGeneration())
         throw cmmn::MessageException(cmmn::MessageException::type_critical,
                                      QObject::tr("Error data generating"),
                                      QObject::tr("The functor for database query was not setted"), "DisplayDataGenerator::generate");
     flush();
     int fieldsCounter = 0;
     generate_Mask_QueryData( foreignFieldInf, fieldsCounter );
-
-//    qDebug() << "mask:" << m_strMask;
-//    m_queryGen.print();
-
-    m_strQuery = m_queryGen.generateQuery(m_queryPrep);
+    m_strQuery = m_queryGen.generateQuery();
     return m_queryGen.quantityResultData();
 }
 
-void DisplayDataGenerator::setQueryPreparer(IQueryPreparer *qp)
+void DisplayDataGenerator::setQueryPreparer(DisplayDataGenerator::IQueryPreparer *qp)
 {
-    delete m_queryPrep;
-    m_queryPrep = qp;
+    m_queryGen.setQueryPreparer(qp);
+}
+
+void DisplayDataGenerator::setForeignFieldName(const QString &name)
+{
+    if ( QPMainTableId *pr = dynamic_cast<QPMainTableId *>(m_queryGen.queryPreparer()) )
+         pr->setForeignFieldName(name);
 }
 
 /* Generate data mask and data for generation query string */
@@ -115,6 +114,11 @@ void DisplayDataGenerator::generate_Mask_QueryData(const dbi::DBTFieldInfo &ffie
     }
 }
 
+bool DisplayDataGenerator::isReadyToGeneration()
+{
+    return m_queryGen.queryPreparer() != 0;
+}
+
 void DisplayDataGenerator::flush()
 {
     m_strMask.clear();
@@ -124,7 +128,23 @@ void DisplayDataGenerator::flush()
 /*
  * DisplayDataGenerator::QueryGenerator
  */
-QString DisplayDataGenerator::QueryGenerator::generateQuery(IQueryPreparer *queryPrep)
+DisplayDataGenerator::QueryGenerator::QueryGenerator()
+    : m_queryPrep(0)
+{
+}
+
+DisplayDataGenerator::QueryGenerator::~QueryGenerator()
+{
+    delete m_queryPrep;
+}
+
+void DisplayDataGenerator::QueryGenerator::setQueryPreparer(DisplayDataGenerator::IQueryPreparer *qp)
+{
+    delete m_queryPrep;
+    m_queryPrep = qp;
+}
+
+QString DisplayDataGenerator::QueryGenerator::generateQuery()
 {
     if (m_listFrom.isEmpty() || m_listSelect.isEmpty()) {
         throw cmmn::MessageException( cmmn::MessageException::type_critical,
@@ -133,9 +153,9 @@ QString DisplayDataGenerator::QueryGenerator::generateQuery(IQueryPreparer *quer
                                       "DisplayDataGenerator::QueryGenerator::generateQuery" );
     }
 
-//    qDebug() << "SELECT 1:" << m_listSelect;
-//    qDebug() << "FROM 1:" << m_listFrom;
-//    qDebug() << "WHERE 1:" << m_listWhere;
+//    qDebug() << "Not ready query data:\nSELECT:" << m_listSelect;
+//    qDebug() << "FROM:" << m_listFrom;
+//    qDebug() << "WHERE:" << m_listWhere;
 
     /* preparing the FROM statement */
     m_listFrom.removeDuplicates();
@@ -144,24 +164,28 @@ QString DisplayDataGenerator::QueryGenerator::generateQuery(IQueryPreparer *quer
     m_listWhere.push_back(m_listFrom.first() + ".id");
 
     /* final preparing with help of strategy function */
-    queryPrep->finalPrepare(m_listSelect, m_listFrom, m_listWhere);
+    m_queryPrep->finalPrepare(m_listSelect, m_listFrom, m_listWhere);
     m_quantityRes = m_listSelect.size(); // save quantity of the result data
 
-    // add "AND" and "=" to the query expression
-    QString strWhere("");
-    for (auto it = m_listWhere.cbegin(); it != m_listWhere.cend(); it += 2) {
-        if (it != m_listWhere.cbegin()) strWhere += "AND ";
-        strWhere += ( *it + " = " + *(it + 1) + " " );
-    }
-
-//    qDebug() << "SELECT 2:" << m_listSelect.join(", ");
-//    qDebug() << "FROM 2:" << m_listFrom.join(", ");
-//    qDebug() << "WHERE 2:" << strWhere;
+//    qDebug() << "Ready query data:\nSELECT:" << m_listSelect.join(", ");
+//    qDebug() << "FROM:" << m_listFrom.join(", ");
+//    qDebug() << "WHERE:" << m_listWhere.join(", ");
 
     QString strQuery = QString("SELECT %1 FROM %2 WHERE %3;")
-            .arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( strWhere );
+            .arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( concatWhere() );
     flush();
     return strQuery;
+}
+
+QString DisplayDataGenerator::QueryGenerator::concatWhere() const
+{
+    // Concatenate the WHERE statement with adding the "AND" and the "=" items
+    QString str("");
+    for (auto it = m_listWhere.cbegin(); it != m_listWhere.cend(); it += 2) {
+        if (it != m_listWhere.cbegin()) str += "AND ";
+        str += ( *it + " = " + *(it + 1) + " " );
+    }
+    return str;
 }
 
 void DisplayDataGenerator::QueryGenerator::flush()
@@ -232,13 +256,22 @@ int safeQVariantIdToInt(const QVariant &value)
  * Turn on the run of this operations performs by calling the public method setDataWithSavings(). Turn off the run of this operations
  * performs without assistance from outside in the restoreData() method.
  *
- * Rules of data setting and getting:
+ * Rules of data setting and getting (v.1):
  * - in time of initial running of a view performs getting from the DB all data and saving it in the storage;
  * - calling of the data() method only get data from the storage and put it in the view by current index (index is a row number);
  * - if user performs the UPDATE or INSERT a some record (row) operations, changes sends to the DB and after this updates
  *   the storage and view with appropriate index (row number);
  * - if user performs the DELETE a some record (row) operation, changes sends to the DB and immediately deletes appropriate value in the storage;
  * - if user click to the Refresh action, the custom model clear storage and get all data again.
+ *
+ * Rules of data setting and getting (v.2):
+ * - in time of set model table name, performs filling the model with data with help of the setData() method.
+ *   For this, performs extraction from the DB all data for every column, that is foreign key to the complex DB table.
+ *   Every value, extracted from the DB, used for generation display data. In the setData() method performs savings the DB data and
+ *   the generated display data {manual} {user, edit role};
+ * - views extracts any data from the model {automatic} {edit/display role};
+ * - if there are need to get a some value from the model -> get it with the {user} role {manual};
+ * - if there are need to set a some value to the model -> set it with {edit} role {manual}.
  */
 CustomSqlTableModel::CustomSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlRelationalTableModel(parent, db)
@@ -261,7 +294,10 @@ void CustomSqlTableModel::setTable(const QString &tableName)
     QSqlRelationalTableModel::setTable(tableName);
     setEditStrategy(QSqlTableModel::OnManualSubmit);
     try {
-        if (m_storage.isEmpty()) slotFillTheStorage();
+        if (m_storage.isEmpty()) {
+            defineSimpleDBTAndComplexIndex();
+            slotFillTheStorage();
+        }
     }
     catch (const cmmn::MessageException &me) {
         QString strPlace = QObject::tr("Error placement") + ": " + me.placement();
@@ -272,29 +308,38 @@ void CustomSqlTableModel::setTable(const QString &tableName)
     }
 }
 
-void CustomSqlTableModel::changeComplexDBTData(int colFrom, int colTo)
+void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
 {
-    bool needSaveComplexIndex = m_indexComplex.empty(); // true - if this is a filling or refilling all storage
-    for (int col = colFrom; col < colTo; ++col) {
+    /* Model initialization: define relations with simple DBT columns number and save complex DBT columns numbers (indexes) */
+    // Check - is this a first calling
+    if (!m_indexComplex.empty()) {
+        // TODO: generate error about: trying to initialize already initialized model
+        qDebug() << "trying to initialize already initialized model";
+        return;
+    }
+    // Processing
+    for (int col = 0; col < this->columnCount(QModelIndex()); ++col) {
         const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
-        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple))
-            setRelationsWithSimpleDBT(col);
-        else if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex)) {
-            if (needSaveComplexIndex) m_indexComplex.push_back(col); // save index of the fields, that is a foreign key to a some complex database table
-            if ( QueryPreparerAllId *pr = dynamic_cast<QueryPreparerAllId *>(m_dataGen.queryPreparer()) )
-                 pr->setForeignFieldName(fieldInf.m_nameInDB);
-            int resDataQnt = m_dataGen.generate(fieldInf);
-            saveDisplayData(m_dataGen.mask(), m_dataGen.query(), resDataQnt);
+        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple)) {
+            dbi::DBTInfo *tableInf = dbi::relatedDBT(fieldInf);
+            setRelation( col, QSqlRelation( tableInf->m_nameInDB,
+                                            tableInf->m_fields.at(0).m_nameInDB, tableInf->m_fields.at(1).m_nameInDB ) );
         }
+        else if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex))
+            m_indexComplex.push_back(col); // save index of the fields, that is a foreign key to a some complex database table
     }
 }
 
-void CustomSqlTableModel::setRelationsWithSimpleDBT(int fieldIndex)
+void CustomSqlTableModel::changeComplexDBTData(int colFrom, int colTo)
 {
-    const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), fieldIndex);
-    dbi::DBTInfo *tableInf = dbi::relatedDBT(fieldInf);
-    setRelation( fieldIndex, QSqlRelation( tableInf->m_nameInDB,
-                                           tableInf->m_fields.at(0).m_nameInDB, tableInf->m_fields.at(1).m_nameInDB ) );
+    for (int col = colFrom; col < colTo; ++col) {
+        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
+        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex)) {
+            m_dataGen.setForeignFieldName(fieldInf.m_nameInDB);
+            int countResData = m_dataGen.generate(fieldInf);
+            saveDisplayData(m_dataGen.mask(), m_dataGen.query(), countResData);
+        }
+    }
 }
 
 void CustomSqlTableModel::saveDisplayData(const QString &strMask, const QString &strQuery, int resDataQuantity)
@@ -307,8 +352,8 @@ void CustomSqlTableModel::saveDisplayData(const QString &strMask, const QString 
         id = safeQVariantIdToInt(query.value(0));
         for (int i = 1; i < resDataQuantity; ++i)
             strRes = strRes.arg( query.value(i).toString() ); // forming result data
-//        qDebug() << "id:" << id << ", data:" << strRes;
-        m_storageChanger->changeStorage(m_storage, id, strRes); // save results data to the storage
+        qDebug() << "id:" << id << ", data:" << strRes;
+//        m_storageChanger->changeStorage(m_storage, id, strRes); // save results data to the storage
     }
     if (id == -1) {
         throw cmmn::MessageException( cmmn::MessageException::type_critical,
@@ -358,11 +403,13 @@ QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 {
     // TODO: use try-catch
     QVariant data = QSqlRelationalTableModel::data(item, role);
-    if ( role == Qt::EditRole ) {
+    if ( role == Qt::EditRole || role == Qt::DisplayRole || role == Qt::UserRole ) {
         int indexStorage = m_indexComplex.indexOf( safeQVariantIdToInt(item.column()) ); // converting the column number to the storage index
-        if (indexStorage != -1) {
-            int id = safeQVariantIdToInt( QSqlRelationalTableModel::data( this->index(item.row(), 0), Qt::DisplayRole ) );
-            data = m_storage.value(id).at(indexStorage);
+        if (indexStorage != -1) { // checking is there the foreign key to the complex DB table
+//            int id = safeQVariantIdToInt( QSqlRelationalTableModel::data( this->index(item.row(), 0), Qt::DisplayRole ) );
+//            data = m_storage.value(id).at(indexStorage);
+            int roleReturn = (role == Qt::UserRole) ? Qt::EditRole : Qt::UserRole;
+            data = QSqlRelationalTableModel::data(item, roleReturn);
 //            qDebug() << "column =" << item.column() << ", index =" << indexStorage << ", data:" << data;
         }
     }
@@ -373,12 +420,20 @@ bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value
 {
     if (!item.isValid()) return false;
     // TODO: use try-catch
-    qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << value.toString();
 //    if (m_bNeedSave) saveData(item, role); // Spike #1
-    bool bSucc = QSqlRelationalTableModel::setData(item, value, role);
+    bool bEdit = true, bUser = true;
+    if (role == Qt::EditRole) {
+        int indexStorage = m_indexComplex.indexOf( safeQVariantIdToInt(item.column()) );
+        if (indexStorage != -1) { // checking is there the foreign key to the complex DB table
+            bEdit = QSqlRelationalTableModel::setData(item, value, Qt::EditRole);
+            bUser = QSqlRelationalTableModel::setData(item, QString("data_id=") + value.toString(), Qt::UserRole);
+            qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role =" << role << ", data =" << value.toString()
+                     << ", was setted:" << bEdit << bUser;
+            if (bEdit && bUser) emit dataChanged(item, item);
+        }
+    }
 //    if (m_bNeedSave) restoreData(item.row(), role); // Spike #1
-    if (bSucc) emit dataChanged(item, item);
-    return bSucc;
+    return bEdit && bUser;
 }
 
 /* Save data before calling the QSqlRelationalTableModel::setData() method. Spike #1 */
@@ -413,9 +468,9 @@ void CustomSqlTableModel::setStorageChanger(StorageChanger *changer)
 
 void CustomSqlTableModel::slotFillTheStorage()
 {
-    flush(); // delete previous results
+    flush(); // delete previous results - need when need all data refreshing
     select();
-    m_dataGen.setQueryPreparer( new QueryPreparerAllId(tableName()) );
+    m_dataGen.setQueryPreparer( new QPMainTableId(tableName()) );
     setStorageChanger( new StorageBackInserter );
     changeComplexDBTData( 0, this->columnCount(QModelIndex()) );
 }
@@ -423,14 +478,14 @@ void CustomSqlTableModel::slotFillTheStorage()
 void CustomSqlTableModel::slotInsertToTheStorage(int id)
 {
     // TODO: maybe need to call setData?
-    m_dataGen.setQueryPreparer( new QueryPreparerOneId(id, tableName()) );
+    m_dataGen.setQueryPreparer( new QPOneId(id, tableName()) );
     setStorageChanger( new StorageBackInserter );
     changeComplexDBTData( 0, this->columnCount(QModelIndex()) );
 }
 
 void CustomSqlTableModel::slotUpdateTheStorage(int id, int colNumb)
 {
-    m_dataGen.setQueryPreparer( new QueryPreparerOneId(id, tableName()) );
+    m_dataGen.setQueryPreparer( new QPOneId(id, tableName()) );
     int indexComplex = m_indexComplex.indexOf( safeQVariantIdToInt(colNumb) ); // converting the column number to the storage index
     if (indexComplex == -1) return;
     setStorageChanger( new StorageUpdater(indexComplex) );

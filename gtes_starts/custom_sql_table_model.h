@@ -10,44 +10,58 @@ namespace dbi {
 }
 class StorageChanger;
 
-/* Base strategy class for final preparing DB query */
-struct IQueryPreparer
-{
-    virtual void finalPrepare(QStringList &listSelect, QStringList &listFrom, QStringList &listWhere) = 0;
-    virtual ~IQueryPreparer() { }
-};
-
 class DisplayDataGenerator
 {
 public:
+    /* Base strategy class for final preparing DB query */
+    struct IQueryPreparer
+    {
+        virtual void finalPrepare(QStringList &listSelect, QStringList &listFrom, QStringList &listWhere) = 0;
+        virtual ~IQueryPreparer() { }
+    };
+
     DisplayDataGenerator();
     ~DisplayDataGenerator();
+
     int generate(const dbi::DBTFieldInfo &foreignFieldInf); /* return the mask items quantity */
-    void setQueryPreparer(IQueryPreparer *qp);
-    inline IQueryPreparer *queryPreparer() { return m_queryPrep; }
+
+    void setQueryPreparer(DisplayDataGenerator::IQueryPreparer *qp);
+    void setForeignFieldName(const QString &name);
+
     inline QString mask() const { return m_strMask; }
     inline QString query() const { return m_strQuery; }
+
 private:
     /* Class for generation the query expression */
     class QueryGenerator
     {
     public:
+        QueryGenerator();
+        ~QueryGenerator();
+
+        void setQueryPreparer(DisplayDataGenerator::IQueryPreparer *qp);
+        inline IQueryPreparer * queryPreparer() { return m_queryPrep; }
+
         inline void addSelect(const QString &str) { m_listSelect.push_back(str); }
         inline void addFrom(const QString &str) { m_listFrom.push_back(str); }
         inline void addWhere(const QString &str) { m_listWhere.push_back(str); }
         inline int quantityResultData() const { return m_quantityRes; }
-        QString generateQuery(IQueryPreparer *queryPrep); // there are ability to get only one time the particular generated query string
+        QString generateQuery(); // there are ability to get only one time the particular generated query string
+
     private:
+        QString concatWhere() const;
         void flush();
+
+        IQueryPreparer *m_queryPrep;
         QStringList m_listSelect, m_listFrom, m_listWhere;
         int m_quantityRes;
     };
 
     void generate_Mask_QueryData(const dbi::DBTFieldInfo &ffield, int &fieldCounter);
+    bool isReadyToGeneration();
     void flush();
 
-    QueryGenerator m_queryGen;
-    IQueryPreparer *m_queryPrep;
+    QueryGenerator m_queryGen;    
     QString m_strMask, m_strQuery;
 };
 
@@ -75,8 +89,8 @@ public slots:
 
 private:
     void setStorageChanger(StorageChanger *changer);
+    void defineSimpleDBTAndComplexIndex();
     void changeComplexDBTData(int colFrom, int colTo);
-    void setRelationsWithSimpleDBT(int fieldIndex);
     void saveDisplayData(const QString &strMask, const QString &strQuery, int resDataQuantity);
     void flush();
 
