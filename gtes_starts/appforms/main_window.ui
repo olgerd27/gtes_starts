@@ -71,7 +71,7 @@ input</string>
         <set>AlignHCenter|AlignVCenter|AlignCenter</set>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
+        <iconset resource="../images_resources.qrc">
          <normaloff>:/images/data_input.png</normaloff>:/images/data_input.png</iconset>
        </property>
        <property name="flags">
@@ -89,7 +89,7 @@ input</string>
         <set>AlignHCenter|AlignVCenter|AlignCenter</set>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
+        <iconset resource="../images_resources.qrc">
          <normaloff>:/images/queries.png</normaloff>:/images/queries.png</iconset>
        </property>
        <property name="flags">
@@ -107,7 +107,7 @@ input</string>
         <set>AlignHCenter|AlignVCenter|AlignCenter</set>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
+        <iconset resource="../images_resources.qrc">
          <normaloff>:/images/options.png</normaloff>:/images/options.png</iconset>
        </property>
        <property name="flags">
@@ -220,7 +220,7 @@ input</string>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="m_actCreateEngine">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
    </property>
    <property name="text">
@@ -232,7 +232,7 @@ input</string>
   </action>
   <action name="m_actSave">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/save2.png</normaloff>:/images/save2.png</iconset>
    </property>
    <property name="text">
@@ -244,7 +244,7 @@ input</string>
   </action>
   <action name="m_actRefresh">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
    </property>
    <property name="text">
@@ -256,7 +256,7 @@ input</string>
   </action>
   <action name="m_actAboutApp">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/about.png</normaloff>:/images/about.png</iconset>
    </property>
    <property name="text">
@@ -268,7 +268,7 @@ input</string>
   </action>
   <action name="m_actAboutQt">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/qt-logo.png</normaloff>:/images/qt-logo.png</iconset>
    </property>
    <property name="text">
@@ -295,7 +295,7 @@ input</string>
   </action>
   <action name="m_actConnectToDB">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/connection.png</normaloff>:/images/connection.png</iconset>
    </property>
    <property name="text">
@@ -307,7 +307,7 @@ input</string>
   </action>
   <action name="m_actDisconnectFromDB">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/disconnection.png</normaloff>:/images/disconnection.png</iconset>
    </property>
    <property name="text">
@@ -319,7 +319,7 @@ input</string>
   </action>
   <action name="m_actExit">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/exit2.png</normaloff>:/images/exit2.png</iconset>
    </property>
    <property name="text">
@@ -331,7 +331,7 @@ input</string>
   </action>
   <action name="m_actDeleteEngine">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/clear_output.png</normaloff>:/images/clear_output.png</iconset>
    </property>
    <property name="text">
@@ -347,11 +347,11 @@ input</string>
   <customwidget>
    <class>ResizableWidgetList</class>
    <extends>QListWidget</extends>
-   <header>reimplemented_widgets.h</header>
+   <header>common/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="images_resources.qrc"/>
+  <include location="../images_resources.qrc"/>
  </resources>
  <connections/>
 </ui>

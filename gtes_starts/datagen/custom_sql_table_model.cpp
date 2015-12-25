@@ -3,8 +3,8 @@
 #include "custom_sql_table_model.h"
 #include "dbt_data_generator.h"
 #include "gen_data_storage.h"
-#include "db_info.h"
-#include "common_defines.h"
+#include "../common/db_info.h"
+#include "../common/common_defines.h"
 
 /*
  * CustomSqlTableModel

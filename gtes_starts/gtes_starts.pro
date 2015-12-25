@@ -10,38 +10,40 @@ TEMPLATE = app
 CONFIG += c++11
 
 SOURCES += main.cpp\
-        main_window.cpp \
-    form_queries.cpp \
-    form_data_input.cpp \
-    form_options.cpp \
-    db_info.cpp \
-    reimplemented_widgets.cpp \
+    appforms/main_window.cpp \
+    appforms/form_queries.cpp \
+    appforms/form_data_input.cpp \
+    appforms/form_options.cpp \
     dbt_editor/dbt_editor.cpp \
     dbt_editor/simple_dbt_editor.cpp \
     dbt_editor/complex_dbt_editor.cpp \
-    custom_sql_table_model.cpp \
-    common_defines.cpp \
-    dbt_data_generator.cpp \
-    gen_data_storage.cpp
+    common/db_info.cpp \
+    common/reimplemented_widgets.cpp \
+    common/common_defines.cpp \
+    datagen/custom_sql_table_model.cpp \
+    datagen/dbt_data_generator.cpp \
+    datagen/gen_data_storage.cpp
 
-HEADERS  += main_window.h \
-    form_queries.h \
-    form_data_input.h \
-    form_options.h \
-    db_info.h \
-    reimplemented_widgets.h \
+HEADERS  += \
+    appforms/main_window.h \
+    appforms/form_queries.h \
+    appforms/form_data_input.h \
+    appforms/form_options.h \
     dbt_editor/dbt_editor.h \
     dbt_editor/simple_dbt_editor.h \
     dbt_editor/complex_dbt_editor.h \
-    custom_sql_table_model.h \
-    common_defines.h \
-    dbt_data_generator.h \
-    gen_data_storage.h
+    common/db_info.h \
+    common/reimplemented_widgets.h \
+    common/common_defines.h \
+    datagen/custom_sql_table_model.h \
+    datagen/dbt_data_generator.h \
+    datagen/gen_data_storage.h
 
-FORMS    += main_window.ui \
-    form_queries.ui \
-    form_data_input.ui \
-    form_options.ui \
+FORMS    += \
+    appforms/main_window.ui \
+    appforms/form_queries.ui \
+    appforms/form_data_input.ui \
+    appforms/form_options.ui \
     dbt_editor/complex_dbt_editor.ui \
     dbt_editor/simple_dbt_editor.ui \
     dbt_editor/simple_dbt_editor2.ui

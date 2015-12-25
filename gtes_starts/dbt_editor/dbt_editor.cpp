@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include "dbt_editor.h"
-#include "db_info.h"
+#include "common/db_info.h"
 
 /*
  * IconedSqlTableModel

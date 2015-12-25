@@ -3,8 +3,8 @@
 #include <QVector>
 #include <QDebug>
 #include "dbt_data_generator.h"
-#include "db_info.h"
-#include "common_defines.h"
+#include "../common/db_info.h"
+#include "../common/common_defines.h"
 
 /* Query preparer - prepare by all "id" of a some main table */
 QuePrepPrimaryAllId::QuePrepPrimaryAllId(const QString &mainTableName, const QString &foreignFieldName)

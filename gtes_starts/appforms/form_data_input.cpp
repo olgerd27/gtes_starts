@@ -10,10 +10,10 @@
 
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
-#include "dbt_editor/simple_dbt_editor.h"
-#include "dbt_editor/complex_dbt_editor.h"
-#include "db_info.h"
-#include "custom_sql_table_model.h"
+#include "../dbt_editor/simple_dbt_editor.h"
+#include "../dbt_editor/complex_dbt_editor.h"
+#include "../common/db_info.h"
+#include "../datagen/custom_sql_table_model.h"
 
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
