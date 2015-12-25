@@ -4,103 +4,40 @@
 #include <QSqlRelationalTableModel>
 #include <QSqlRelationalDelegate>
 
-namespace dbi {
-    class DBTInfo;
-    class DBTFieldInfo;
-}
-class StorageChanger;
-
-class DisplayDataGenerator
-{
-public:
-    /* Base strategy class for final preparing DB query */
-    struct IQueryPreparer
-    {
-        virtual void finalPrepare(QStringList &listSelect, QStringList &listFrom, QStringList &listWhere) = 0;
-        virtual ~IQueryPreparer() { }
-    };
-
-    DisplayDataGenerator();
-    ~DisplayDataGenerator();
-
-    int generate(const dbi::DBTFieldInfo &foreignFieldInf); /* return the mask items quantity */
-
-    void setQueryPreparer(DisplayDataGenerator::IQueryPreparer *qp);
-    void setForeignFieldName(const QString &name);
-
-    inline QString mask() const { return m_strMask; }
-    inline QString query() const { return m_strQuery; }
-
-private:
-    /* Class for generation the query expression */
-    class QueryGenerator
-    {
-    public:
-        QueryGenerator();
-        ~QueryGenerator();
-
-        void setQueryPreparer(DisplayDataGenerator::IQueryPreparer *qp);
-        inline IQueryPreparer * queryPreparer() { return m_queryPrep; }
-
-        inline void addSelect(const QString &str) { m_listSelect.push_back(str); }
-        inline void addFrom(const QString &str) { m_listFrom.push_back(str); }
-        inline void addWhere(const QString &str) { m_listWhere.push_back(str); }
-        inline int quantityResultData() const { return m_quantityRes; }
-        QString generateQuery(); // there are ability to get only one time the particular generated query string
-
-    private:
-        QString concatWhere() const;
-        void flush();
-
-        IQueryPreparer *m_queryPrep;
-        QStringList m_listSelect, m_listFrom, m_listWhere;
-        int m_quantityRes;
-    };
-
-    void generate_Mask_QueryData(const dbi::DBTFieldInfo &ffield, int &fieldCounter);
-    bool isReadyToGeneration();
-    void flush();
-
-    QueryGenerator m_queryGen;    
-    QString m_strMask, m_strQuery;
-};
+class DBTDataGenerator;
+class GenDataStorage;
 
 class CustomSqlTableModel : public QSqlRelationalTableModel
 {
     Q_OBJECT
 
 public:
-    typedef QVector<int> T_indexes;
-    typedef QMap<int, QVector<QVariant>> T_storage;
     typedef QMap<int, QVariant> T_saveRestore;
 
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     ~CustomSqlTableModel();
-
     void setDataWithSavings();
     void setTable(const QString &tableName);
     QVariant data(const QModelIndex &item, int role) const;
     bool setData(const QModelIndex &item, const QVariant &value, int role);
+    void printData() const; // NOTE: temporary function, delete
 
 public slots:
-    void slotFillTheStorage();
-    void slotInsertToTheStorage(int id);
-    void slotUpdateTheStorage(int id, int colNumb);
+    void slotRefreshTheModel();
+    void slotInsertToTheStorage(int idPrim);
+    void slotUpdateTheStorage(int idPrim, int colNumb);
 
 private:
-    void setStorageChanger(StorageChanger *changer);
     void defineSimpleDBTAndComplexIndex();
-    void changeComplexDBTData(int colFrom, int colTo);
-    void saveDisplayData(const QString &strMask, const QString &strQuery, int resDataQuantity);
+    void fillTheStorage();
+    void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
+    void changeComplexDBTData(int colFrom, int colTo); // TODO: do not need, maybe delete?
     void flush();
-
     void saveData(const QModelIndex &currentIndex, int role);
     void restoreData(int currentRow, int role);
 
-    DisplayDataGenerator m_dataGen;
-    StorageChanger *m_storageChanger;
-    T_storage m_storage;
-    T_indexes m_indexComplex;
+    DBTDataGenerator *m_dataGenerator;
+    GenDataStorage *m_genDataStorage;
     T_saveRestore m_saveRestore;
     bool m_bNeedSave;
 };

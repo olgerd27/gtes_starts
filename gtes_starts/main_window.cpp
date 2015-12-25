@@ -85,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // actions
     connect(ui->m_actSave, SIGNAL(triggered()), fDataInput, SIGNAL(sigSaveData()));
+    connect(ui->m_actRefresh, SIGNAL(triggered()), fDataInput, SIGNAL(sigRefreshAllData())); // refresh all data in the FormDataInput window
     connect(ui->m_actAboutApp, SIGNAL(triggered()), this, SLOT(slotAboutApp()));
     connect(ui->m_actAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }

@@ -19,7 +19,10 @@ SOURCES += main.cpp\
     dbt_editor/dbt_editor.cpp \
     dbt_editor/simple_dbt_editor.cpp \
     dbt_editor/complex_dbt_editor.cpp \
-    custom_sql_table_model.cpp
+    custom_sql_table_model.cpp \
+    common_defines.cpp \
+    dbt_data_generator.cpp \
+    gen_data_storage.cpp
 
 HEADERS  += main_window.h \
     form_queries.h \
@@ -31,7 +34,9 @@ HEADERS  += main_window.h \
     dbt_editor/simple_dbt_editor.h \
     dbt_editor/complex_dbt_editor.h \
     custom_sql_table_model.h \
-    common_defines.h
+    common_defines.h \
+    dbt_data_generator.h \
+    gen_data_storage.h
 
 FORMS    += main_window.ui \
     form_queries.ui \

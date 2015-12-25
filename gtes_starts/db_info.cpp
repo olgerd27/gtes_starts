@@ -13,7 +13,7 @@ bool dbi::DBTFieldInfo::isValid() const
 
 bool dbi::DBTFieldInfo::isForeign() const
 {
-    return !m_relationDBTable.isEmpty();
+    return isValid() && !m_relationDBTable.isEmpty();
 }
 
 int dbi::DBTFieldInfo::relationDBTtype() const
@@ -244,15 +244,15 @@ dbi::DBTInfo * dbi::DBInfo::tableByName(const QString &tableName) const
  */
 dbi::DBTFieldInfo dbi::fieldByNames(const QString &tableName, const QString &fieldName)
 {
-    DBTInfo *ti = DBINFO.tableByName(tableName);
-    return ti ? ti->fieldByName(fieldName) : DBTFieldInfo();
+    DBTInfo *tblInf = DBINFO.tableByName(tableName);
+    return tblInf ? tblInf->fieldByName(fieldName) : DBTFieldInfo();
 }
 
 
 dbi::DBTFieldInfo dbi::fieldByNameIndex(const QString &tableName, int fieldIndex)
 {
-    DBTInfo *ti = DBINFO.tableByName(tableName);
-    return ti ? ti->fieldByIndex(fieldIndex) : DBTFieldInfo();
+    DBTInfo *tblInf = DBINFO.tableByName(tableName);
+    return tblInf ? tblInf->fieldByIndex(fieldIndex) : DBTFieldInfo();
 }
 
 

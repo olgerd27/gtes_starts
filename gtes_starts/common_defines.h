@@ -58,6 +58,9 @@ namespace cmmn {
         QString m_msg;
         QString m_placement;
     };
+
+    // Conversions
+    int safeQVariantToInt(const QVariant &value);
 }
 
 #endif // COMMON_DEFINES_H

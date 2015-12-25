@@ -491,12 +491,17 @@
  </customwidgets>
  <tabstops>
   <tabstop>m_tabWidget</tabstop>
+  <tabstop>m_leIdData</tabstop>
+  <tabstop>m_leFullNameData</tabstop>
   <tabstop>m_pbEditFullName</tabstop>
   <tabstop>m_cboxFuel</tabstop>
   <tabstop>m_pbEditFuels</tabstop>
+  <tabstop>m_leChamberData</tabstop>
   <tabstop>m_pbEditChambers</tabstop>
+  <tabstop>m_leStartDeviceData</tabstop>
   <tabstop>m_pbEditStartDevices</tabstop>
   <tabstop>m_sboxStartDevicesQntyData</tabstop>
+  <tabstop>m_pteComments</tabstop>
   <tabstop>m_tbRecordFirst</tabstop>
   <tabstop>m_tbRecordPrev</tabstop>
   <tabstop>m_leRecordId</tabstop>

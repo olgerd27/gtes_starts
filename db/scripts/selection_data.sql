@@ -21,7 +21,7 @@ FROM
 WHERE
     3 = combustion_chambers.id;
 
---  Retrieve the full engine name for the particular id value, var.1
+--  Retrieve the full engine name for the foreign key id value
 SELECT 
     names_engines.name, 
     names_modifications_engines.modification, 
@@ -35,7 +35,7 @@ WHERE
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
     
---  Retrieve the full engine name for the particular id value, var.2
+--  Retrieve the full engine name for the primary key id value
 SELECT 
     engines.id,
     names_engines.name, 
