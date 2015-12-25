@@ -113,11 +113,11 @@ QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
         int idPrim = cmmn::safeQVariantToInt( QSqlRelationalTableModel::data( this->index(item.row(), 0), Qt::DisplayRole ) ); // primary id
         if (m_genDataStorage->isStorageContainsId(idPrim))
             data = m_genDataStorage->data(idPrim, storageDataIndex); // get generated data
-        qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
+//        qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
     }
     else if (role == Qt::UserRole && m_genDataStorage->isComplexDBTFieldIndex(item.column(), storageDataIndex)) {
         data = QSqlRelationalTableModel::data(item, Qt::DisplayRole);
-        qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
+//        qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
     }
     return data;
 }
@@ -259,7 +259,7 @@ void CustomSqlTableModel::slotRefreshTheModel()
 
 void CustomSqlTableModel::fillTheStorage()
 {
-    qDebug() << "fill the storage";
+//    qDebug() << "fill the storage";
     QuePrepPrimaryAllId *qp = new QuePrepPrimaryAllId(tableName());
     m_dataGenerator->setQueryPreparer(qp);
     while ( m_genDataStorage->hasNextFieldIndex() ) {
@@ -272,7 +272,7 @@ void CustomSqlTableModel::fillTheStorage()
             m_genDataStorage->addData(resData.idPrim, resData.genData);
         }
         emit dataChanged( index(0, complexFIndex), index(rowCount() - 1, complexFIndex) ); // at first time - don't need, but maybe need when performs refreshing?
-        qDebug() << "dataChanged() was called";
+//        qDebug() << "dataChanged() was called";
     }
 }
 

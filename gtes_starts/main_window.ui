@@ -57,7 +57,7 @@
        <enum>QListView::IconMode</enum>
       </property>
       <property name="currentRow">
-       <number>0</number>
+       <number>-1</number>
       </property>
       <item>
        <property name="text">
@@ -72,7 +72,7 @@ input</string>
        </property>
        <property name="icon">
         <iconset resource="images_resources.qrc">
-         <normaloff>:/images/choice_list_data_input.png</normaloff>:/images/choice_list_data_input.png</iconset>
+         <normaloff>:/images/data_input.png</normaloff>:/images/data_input.png</iconset>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -90,7 +90,7 @@ input</string>
        </property>
        <property name="icon">
         <iconset resource="images_resources.qrc">
-         <normaloff>:/images/choice_list_query.png</normaloff>:/images/choice_list_query.png</iconset>
+         <normaloff>:/images/queries.png</normaloff>:/images/queries.png</iconset>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -108,7 +108,7 @@ input</string>
        </property>
        <property name="icon">
         <iconset resource="images_resources.qrc">
-         <normaloff>:/images/cog-icon-2-48x48.png</normaloff>:/images/cog-icon-2-48x48.png</iconset>
+         <normaloff>:/images/options.png</normaloff>:/images/options.png</iconset>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -221,7 +221,7 @@ input</string>
   <action name="m_actCreateEngine">
    <property name="icon">
     <iconset resource="images_resources.qrc">
-     <normaloff>:/images/Add.png</normaloff>:/images/Add.png</iconset>
+     <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
    </property>
    <property name="text">
     <string>Create engine</string>
@@ -233,7 +233,7 @@ input</string>
   <action name="m_actSave">
    <property name="icon">
     <iconset resource="images_resources.qrc">
-     <normaloff>:/images/filesave2.png</normaloff>:/images/filesave2.png</iconset>
+     <normaloff>:/images/save2.png</normaloff>:/images/save2.png</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -245,7 +245,7 @@ input</string>
   <action name="m_actRefresh">
    <property name="icon">
     <iconset resource="images_resources.qrc">
-     <normaloff>:/images/1438203865_gtk-refresh.png</normaloff>:/images/1438203865_gtk-refresh.png</iconset>
+     <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
    </property>
    <property name="text">
     <string>Refresh</string>
@@ -257,7 +257,7 @@ input</string>
   <action name="m_actAboutApp">
    <property name="icon">
     <iconset resource="images_resources.qrc">
-     <normaloff>:/images/document-properties.png</normaloff>:/images/document-properties.png</iconset>
+     <normaloff>:/images/about.png</normaloff>:/images/about.png</iconset>
    </property>
    <property name="text">
     <string>About application</string>
@@ -269,7 +269,7 @@ input</string>
   <action name="m_actAboutQt">
    <property name="icon">
     <iconset resource="images_resources.qrc">
-     <normaloff>:/images/qt-logo_1.png</normaloff>:/images/qt-logo_1.png</iconset>
+     <normaloff>:/images/qt-logo.png</normaloff>:/images/qt-logo.png</iconset>
    </property>
    <property name="text">
     <string>About Qt</string>
@@ -296,7 +296,7 @@ input</string>
   <action name="m_actConnectToDB">
    <property name="icon">
     <iconset resource="images_resources.qrc">
-     <normaloff>:/images/db.mgmt.Connection.32x32.png</normaloff>:/images/db.mgmt.Connection.32x32.png</iconset>
+     <normaloff>:/images/connection.png</normaloff>:/images/connection.png</iconset>
    </property>
    <property name="text">
     <string>Connect</string>
@@ -308,7 +308,7 @@ input</string>
   <action name="m_actDisconnectFromDB">
    <property name="icon">
     <iconset resource="images_resources.qrc">
-     <normaloff>:/images/Error_Symbol.png</normaloff>:/images/Error_Symbol.png</iconset>
+     <normaloff>:/images/disconnection.png</normaloff>:/images/disconnection.png</iconset>
    </property>
    <property name="text">
     <string>Disconnect</string>
@@ -320,7 +320,7 @@ input</string>
   <action name="m_actExit">
    <property name="icon">
     <iconset resource="images_resources.qrc">
-     <normaloff>:/images/gnome-shutdown.png</normaloff>:/images/gnome-shutdown.png</iconset>
+     <normaloff>:/images/exit2.png</normaloff>:/images/exit2.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>

@@ -51,3 +51,5 @@ OTHER_FILES += \
 
 RESOURCES += \
     images_resources.qrc
+
+RC_FILE += icoset.rc

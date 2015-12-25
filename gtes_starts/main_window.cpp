@@ -40,19 +40,18 @@ MainWindow::MainWindow(QWidget *parent) :
      * TODO: move to the external class for manipulation with DB
      */
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("localhost");
+    db.setHostName("localhost"); // local: localhost, LAN: 190.91.112.211
     db.setPort(3306);
     db.setUserName("root");
     db.setPassword("optimus27");
     db.setDatabaseName("gtes_starts");
     if (!db.open()) {
-        QMessageBox::critical(0, "Don't connected", QString("Cannot connect to database with the next settings:\n"
-                                                            "\thostname: '%1'\n"
-                                                            "\tport: '%2'\n"
-                                                            "\tusername: '%3'\n"
-                                                            "\tpassword: '%4'\n\n"
-                                                            "The error message: %5")
-                              .arg(db.hostName()).arg(db.port()).arg(db.userName()).arg(db.password()).arg(db.lastError().text()));
+        QMessageBox::critical( 0, tr("Database connection error"),
+                               QString("%1:\n\t%2: '%3'\n\t%4: '%5'\n\t%6: '%7'\n\t%8: '%9'\n\n%10: %11")
+                               .arg(tr("Cannot connect to the database with the next settings"))
+                               .arg(tr("hostname"), db.hostName(), tr("port")).arg(db.port())
+                               .arg(tr("username"), db.userName(), tr("password"), db.password())
+                               .arg(tr("The error message, that occurred on the database"), db.lastError().text()) );
     }
 //    qDebug() << "main: Is DB open? " << db.isOpen();
 
@@ -107,8 +106,8 @@ void MainWindow::slotAboutApp()
                    "The programm is provided \"AS IS\" with no warranty of any kind, "
                    "including the warranty of design, merchantability and "
                    "fitness for a particular purpose.<br><br>"
-                   "Copyright: created by the group of GTE's starts characteristics.<br>"
-                   "Developer: Matiyuk O.I., e-mail: olmati@zorya.com.<br><br>"
+                   "Developed by the group of GTE's starts characteristics, dep.19.<br>"
+                   "Developer: Matiyuk O.I., olmati@zorya.com.<br><br>"
                    "Mykolaiv, Ukraine - 2014-2016.";
-    QMessageBox::about(this, tr("About %1").arg(winTitle), tr(text.toUtf8()));
+    QMessageBox::about(this, tr("About") + winTitle, tr(text.toUtf8()));
 }

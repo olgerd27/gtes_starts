@@ -1,32 +1,31 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/choice_list_query.png</file>
-        <file>images/choice_list_graphs.png</file>
-        <file>images/choice_list_data_input.png</file>
-        <file>images/exit.png</file>
+        <file>images/queries.png</file>
+        <file>images/graphs.png</file>
+        <file>images/data_input.png</file>
+        <file>images/exit1.png</file>
         <file>images/edit.png</file>
-        <file>images/File_Doc_Text_Word.png</file>
-        <file>images/db.Routine.64x64.png</file>
+        <file>images/documents.png</file>
+        <file>images/algorithm.png</file>
         <file>images/record_next.png</file>
         <file>images/record_back.png</file>
         <file>images/record_first.png</file>
         <file>images/record_last.png</file>
-        <file>images/1437705241_equalizer_sticker_4.PNG</file>
+        <file>images/settings.png</file>
         <file>images/clear_output.png</file>
-        <file>images/document-save.png</file>
-        <file>images/filesave2.png</file>
-        <file>images/Add.png</file>
-        <file>images/qt-logo_1.png</file>
-        <file>images/document-properties.png</file>
-        <file>images/db.mgmt.Connection.32x32.png</file>
-        <file>images/Error_Symbol.png</file>
-        <file>images/gnome-shutdown.png</file>
-        <file>images/cog-icon-2-48x48.png</file>
-        <file>images/1438203865_gtk-refresh.png</file>
+        <file>images/save1.png</file>
+        <file>images/save2.png</file>
+        <file>images/add.png</file>
+        <file>images/qt-logo.png</file>
+        <file>images/about.png</file>
+        <file>images/connection.png</file>
+        <file>images/disconnection.png</file>
+        <file>images/exit2.png</file>
+        <file>images/options.png</file>
+        <file>images/refresh.png</file>
         <file>images/turbina.png</file>
-        <file>images/Add_Symbol.png</file>
-        <file>images/rotated_trash_1.png</file>
-        <file>images/rotated_trash_2.png</file>
+        <file>images/add_symbol.png</file>
+        <file>images/rotated_trash.png</file>
         <file>images/ok.png</file>
         <file>images/window_icon.png</file>
     </qresource>

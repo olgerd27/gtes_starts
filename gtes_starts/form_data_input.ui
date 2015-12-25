@@ -311,7 +311,7 @@
      <widget class="QWidget" name="tab_bypasses">
       <attribute name="icon">
        <iconset resource="images_resources.qrc">
-        <normaloff>:/images/rotated_trash_1.png</normaloff>:/images/rotated_trash_1.png</iconset>
+        <normaloff>:/images/rotated_trash.png</normaloff>:/images/rotated_trash.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Bypasses</string>
@@ -320,7 +320,7 @@
      <widget class="QWidget" name="tab_algorithm">
       <attribute name="icon">
        <iconset resource="images_resources.qrc">
-        <normaloff>:/images/db.Routine.64x64.png</normaloff>:/images/db.Routine.64x64.png</iconset>
+        <normaloff>:/images/algorithm.png</normaloff>:/images/algorithm.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Algorithm</string>
@@ -329,7 +329,7 @@
      <widget class="QWidget" name="tab_settings">
       <attribute name="icon">
        <iconset resource="images_resources.qrc">
-        <normaloff>:/images/1437705241_equalizer_sticker_4.PNG</normaloff>:/images/1437705241_equalizer_sticker_4.PNG</iconset>
+        <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Settings</string>
@@ -338,7 +338,7 @@
      <widget class="QWidget" name="tab_documents">
       <attribute name="icon">
        <iconset resource="images_resources.qrc">
-        <normaloff>:/images/File_Doc_Text_Word.png</normaloff>:/images/File_Doc_Text_Word.png</iconset>
+        <normaloff>:/images/documents.png</normaloff>:/images/documents.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Documents</string>
@@ -347,7 +347,7 @@
      <widget class="QWidget" name="tab_graphs">
       <attribute name="icon">
        <iconset resource="images_resources.qrc">
-        <normaloff>:/images/choice_list_graphs.png</normaloff>:/images/choice_list_graphs.png</iconset>
+        <normaloff>:/images/graphs.png</normaloff>:/images/graphs.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Graphs</string>
