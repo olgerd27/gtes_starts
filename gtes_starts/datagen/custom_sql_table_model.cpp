@@ -1,8 +1,8 @@
 #include <QSqlQuery>
 #include <QDebug>
 #include "custom_sql_table_model.h"
-#include "dbt_data_generator.h"
-#include "gen_data_storage.h"
+#include "generator_dbt_data.h"
+#include "storage_gen_data.h"
 #include "../common/db_info.h"
 #include "../common/common_defines.h"
 
@@ -45,8 +45,8 @@
  */
 CustomSqlTableModel::CustomSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlRelationalTableModel(parent, db)
-    , m_dataGenerator(new DBTDataGenerator)
-    , m_genDataStorage(new GenDataStorage)
+    , m_dataGenerator(new GeneratorDBTData)
+    , m_genDataStorage(new StorageGenData)
     , m_bNeedSave(false) /* Spike #1 */
 { }
 
@@ -93,17 +93,6 @@ void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
     }
 }
 
-void CustomSqlTableModel::changeComplexDBTData(int colFrom, int colTo)
-{
-    for (int col = colFrom; col < colTo; ++col) {
-        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
-        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex)) {
-            m_dataGenerator->setForeignFieldName(fieldInf.m_nameInDB);
-            m_dataGenerator->generate(fieldInf);
-        }
-    }
-}
-
 QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
 {
     // TODO: use try-catch
@@ -144,7 +133,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value
         }
         catch (const cmmn::MessageException &me) {
             // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
-            QString strPlace = QObject::tr("Error placement") + ": " + me.placement();
+            QString strPlace = QObject::tr("Error placement") + ": " + me.codePlace();
             qDebug() << "[ERROR custom] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
             return false;
         }
@@ -167,7 +156,7 @@ void CustomSqlTableModel::updateDataInStorage(const QModelIndex &index, int stor
      * TODO:
      * - get foreign key id value - [index.row(), index.column()] (not primary key id value - [index.row(), 0])
      * - create the QuePrepForeignOneId class for preparing the query, that used for data generation
-     * - there are need to change the DBTDataGenerator class in part of generation result data
+     * - there are need to change the GeneratorDBTData class in part of generation result data
      *   (now, the primary key id value not used, only foreign key id value)
      */
     int idPrim = cmmn::safeQVariantToInt( QSqlRelationalTableModel::data( this->index(index.row(), 0), Qt::DisplayRole ) ); // primary id
@@ -246,7 +235,7 @@ void CustomSqlTableModel::slotRefreshTheModel()
     }
     catch (const cmmn::MessageException &me) {
         // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
-        QString strPlace = QObject::tr("Error placement") + ": " + me.placement();
+        QString strPlace = QObject::tr("Error placement") + ": " + me.codePlace();
         qDebug() << "[ERROR custom] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
         return;
     }
@@ -259,7 +248,6 @@ void CustomSqlTableModel::slotRefreshTheModel()
 
 void CustomSqlTableModel::fillTheStorage()
 {
-//    qDebug() << "fill the storage";
     QuePrepPrimaryAllId *qp = new QuePrepPrimaryAllId(tableName());
     m_dataGenerator->setQueryPreparer(qp);
     while ( m_genDataStorage->hasNextFieldIndex() ) {
@@ -271,15 +259,13 @@ void CustomSqlTableModel::fillTheStorage()
             const auto &resData = m_dataGenerator->nextResultData();
             m_genDataStorage->addData(resData.idPrim, resData.genData);
         }
-        emit dataChanged( index(0, complexFIndex), index(rowCount() - 1, complexFIndex) ); // at first time - don't need, but maybe need when performs refreshing?
-//        qDebug() << "dataChanged() was called";
+//        emit dataChanged( index(0, complexFIndex), index(rowCount() - 1, complexFIndex) );
     }
 }
 
 void CustomSqlTableModel::slotInsertToTheStorage(int idPrim)
 {
 //    m_dataGen->setQueryPreparer( new QPMainTableOneId(idPrim, tableName()) );
-//    changeComplexDBTData( 0, this->columnCount(QModelIndex()) );
 }
 
 void CustomSqlTableModel::slotUpdateTheStorage(int idPrim, int colNumb)
@@ -287,7 +273,6 @@ void CustomSqlTableModel::slotUpdateTheStorage(int idPrim, int colNumb)
 //    m_dataGen->setQueryPreparer( new QPMainTableOneId(idPrim, tableName()) );
 //    int indexComplex = m_indexComplex.indexOf( cmmn::safeQVariantToInt(colNumb) ); // converting the column number to the storage index
 //    if (indexComplex == -1) return;
-//    changeComplexDBTData( colNumb, colNumb );
 }
 
 /*****************************************************************************************************************************/
@@ -311,7 +296,7 @@ void CustomSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemMod
     QSqlTableModel *sqlTable = qobject_cast<QSqlTableModel *>(model);
     if (!sqlTable) return;
     const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(sqlTable->tableName(), index.column());
-    bool isForeign = fieldInf.isValid() && fieldInf.isForeign();
+    bool isForeign = fieldInf.isForeign();
     if (!isForeign)
         QItemDelegate::setModelData(editor, model, index);
     else if ( isForeign && (DBINFO.tableByName( fieldInf.m_relationDBTable )->m_type == dbi::DBTInfo::ttype_simple) )

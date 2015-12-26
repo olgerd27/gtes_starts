@@ -1,18 +1,18 @@
 #include <QDebug> // TODO: delete
-#include "gen_data_storage.h"
+#include "storage_gen_data.h"
 
-GenDataStorage::GenDataStorage()
+StorageGenData::StorageGenData()
     : m_indexFIndexes(INIT_FINDEX)
 {
 }
 
-void GenDataStorage::addData(int idPrim, const GenDataStorage::T_data &data)
+void StorageGenData::addData(int idPrim, const StorageGenData::T_data &data)
 {
-    // if a data with this "id" is not exist, operator[] create it with help of the GenDataStorage::T_data default constructor and assign the "data" value to it
+    // if a data with this "id" is not exist, operator[] create it with help of the StorageGenData::T_data default constructor and assign the "data" value to it
     m_storage[idPrim].push_back(data);
 }
 
-void GenDataStorage::updateData(int idPrim, int index, const GenDataStorage::T_data &data)
+void StorageGenData::updateData(int idPrim, int index, const StorageGenData::T_data &data)
 {
     if ( !isIndexesOk(idPrim, index) ) {
         throw std::out_of_range(
@@ -23,7 +23,7 @@ void GenDataStorage::updateData(int idPrim, int index, const GenDataStorage::T_d
 //    qDebug() << "update data in the storage, id:" << idPrim << ", index:" << index << ", data:" << data.toString();
 }
 
-GenDataStorage::T_data GenDataStorage::data(int id, int index)
+StorageGenData::T_data StorageGenData::data(int id, int index)
 {
     if ( !isIndexesOk(id, index) ) {
         throw std::out_of_range(
@@ -33,53 +33,53 @@ GenDataStorage::T_data GenDataStorage::data(int id, int index)
     return m_storage[id][index];
 }
 
-void GenDataStorage::addFieldIndex(int colNumb)
+void StorageGenData::addFieldIndex(int colNumb)
 {
     m_fIndexes.push_back(colNumb);
 }
 
-bool GenDataStorage::hasNextFieldIndex() const
+bool StorageGenData::hasNextFieldIndex() const
 {
     return m_indexFIndexes < m_fIndexes.size();
 }
 
-GenDataStorage::T_fIndex GenDataStorage::nextFieldIndex()
+StorageGenData::T_fIndex StorageGenData::nextFieldIndex()
 {
     return m_fIndexes.at(m_indexFIndexes++);
 }
 
-void GenDataStorage::flushToGetFIndex()
+void StorageGenData::flushToGetFIndex()
 {
     m_indexFIndexes = INIT_FINDEX;
 }
 
-bool GenDataStorage::isComplexDBTFieldIndex(int fieldIndex, int &refStorageDataIndex) const
+bool StorageGenData::isComplexDBTFieldIndex(int fieldIndex, int &refStorageDataIndex) const
 {
     refStorageDataIndex = m_fIndexes.indexOf(fieldIndex);
     return refStorageDataIndex != -1;
 }
 
-bool GenDataStorage::isEmpty() const
+bool StorageGenData::isEmpty() const
 {
     return m_storage.empty();
 }
 
-bool GenDataStorage::isNotSetted() const
+bool StorageGenData::isNotSetted() const
 {
     return m_fIndexes.empty();
 }
 
-bool GenDataStorage::isStorageContainsId(int id) const
+bool StorageGenData::isStorageContainsId(int id) const
 {
     return m_storage.contains(id);
 }
 
-void GenDataStorage::clear()
+void StorageGenData::clear()
 {
     m_storage.clear();
 }
 
-bool GenDataStorage::isIndexesOk(int id, int index) const
+bool StorageGenData::isIndexesOk(int id, int index) const
 {
     return isStorageContainsId(id) && (index >= 0) && (index < m_storage[id].size());
 }

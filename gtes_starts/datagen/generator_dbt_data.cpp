@@ -2,7 +2,7 @@
 #include <QSqlError>
 #include <QVector>
 #include <QDebug>
-#include "dbt_data_generator.h"
+#include "generator_dbt_data.h"
 #include "../common/db_info.h"
 #include "../common/common_defines.h"
 
@@ -50,64 +50,65 @@ void QuePrepPrimaryOneId::setId(const QVariant &varId)
 
 /*****************************************************************************************************************************/
 /*
- * DBTDataGenerator
+ * GeneratorDBTData
  */
-DBTDataGenerator::DBTDataGenerator()
+GeneratorDBTData::GeneratorDBTData()
 { }
 
-DBTDataGenerator::~DBTDataGenerator()
+GeneratorDBTData::~GeneratorDBTData()
 { }
 
-void DBTDataGenerator::setQueryPreparer(IQueryPreparer *pr)
+void GeneratorDBTData::setQueryPreparer(QueryPreparer *pr)
 {
     m_queryGen.setQueryPreparer(pr);
 }
 
-void DBTDataGenerator::setForeignFieldName(const QString &name)
+void GeneratorDBTData::setForeignFieldName(const QString &name)
 {
     if ( QuePrepPrimaryAllId *pr = dynamic_cast<QuePrepPrimaryAllId *>(m_queryGen.queryPreparer()) )
          pr->setForeignFieldName(name);
 }
 
-void DBTDataGenerator::generate(const dbi::DBTFieldInfo &foreignFieldInf)
+void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)
 {
     flush();
     if (!isReadyToGeneration())
         throw cmmn::MessageException(cmmn::MessageException::type_critical,
                                      QObject::tr("Error data generating"),
-                                     QObject::tr("The functor for database query was not setted"), "DBTDataGenerator::generate");
+                                     QObject::tr("The functor for database query was not setted"), "GeneratorDBTData::generate");
     int fieldsCounter = 0;
     generate_Mask_QueryData( foreignFieldInf, fieldsCounter );
     generateResultData();
 }
 
 /* Generate data mask and data for generation query string */
-void DBTDataGenerator::generate_Mask_QueryData(const dbi::DBTFieldInfo &ffield, int &fieldCounter)
+void GeneratorDBTData::generate_Mask_QueryData(const dbi::DBTFieldInfo &ffield, int &fieldCounter)
 {
     dbi::DBTInfo *table = dbi::relatedDBT(ffield);
     const auto &idnFieldsArr = table->m_idnFields;
     for (const auto &idnField : idnFieldsArr) {
         const dbi::DBTFieldInfo &fieldInf = table->fieldByIndex( idnField.m_NField );
         m_strMask += idnField.m_strBefore;
-        if (fieldInf.isValid() && fieldInf.isForeign()) {
+        if (fieldInf.isForeign()) {
             m_queryGen.addWhere( table->m_nameInDB + ".id" );
             m_queryGen.addWhere( table->m_nameInDB + "." + fieldInf.m_nameInDB );
             generate_Mask_QueryData( fieldInf, fieldCounter ); /* recursive calling */
         }
         else {
-            m_strMask += QString("%%1").arg(++fieldCounter); /* when current field isn't a foreign key -> exit from recursion */
+            // when current field isn't a foreign key -> exit from recursion
+            m_strMask += QString("%%1").arg(++fieldCounter);
             m_queryGen.addSelect( table->m_nameInDB + "." + fieldInf.m_nameInDB );
             m_queryGen.addFrom( table->m_nameInDB );
         }
     }
 }
 
-void DBTDataGenerator::generateResultData()
+void GeneratorDBTData::generateResultData()
 {
     int id = -1;
     QString strRes;
     QSqlQuery query(m_queryGen.generateQuery());
-    m_resData.reserve(query.size());
+    m_resData.reserve(query.size()); // allocate the storage memory for effective adding data to the storage
     while (query.next()) {
         strRes = m_strMask;
         id = cmmn::safeQVariantToInt(query.value(0));
@@ -116,31 +117,30 @@ void DBTDataGenerator::generateResultData()
         m_resData.push_back( {id, strRes} );
     }
     if (id == -1) {
-         // TODO: make correct error message - replace "Some DB table" to a some another string.
         throw cmmn::MessageException( cmmn::MessageException::type_critical,
                                       QObject::tr("Error data getting"),
                                       QObject::tr("Cannot get a data from the database table for generation.") + "\n"
                                       + QObject::tr("The database error:") + query.lastError().text(),
-                                      "DBTDataGenerator::generateResultData()" );
+                                      "GeneratorDBTData::generateResultData()" );
     }
 }
 
-bool DBTDataGenerator::hasNextResultData() const
+bool GeneratorDBTData::hasNextResultData() const
 {
     return m_resData.size() > m_indexResData;
 }
 
-DBTDataGenerator::T_resData DBTDataGenerator::nextResultData()
+GeneratorDBTData::T_resData GeneratorDBTData::nextResultData()
 {
     return m_resData.at(m_indexResData++);
 }
 
-bool DBTDataGenerator::isReadyToGeneration()
+bool GeneratorDBTData::isReadyToGeneration()
 {
     return m_queryGen.queryPreparer() != 0;
 }
 
-void DBTDataGenerator::flush()
+void GeneratorDBTData::flush()
 {
     m_indexResData = INIT_RES_INDEX;
     m_strMask.clear();
@@ -149,36 +149,34 @@ void DBTDataGenerator::flush()
 
 /*****************************************************************************************************************************/
 /*
- * DBTDataGenerator::QueryGenerator
+ * GeneratorDBTData::QueryGenerator
  */
-DBTDataGenerator::QueryGenerator::QueryGenerator()
+GeneratorDBTData::QueryGenerator::QueryGenerator()
     : m_queryPrep(0)
 {
 }
 
-DBTDataGenerator::QueryGenerator::~QueryGenerator()
+GeneratorDBTData::QueryGenerator::~QueryGenerator()
 {
     delete m_queryPrep;
 }
 
-void DBTDataGenerator::QueryGenerator::setQueryPreparer(IQueryPreparer *qp)
+void GeneratorDBTData::QueryGenerator::setQueryPreparer(QueryPreparer *qp)
 {
     delete m_queryPrep;
     m_queryPrep = qp;
 }
 
-QString DBTDataGenerator::QueryGenerator::generateQuery()
+QString GeneratorDBTData::QueryGenerator::generateQuery()
 {
     if (m_listFrom.isEmpty() || m_listSelect.isEmpty()) {
         throw cmmn::MessageException( cmmn::MessageException::type_critical,
                                       QObject::tr("Error query generation"),
-                                      QObject::tr("Too many attempts to get the query, used for generation displayed data"),
-                                      "DBTDataGenerator::QueryGenerator::generateQuery" );
+                                      QObject::tr("Too many attempts to get the query string, used for generation displayed data"),
+                                      "GeneratorDBTData::QueryGenerator::generateQuery" );
     }
 
-//    qDebug() << "Not ready query data:\nSELECT:" << m_listSelect;
-//    qDebug() << "FROM:" << m_listFrom;
-//    qDebug() << "WHERE:" << m_listWhere;
+    qDebug() << "Not ready query data 1:\nSELECT:" << m_listSelect << "\nFROM:" << m_listFrom << "\nWHERE:" << m_listWhere;
 
     /* preparing the FROM statement */
     m_listFrom.removeDuplicates();
@@ -186,21 +184,37 @@ QString DBTDataGenerator::QueryGenerator::generateQuery()
     /* preparing the WHERE statements */
     m_listWhere.push_back(m_listFrom.first() + ".id");
 
+    qDebug() << "Not ready query data 2:\nSELECT:" << m_listSelect << "\nFROM:" << m_listFrom << "\nWHERE:" << m_listWhere;
+
     /* final preparing with help of strategy function */
     m_queryPrep->finalPrepare(m_listSelect, m_listFrom, m_listWhere);
     m_quantityRes = m_listSelect.size(); // save quantity of the result data
 
-//    qDebug() << "Ready query data:\nSELECT:" << m_listSelect.join(", ");
-//    qDebug() << "FROM:" << m_listFrom.join(", ");
-//    qDebug() << "WHERE:" << m_listWhere.join(", ");
+    qDebug() << "Ready query data:\nSELECT:" << m_listSelect.join(", ") << "\nFROM:" << m_listFrom.join(", ") << "\nWHERE:" << m_listWhere.join(", ");
 
     QString strQuery = QString("SELECT %1 FROM %2 WHERE %3;")
             .arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( concatWhere() );
     flush();
+    qDebug() << "-----------------------------";
     return strQuery;
 }
 
-QString DBTDataGenerator::QueryGenerator::concatWhere() const
+/*
+SELECT
+    names_engines.name,
+    names_modifications_engines.modification,
+    full_names_engines.number
+FROM
+    names_engines,
+    names_modifications_engines,
+    full_names_engines
+WHERE
+        3 = full_names_engines.id
+    AND full_names_engines.name_modif_id = names_modifications_engines.id
+    AND names_modifications_engines.name_id = names_engines.id;
+*/
+
+QString GeneratorDBTData::QueryGenerator::concatWhere() const
 {
     // Concatenate the WHERE statement with adding the "AND" and the "=" items
     QString str("");
@@ -211,7 +225,7 @@ QString DBTDataGenerator::QueryGenerator::concatWhere() const
     return str;
 }
 
-void DBTDataGenerator::QueryGenerator::flush()
+void GeneratorDBTData::QueryGenerator::flush()
 {
     m_listSelect.clear();
     m_listFrom.clear();

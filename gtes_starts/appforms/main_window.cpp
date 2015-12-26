@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(ui->m_listChoice));
-    setWindowIcon(QIcon(":/images/window_icon.png"));
+    setWindowIcon(QIcon(":/images/window_icon.png")); // TODO: use another icon
 
     /*
      * Open database connection

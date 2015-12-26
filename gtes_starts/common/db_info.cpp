@@ -258,14 +258,14 @@ dbi::DBTFieldInfo dbi::fieldByNameIndex(const QString &tableName, int fieldIndex
 
 bool dbi::isRelatedWithDBTType(const dbi::DBTFieldInfo &fieldInfo, dbi::DBTInfo::TableTypes tableType)
 {
-    return fieldInfo.isValid() && fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == tableType);
+    return fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == tableType);
 }
 
 
 dbi::DBTInfo *dbi::relatedDBT(const dbi::DBTFieldInfo &fieldInf)
 {
-    if (!fieldInf.isValid() || !fieldInf.isForeign())
+    if (!fieldInf.isForeign())
         throw std::invalid_argument("Cannot get the info of the related database table (DBTInfo class instance). "
-                                    "The argument of the dbi::relatedDBT(dbi::DBTFieldInfo) method is invalid");
+                                    "The argument of the dbi::relatedDBT(dbi::DBTFieldInfo) method is not valid -> field is not foreign");
     return DBINFO.tableByName(fieldInf.m_relationDBTable);
 }

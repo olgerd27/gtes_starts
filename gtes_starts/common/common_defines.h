@@ -40,23 +40,23 @@ namespace cmmn {
             type_critical
         };
 
-        MessageException(MessageTypes type, const QString &title, const QString &msg, const QString &place)
+        MessageException(MessageTypes type, const QString &title, const QString &msg, const QString &codePlace)
             : m_type(type)
             , m_title(title)
             , m_msg(msg)
-            , m_placement(place)
+            , m_codePlace(codePlace)
         {}
 
         inline MessageTypes type() const { return m_type; }
         inline QString title() const { return m_title; }
         inline QString message() const { return m_msg; }
-        inline QString placement() const { return m_placement; }
+        inline QString codePlace() const { return m_codePlace; }
 
     private:
         MessageTypes m_type;
         QString m_title;
         QString m_msg;
-        QString m_placement;
+        QString m_codePlace;
     };
 
     // Conversions

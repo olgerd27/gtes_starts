@@ -1,11 +1,11 @@
-#ifndef GEN_DATA_STORAGE_H
-#define GEN_DATA_STORAGE_H
+#ifndef STORAGE_GEN_DATA_H
+#define STORAGE_GEN_DATA_H
 
 #include <QVector>
 #include <QMap>
 #include <QVariant>
 
-class GenDataStorage
+class StorageGenData
 {
 public:
     typedef QVariant T_data;
@@ -15,17 +15,17 @@ public:
 
     enum { INIT_FINDEX = 0 };
 
-    GenDataStorage();
-    void addData(int idPrim, const GenDataStorage::T_data &data);
-    void updateData(int idPrim, int index, const GenDataStorage::T_data &data);
-    GenDataStorage::T_data data(int id, int index);
+    StorageGenData();
+    void addData(int idPrim, const StorageGenData::T_data &data);
+    void updateData(int idPrim, int index, const StorageGenData::T_data &data);
+    StorageGenData::T_data data(int id, int index);
 
     /* Checking - is the DBT field related to the complex DBT by the index "fieldIndex"
      * The refStorageDataIndex is the serial index to the data in the storage */
     bool isComplexDBTFieldIndex(int fieldIndex, int &refStorageDataIndex) const;
     void addFieldIndex(int colNumb);
     bool hasNextFieldIndex() const;
-    GenDataStorage::T_fIndex nextFieldIndex();
+    StorageGenData::T_fIndex nextFieldIndex();
     void flushToGetFIndex();
 
     bool isEmpty() const;
@@ -41,4 +41,4 @@ private:
     T_fIndex m_indexFIndexes; // index value for going by the fields indexes array
 };
 
-#endif // GEN_DATA_STORAGE_H
+#endif // STORAGE_GEN_DATA_H

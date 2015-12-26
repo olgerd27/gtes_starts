@@ -4,8 +4,8 @@
 #include <QSqlRelationalTableModel>
 #include <QSqlRelationalDelegate>
 
-class DBTDataGenerator;
-class GenDataStorage;
+class GeneratorDBTData;
+class StorageGenData;
 
 class CustomSqlTableModel : public QSqlRelationalTableModel
 {
@@ -31,13 +31,12 @@ private:
     void defineSimpleDBTAndComplexIndex();
     void fillTheStorage();
     void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
-    void changeComplexDBTData(int colFrom, int colTo); // TODO: do not need, maybe delete?
     void flush();
     void saveData(const QModelIndex &currentIndex, int role);
     void restoreData(int currentRow, int role);
 
-    DBTDataGenerator *m_dataGenerator;
-    GenDataStorage *m_genDataStorage;
+    GeneratorDBTData *m_dataGenerator;
+    StorageGenData *m_genDataStorage;
     T_saveRestore m_saveRestore;
     bool m_bNeedSave;
 };
