@@ -26,7 +26,7 @@ public:
     void addFieldIndex(int colNumb);
     bool hasNextFieldIndex() const;
     StorageGenData::T_fIndex nextFieldIndex();
-    void flushToGetFIndex();
+    void flushFieldIndex();
 
     bool isEmpty() const;
     bool isNotSetted() const;

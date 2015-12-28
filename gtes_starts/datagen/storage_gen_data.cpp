@@ -48,7 +48,7 @@ StorageGenData::T_fIndex StorageGenData::nextFieldIndex()
     return m_fIndexes.at(m_indexFIndexes++);
 }
 
-void StorageGenData::flushToGetFIndex()
+void StorageGenData::flushFieldIndex()
 {
     m_indexFIndexes = INIT_FINDEX;
 }

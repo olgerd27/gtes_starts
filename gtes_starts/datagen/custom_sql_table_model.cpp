@@ -142,7 +142,6 @@ bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value
             qDebug() << "[ERROR standard] Message: " << ex.what();
             return false;
         }
-
         if (bSetted) emit dataChanged(item, item);
     }
 //    if (m_bNeedSave) restoreData(item.row(), role); // Spike #1
@@ -155,29 +154,30 @@ void CustomSqlTableModel::updateDataInStorage(const QModelIndex &index, int stor
     /*
      * TODO:
      * - get foreign key id value - [index.row(), index.column()] (not primary key id value - [index.row(), 0])
-     * - create the QuePrepForeignOneId class for preparing the query, that used for data generation
+     * - create the QueryGenForeignOneId class for preparing the query, that used for data generation
      * - there are need to change the GeneratorDBTData class in part of generation result data
      *   (now, the primary key id value not used, only foreign key id value)
      */
     int idPrim = cmmn::safeQVariantToInt( QSqlRelationalTableModel::data( this->index(index.row(), 0), Qt::DisplayRole ) ); // primary id
 //    qDebug() << "updateDataInStorage(), primary id =" << idPrim;
     const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), index.column());
-    QuePrepPrimaryOneId *qp = new QuePrepPrimaryOneId(idPrim, tableName(), fieldInf.m_nameInDB);
-    m_dataGenerator->setQueryPreparer(qp);
+    QueryGenPrimaryOneId *qgen = new QueryGenPrimaryOneId(idPrim, tableName(), fieldInf.m_nameInDB);
+    m_dataGenerator->setQueryGenerator(qgen);
     m_dataGenerator->generate(fieldInf);
+//    exit(0);
     if (m_dataGenerator->hasNextResultData()) {
         const auto &resData = m_dataGenerator->nextResultData();
         m_genDataStorage->updateData(resData.idPrim, storageComplexIndex, resData.genData);
     }
     else {
         // TODO: generate error message
-        qDebug() << "!--Error. Cannot set a data to the model storage. No one data was generated. "
+        qDebug() << "!--Error. Cannot set a data to the model storage. Data wasn't generated.\n"
                     "Please check the query for generating data for the item: [" << index.row() << "," << index.column() << "]";
         return;
     }
     if (m_dataGenerator->hasNextResultData()) {
         // TODO: generate error message
-        qDebug() << "!--Error. Cannot set a data to the model storage. Too many data was generated. "
+        qDebug() << "!--Error. Cannot set a data to the model storage. Too many data was generated.\n"
                     "Please check the query for generating data for the item: [" << index.row() << "," << index.column() << "]";
         return;
     }
@@ -228,10 +228,11 @@ void CustomSqlTableModel::printData() const
 void CustomSqlTableModel::slotRefreshTheModel()
 {
     try {
-        flush(); // delete previous results - need when refreshing all data
+        flush(); // delete previous results.
+        // TODO: maybe need to clear data in the model at here? For example, if there was added a new record (row) in a the DBT.
         select();
         fillTheStorage();
-        m_genDataStorage->flushToGetFIndex();
+        m_genDataStorage->flushFieldIndex();
     }
     catch (const cmmn::MessageException &me) {
         // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
@@ -248,12 +249,12 @@ void CustomSqlTableModel::slotRefreshTheModel()
 
 void CustomSqlTableModel::fillTheStorage()
 {
-    QuePrepPrimaryAllId *qp = new QuePrepPrimaryAllId(tableName());
-    m_dataGenerator->setQueryPreparer(qp);
+    QueryGenPrimaryAllId *qgen = new QueryGenPrimaryAllId(tableName());
+    m_dataGenerator->setQueryGenerator(qgen);
     while ( m_genDataStorage->hasNextFieldIndex() ) {
         auto complexFIndex = m_genDataStorage->nextFieldIndex();
         const dbi::DBTFieldInfo &fieldInfo = dbi::fieldByNameIndex(tableName(), complexFIndex);
-        qp->setForeignFieldName(fieldInfo.m_nameInDB);
+        qgen->setForeignFieldName(fieldInfo.m_nameInDB);
         m_dataGenerator->generate(fieldInfo);
         while (m_dataGenerator->hasNextResultData()) {
             const auto &resData = m_dataGenerator->nextResultData();
@@ -265,12 +266,12 @@ void CustomSqlTableModel::fillTheStorage()
 
 void CustomSqlTableModel::slotInsertToTheStorage(int idPrim)
 {
-//    m_dataGen->setQueryPreparer( new QPMainTableOneId(idPrim, tableName()) );
+//    m_dataGen->setQueryGenerator( new QPMainTableOneId(idPrim, tableName()) );
 }
 
 void CustomSqlTableModel::slotUpdateTheStorage(int idPrim, int colNumb)
 {
-//    m_dataGen->setQueryPreparer( new QPMainTableOneId(idPrim, tableName()) );
+//    m_dataGen->setQueryGenerator( new QPMainTableOneId(idPrim, tableName()) );
 //    int indexComplex = m_indexComplex.indexOf( cmmn::safeQVariantToInt(colNumb) ); // converting the column number to the storage index
 //    if (indexComplex == -1) return;
 }
