@@ -10,10 +10,10 @@
 
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
-#include "dbt_editor/simple_dbt_editor.h"
-#include "dbt_editor/complex_dbt_editor.h"
-#include "db_info.h"
-#include "custom_sql_table_model.h"
+#include "../dbt_editor/simple_dbt_editor.h"
+#include "../dbt_editor/complex_dbt_editor.h"
+#include "../common/db_info.h"
+#include "../datagen/custom_sql_table_model.h"
 
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
@@ -26,8 +26,10 @@ FormDataInput::FormDataInput(QWidget *parent)
     setDataOperating();
     setDataNavigation();
 
-    connect(this, SIGNAL(sigSaveData()), m_mapper, SLOT(submit())); // submit changes from the mapped widgets to the model
-    connect(this, SIGNAL(sigSaveData()), this, SLOT(slotSubmit())); // submit changes from the model to the database
+    connect(this, SIGNAL(sigSaveData()), m_mapper, SLOT(submit())); // submit changes from the mapped widgets to the "engines" model
+    connect(this, SIGNAL(sigSaveData()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
+    connect(this, SIGNAL(sigRefreshAllData()), m_enginesModel, SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
+    connect(this, SIGNAL(sigRefreshAllData()), this, SLOT(slotNeedChangeMapperIndex())); // updating data on the panel and mapper
 }
 
 /* set push buttons, that call some widget for editing DB tables */
@@ -157,8 +159,8 @@ void FormDataInput::slotEditDBT()
         return;
     }
 
-    dbi::DBTInfo *dbtInfo = DBINFO.tableByName(pbEditDBT->DBTableName());
-    if ( !dbtInfo ) {
+    dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbEditDBT->DBTableName());
+    if ( !tableInfo ) {
         QMessageBox::critical(this, tr("Invalid push button"),
                               tr("Cannot open the dialog.\n"
                                  "The reason is: cannot define the database table - pressed unknown push button.\n\n"
@@ -166,7 +168,7 @@ void FormDataInput::slotEditDBT()
         return;
     }
 
-    std::shared_ptr<DBTEditor> editor(createDBTEditor(dbtInfo));
+    std::shared_ptr<DBTEditor> editor(createDBTEditor(tableInfo));
     if ( !editor.operator bool() ) {
         QMessageBox::critical(this, tr("Invalid database table information"),
                               tr("Cannot open the dialog.\n"
@@ -175,41 +177,25 @@ void FormDataInput::slotEditDBT()
         return;
     }
 
-//    int id = 0;
-//    QVariant vId = m_enginesModel->index( m_mapper->currentIndex(),
-//                                          m_mapper->mappedSection(pbEditDBT->identWidget()) ).data(Qt::DisplayRole);
-//    if ( !safeIdConverting(vId, id) || !editor->selectInitial(id) ) return;
-
     /* define the column number, that used for defining the initial selection in dialog.
      * As the relational table model return a related DB table data (not a foreign key), then there are need to use the next (after "id")
      * column for definition the selection of a row in the table of an opened dialog */
-    DBTEditor::ColumnNumbers columnTtype = ( dbtInfo->m_type == dbi::DBTInfo::ttype_simple ? DBTEditor::col_firstWithData
-                                                                                           : DBTEditor::col_id );
+    DBTEditor::ColumnNumbers columnTtype = ( tableInfo->m_type == dbi::DBTInfo::ttype_simple ? DBTEditor::col_firstWithData
+                                                                                             : DBTEditor::col_id );
     int currentRow = m_mapper->currentIndex();
     int currentCol = m_mapper->mappedSection(pbEditDBT->identWidget());
+    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]"
+             << ", dataD =" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::DisplayRole).toString()
+             << ", dataE =" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::EditRole).toString()
+             << ", dataU =" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::UserRole).toString();
 
-    /* temporary, print some data */
-    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]";
-    QVariant dataD = m_enginesModel->index(currentRow, currentCol).data(Qt::DisplayRole);
-    qDebug() << "dataD =" << dataD.toString();
-    QVariant dataE = m_enginesModel->index(currentRow, currentCol).data(Qt::EditRole);
-    qDebug() << "dataE =" << dataE.toString();
-    QVariant dataU = m_enginesModel->index(currentRow, currentCol).data(Qt::UserRole);
-    qDebug() << "dataU =" << dataU.toString();
-
-    if ( !editor->selectInitial( m_enginesModel->index(currentRow, currentCol).data(Qt::UserRole), columnTtype ) )
+    if ( !editor->selectInitial( m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::UserRole), columnTtype ) )
         return;
 
     if ( editor->exec() == QDialog::Accepted ) {
-        qDebug() << "Dialog Accepted";
-//        m_enginesModel->print();
-        m_enginesModel->setDataWithSavings();
-        m_enginesModel->setData( m_enginesModel->index( currentRow, currentCol ), editor->selectedId(), Qt::UserRole );
-//        qDebug() << "after setData(), [" << currentRow << "," << currentCol << "]"
-//                 << ", dataD:" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::DisplayRole )
-//                 << ", dataE:" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::EditRole );
-        qDebug() << "selected ID =" << editor->selectedId();
-//        m_enginesModel->print();
+//        m_enginesModel->setDataWithSavings(); /* Spike #1 */
+        m_enginesModel->setData( m_enginesModel->index(currentRow, currentCol), editor->selectedId(), Qt::EditRole );
+        qDebug() << "choosed item with id =" << editor->selectedId();
     }
 
 //    int row = 0;
@@ -218,17 +204,4 @@ void FormDataInput::slotEditDBT()
 //                 << ", dataD =" << m_enginesModel->data( m_enginesModel->index(row, col), Qt::DisplayRole ).toString()
 //                 << ", dataE =" << m_enginesModel->data( m_enginesModel->index(row, col), Qt::EditRole ).toString();
     qDebug() << "=========================";
-}
-
-bool FormDataInput::safeIdConverting(const QVariant &vId, int &id)
-{
-    bool b = false;
-    id = vId.toInt(&b);
-    if (!b) {
-        QMessageBox::critical( this, tr("Error id"),
-                               tr("Cannot get the valid integer id value for select row with it.\n"
-                                  "The reason is: cannot convert the variant type value \"%1\" to the integer type value.")
-                               .arg(vId.toString()) );
-    }
-    return b;
 }

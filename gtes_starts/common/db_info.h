@@ -24,7 +24,7 @@ namespace dbi {
             , wtype_plainTextEdit
         };
 
-        bool isSetted() const;
+        bool isValid() const;
         bool isForeign() const;
         int relationDBTtype() const; /* return DBTInfo::TableTypes value. Returned value has the int type,
                                       * because the DBTInfo::TableTypes type is not known here */
@@ -61,7 +61,18 @@ namespace dbi {
         enum { NO_IDENTITY_FIELD = -1 };
 
         int tableDegree() const;
+
+        /*
+         * Function return the found instance of the dbi::DBTFieldInfo class. If item was not found, function return empty (not valid) instance
+         * of the dbi::DBTFieldInfo class and you can check returned value by calling the dbi::DBTFieldInfo::isValid() method.
+         * If function argument is invalid - throw the std::invalid_argument exception.
+         */
         DBTFieldInfo fieldByName(const QString &fieldName) const;
+
+        /*
+         * Function return the found instance of the dbi::DBTFieldInfo class.
+         * If function argument is invalid - throw the std::out_of_range exception.
+         */
         DBTFieldInfo fieldByIndex(int index) const;
 
         QString m_nameInDB;                 /* a table name, used in database */
@@ -84,6 +95,11 @@ namespace dbi {
 
         ~DBInfo();
         QString name() const;
+
+        /*
+         * Function return the found point to the instance of the dbi::DBTInfo* class. If item was not found, function return 0
+         * and you can check returned value. If function argument is invalid - throw the std::invalid_argument exception.
+         */
         DBTInfo * tableByName(const QString &tableName) const;
 
     private:
@@ -95,8 +111,26 @@ namespace dbi {
     };
 
     // External convenient functions
+    /*
+     * Calls the dbi::DBInfo::tableByName(const QString &) and the dbi::DBTInfo::fieldByName(const QString &) methods
+     */
     dbi::DBTFieldInfo fieldByNames(const QString &tableName, const QString &fieldName);
+
+    /*
+     * Calls the dbi::DBInfo::tableByName(const QString &) and the dbi::DBTInfo::fieldByIndex(int) methods
+     */
     dbi::DBTFieldInfo fieldByNameIndex(const QString &tableName, int fieldIndex);
+
+    /*
+     * Calls the dbi::DBTFieldInfo::isValid(), the dbi::DBTFieldInfo::isForeign() and the dbi::DBInfo::tableByName(const QString &) methods
+     */
+    bool isRelatedWithDBTType(const dbi::DBTFieldInfo &fieldInfo, dbi::DBTInfo::TableTypes tableType);
+
+    /*
+     * Calls the dbi::DBTFieldInfo::isValid(), the dbi::DBTFieldInfo::isForeign() and the dbi::DBInfo::tableByName(const QString &) methods.
+     * If function argument is invalid or isn't a foreign key - throw the std::invalid_argument exception.
+     */
+    dbi::DBTInfo * relatedDBT(const DBTFieldInfo &fieldInf);
 }
 
 #define DBINFO dbi::DBInfo::Instance()

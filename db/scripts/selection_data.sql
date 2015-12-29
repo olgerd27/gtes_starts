@@ -1,8 +1,8 @@
-#SELECT * FROM gtes_starts.engines;
+-- SELECT * FROM gtes_starts.engines;
 
 USE gtes_starts;
 
-# Retrieve the engine fuel for the particular id value
+--  Retrieve the engine fuel for the particular id value
 SELECT 
     fuels_types.name
 FROM
@@ -11,23 +11,19 @@ FROM
 WHERE
         engines.id = 2 
     AND engines.fuel_type_id = fuels_types.id;
-
-# Retrieve the full engine name for the particular id value, var.1
+    
+-- Retrieve combustion chambers info
 SELECT 
-    names_engines.name
+    combustion_chambers.id, 
+    combustion_chambers.draft_number
 FROM
-    engines,
-    names_engines,
-    names_modifications_engines,
-    full_names_engines
+    combustion_chambers
 WHERE
-        engines.id = 3 
-    AND engines.full_name_id = full_names_engines.id 
-    AND full_names_engines.name_modif_id = names_modifications_engines.id 
-    AND names_modifications_engines.name_id = names_engines.id;
+    3 = combustion_chambers.id;
 
-# Retrieve the full engine name for the particular id value, var.2
+--  Retrieve the full engine name for the foreign key id value
 SELECT 
+    555, 
     names_engines.name, 
     names_modifications_engines.modification, 
     full_names_engines.number
@@ -40,8 +36,26 @@ WHERE
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
     
-# Retrieve full engines names for all available foreign key id values
+--  Retrieve the full engine name for the primary key id value
 SELECT 
+    engines.id,
+    names_engines.name, 
+    names_modifications_engines.modification, 
+    full_names_engines.number
+FROM
+    engines,
+    names_engines,
+    names_modifications_engines,
+    full_names_engines
+WHERE
+        1 = engines.id
+    AND engines.full_name_id = full_names_engines.id 
+    AND full_names_engines.name_modif_id = names_modifications_engines.id 
+    AND names_modifications_engines.name_id = names_engines.id;
+    
+-- Retrieve full engines names for all available foreign key id values
+SELECT 
+    engines.id,
     names_engines.name, 
     names_modifications_engines.modification, 
     full_names_engines.number
@@ -54,13 +68,4 @@ WHERE
         engines.full_name_id = full_names_engines.id 
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
-
-# Retrieve combustion chambers info
-SELECT 
-    combustion_chambers.id, 
-    combustion_chambers.draft_number
-FROM
-    combustion_chambers
-WHERE
-    3 = combustion_chambers.id;
-    
+   

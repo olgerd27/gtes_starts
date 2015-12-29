@@ -33,7 +33,7 @@
      </property>
      <widget class="QWidget" name="tab_engines">
       <attribute name="icon">
-       <iconset resource="images_resources.qrc">
+       <iconset resource="../images_resources.qrc">
         <normaloff>:/images/turbina.png</normaloff>:/images/turbina.png</iconset>
       </attribute>
       <attribute name="title">
@@ -129,7 +129,7 @@
              <string>Select/Edit</string>
             </property>
             <property name="icon">
-             <iconset resource="images_resources.qrc">
+             <iconset resource="../images_resources.qrc">
               <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
             </property>
            </widget>
@@ -172,7 +172,7 @@
              <string>Edit</string>
             </property>
             <property name="icon">
-             <iconset resource="images_resources.qrc">
+             <iconset resource="../images_resources.qrc">
               <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
             </property>
            </widget>
@@ -206,7 +206,7 @@
              <string>Select/Edit</string>
             </property>
             <property name="icon">
-             <iconset resource="images_resources.qrc">
+             <iconset resource="../images_resources.qrc">
               <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
             </property>
            </widget>
@@ -240,7 +240,7 @@
              <string>Select/Edit</string>
             </property>
             <property name="icon">
-             <iconset resource="images_resources.qrc">
+             <iconset resource="../images_resources.qrc">
               <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
             </property>
            </widget>
@@ -310,8 +310,8 @@
      </widget>
      <widget class="QWidget" name="tab_bypasses">
       <attribute name="icon">
-       <iconset resource="images_resources.qrc">
-        <normaloff>:/images/rotated_trash_1.png</normaloff>:/images/rotated_trash_1.png</iconset>
+       <iconset resource="../images_resources.qrc">
+        <normaloff>:/images/rotated_trash.png</normaloff>:/images/rotated_trash.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Bypasses</string>
@@ -319,8 +319,8 @@
      </widget>
      <widget class="QWidget" name="tab_algorithm">
       <attribute name="icon">
-       <iconset resource="images_resources.qrc">
-        <normaloff>:/images/db.Routine.64x64.png</normaloff>:/images/db.Routine.64x64.png</iconset>
+       <iconset resource="../images_resources.qrc">
+        <normaloff>:/images/algorithm.png</normaloff>:/images/algorithm.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Algorithm</string>
@@ -328,8 +328,8 @@
      </widget>
      <widget class="QWidget" name="tab_settings">
       <attribute name="icon">
-       <iconset resource="images_resources.qrc">
-        <normaloff>:/images/1437705241_equalizer_sticker_4.PNG</normaloff>:/images/1437705241_equalizer_sticker_4.PNG</iconset>
+       <iconset resource="../images_resources.qrc">
+        <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Settings</string>
@@ -337,8 +337,8 @@
      </widget>
      <widget class="QWidget" name="tab_documents">
       <attribute name="icon">
-       <iconset resource="images_resources.qrc">
-        <normaloff>:/images/File_Doc_Text_Word.png</normaloff>:/images/File_Doc_Text_Word.png</iconset>
+       <iconset resource="../images_resources.qrc">
+        <normaloff>:/images/documents.png</normaloff>:/images/documents.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Documents</string>
@@ -346,8 +346,8 @@
      </widget>
      <widget class="QWidget" name="tab_graphs">
       <attribute name="icon">
-       <iconset resource="images_resources.qrc">
-        <normaloff>:/images/choice_list_graphs.png</normaloff>:/images/choice_list_graphs.png</iconset>
+       <iconset resource="../images_resources.qrc">
+        <normaloff>:/images/graphs.png</normaloff>:/images/graphs.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Graphs</string>
@@ -382,7 +382,7 @@
         <locale language="Russian" country="Ukraine"/>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
+        <iconset resource="../images_resources.qrc">
          <normaloff>:/images/record_first.png</normaloff>:/images/record_first.png</iconset>
        </property>
        <property name="iconSize">
@@ -402,7 +402,7 @@
         <locale language="Russian" country="Ukraine"/>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
+        <iconset resource="../images_resources.qrc">
          <normaloff>:/images/record_back.png</normaloff>:/images/record_back.png</iconset>
        </property>
        <property name="iconSize">
@@ -447,7 +447,7 @@
         <locale language="Russian" country="Ukraine"/>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
+        <iconset resource="../images_resources.qrc">
          <normaloff>:/images/record_next.png</normaloff>:/images/record_next.png</iconset>
        </property>
        <property name="iconSize">
@@ -467,7 +467,7 @@
         <locale language="Russian" country="Ukraine"/>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
+        <iconset resource="../images_resources.qrc">
          <normaloff>:/images/record_last.png</normaloff>:/images/record_last.png</iconset>
        </property>
        <property name="iconSize">
@@ -486,17 +486,22 @@
   <customwidget>
    <class>PBtnForEditDBT</class>
    <extends>QPushButton</extends>
-   <header>reimplemented_widgets.h</header>
+   <header>common/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>m_tabWidget</tabstop>
+  <tabstop>m_leIdData</tabstop>
+  <tabstop>m_leFullNameData</tabstop>
   <tabstop>m_pbEditFullName</tabstop>
   <tabstop>m_cboxFuel</tabstop>
   <tabstop>m_pbEditFuels</tabstop>
+  <tabstop>m_leChamberData</tabstop>
   <tabstop>m_pbEditChambers</tabstop>
+  <tabstop>m_leStartDeviceData</tabstop>
   <tabstop>m_pbEditStartDevices</tabstop>
   <tabstop>m_sboxStartDevicesQntyData</tabstop>
+  <tabstop>m_pteComments</tabstop>
   <tabstop>m_tbRecordFirst</tabstop>
   <tabstop>m_tbRecordPrev</tabstop>
   <tabstop>m_leRecordId</tabstop>
@@ -504,7 +509,7 @@
   <tabstop>m_tbRecordLast</tabstop>
  </tabstops>
  <resources>
-  <include location="images_resources.qrc"/>
+  <include location="../images_resources.qrc"/>
  </resources>
  <connections>
   <connection>

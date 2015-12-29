@@ -25,6 +25,7 @@ public:
 signals:
     void sigChangeMapperIndex(int index);
     void sigSaveData();
+    void sigRefreshAllData();
     void sigWrongIdEntered();
 
 private slots:
@@ -38,7 +39,6 @@ private:
     void setDataOperating();
     void setDataNavigation();
     DBTEditor * createDBTEditor(dbi::DBTInfo *info);
-    bool safeIdConverting(const QVariant &vId, int &id);
 
     Ui::FormDataInput *ui;
     CustomSqlTableModel *m_enginesModel;

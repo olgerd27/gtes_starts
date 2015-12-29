@@ -7,7 +7,7 @@
 
 #include "simple_dbt_editor.h"
 #include "ui_simple_dbt_editor.h"
-#include "db_info.h"
+#include "common/db_info.h"
 
 /*
  * HighlightListDelegate

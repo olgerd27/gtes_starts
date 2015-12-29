@@ -57,7 +57,7 @@
        <enum>QListView::IconMode</enum>
       </property>
       <property name="currentRow">
-       <number>0</number>
+       <number>-1</number>
       </property>
       <item>
        <property name="text">
@@ -71,8 +71,8 @@ input</string>
         <set>AlignHCenter|AlignVCenter|AlignCenter</set>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
-         <normaloff>:/images/choice_list_data_input.png</normaloff>:/images/choice_list_data_input.png</iconset>
+        <iconset resource="../images_resources.qrc">
+         <normaloff>:/images/data_input.png</normaloff>:/images/data_input.png</iconset>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -89,8 +89,8 @@ input</string>
         <set>AlignHCenter|AlignVCenter|AlignCenter</set>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
-         <normaloff>:/images/choice_list_query.png</normaloff>:/images/choice_list_query.png</iconset>
+        <iconset resource="../images_resources.qrc">
+         <normaloff>:/images/queries.png</normaloff>:/images/queries.png</iconset>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -107,8 +107,8 @@ input</string>
         <set>AlignHCenter|AlignVCenter|AlignCenter</set>
        </property>
        <property name="icon">
-        <iconset resource="images_resources.qrc">
-         <normaloff>:/images/cog-icon-2-48x48.png</normaloff>:/images/cog-icon-2-48x48.png</iconset>
+        <iconset resource="../images_resources.qrc">
+         <normaloff>:/images/options.png</normaloff>:/images/options.png</iconset>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -220,8 +220,8 @@ input</string>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="m_actCreateEngine">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
-     <normaloff>:/images/Add.png</normaloff>:/images/Add.png</iconset>
+    <iconset resource="../images_resources.qrc">
+     <normaloff>:/images/add1.png</normaloff>:/images/add1.png</iconset>
    </property>
    <property name="text">
     <string>Create engine</string>
@@ -232,8 +232,8 @@ input</string>
   </action>
   <action name="m_actSave">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
-     <normaloff>:/images/filesave2.png</normaloff>:/images/filesave2.png</iconset>
+    <iconset resource="../images_resources.qrc">
+     <normaloff>:/images/save2.png</normaloff>:/images/save2.png</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -244,8 +244,8 @@ input</string>
   </action>
   <action name="m_actRefresh">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
-     <normaloff>:/images/1438203865_gtk-refresh.png</normaloff>:/images/1438203865_gtk-refresh.png</iconset>
+    <iconset resource="../images_resources.qrc">
+     <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
    </property>
    <property name="text">
     <string>Refresh</string>
@@ -256,8 +256,8 @@ input</string>
   </action>
   <action name="m_actAboutApp">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
-     <normaloff>:/images/document-properties.png</normaloff>:/images/document-properties.png</iconset>
+    <iconset resource="../images_resources.qrc">
+     <normaloff>:/images/about.png</normaloff>:/images/about.png</iconset>
    </property>
    <property name="text">
     <string>About application</string>
@@ -268,8 +268,8 @@ input</string>
   </action>
   <action name="m_actAboutQt">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
-     <normaloff>:/images/qt-logo_1.png</normaloff>:/images/qt-logo_1.png</iconset>
+    <iconset resource="../images_resources.qrc">
+     <normaloff>:/images/qt-logo.png</normaloff>:/images/qt-logo.png</iconset>
    </property>
    <property name="text">
     <string>About Qt</string>
@@ -295,8 +295,8 @@ input</string>
   </action>
   <action name="m_actConnectToDB">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
-     <normaloff>:/images/db.mgmt.Connection.32x32.png</normaloff>:/images/db.mgmt.Connection.32x32.png</iconset>
+    <iconset resource="../images_resources.qrc">
+     <normaloff>:/images/connection.png</normaloff>:/images/connection.png</iconset>
    </property>
    <property name="text">
     <string>Connect</string>
@@ -307,8 +307,8 @@ input</string>
   </action>
   <action name="m_actDisconnectFromDB">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
-     <normaloff>:/images/Error_Symbol.png</normaloff>:/images/Error_Symbol.png</iconset>
+    <iconset resource="../images_resources.qrc">
+     <normaloff>:/images/disconnection.png</normaloff>:/images/disconnection.png</iconset>
    </property>
    <property name="text">
     <string>Disconnect</string>
@@ -319,8 +319,8 @@ input</string>
   </action>
   <action name="m_actExit">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
-     <normaloff>:/images/gnome-shutdown.png</normaloff>:/images/gnome-shutdown.png</iconset>
+    <iconset resource="../images_resources.qrc">
+     <normaloff>:/images/exit2.png</normaloff>:/images/exit2.png</iconset>
    </property>
    <property name="text">
     <string>Exit</string>
@@ -331,7 +331,7 @@ input</string>
   </action>
   <action name="m_actDeleteEngine">
    <property name="icon">
-    <iconset resource="images_resources.qrc">
+    <iconset resource="../images_resources.qrc">
      <normaloff>:/images/clear_output.png</normaloff>:/images/clear_output.png</iconset>
    </property>
    <property name="text">
@@ -347,11 +347,11 @@ input</string>
   <customwidget>
    <class>ResizableWidgetList</class>
    <extends>QListWidget</extends>
-   <header>reimplemented_widgets.h</header>
+   <header>common/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="images_resources.qrc"/>
+  <include location="../images_resources.qrc"/>
  </resources>
  <connections/>
 </ui>
