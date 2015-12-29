@@ -148,23 +148,13 @@ bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value
     return bSetted;
 }
 
-/* generate string data and update the storage */
+/* generate a data and update the storage */
 void CustomSqlTableModel::updateDataInStorage(const QModelIndex &index, int storageComplexIndex)
 {
-    /*
-     * TODO:
-     * - get foreign key id value - [index.row(), index.column()] (not primary key id value - [index.row(), 0])
-     * - create the QueryGenForeignOneId class for preparing the query, that used for data generation
-     * - there are need to change the GeneratorDBTData class in part of generation result data
-     *   (now, the primary key id value not used, only foreign key id value)
-     */
-    int idPrim = cmmn::safeQVariantToInt( QSqlRelationalTableModel::data( this->index(index.row(), 0), Qt::DisplayRole ) ); // primary id
-//    qDebug() << "updateDataInStorage(), primary id =" << idPrim;
-    const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), index.column());
-    QueryGenPrimaryOneId *qgen = new QueryGenPrimaryOneId(idPrim, tableName(), fieldInf.m_nameInDB);
-    m_dataGenerator->setQueryGenerator(qgen);
-    m_dataGenerator->generate(fieldInf);
-//    exit(0);
+    int idPrim = cmmn::safeQVariantToInt( QSqlRelationalTableModel::data( this->index(index.row(), 0), Qt::DisplayRole ) ); // primary key id
+    int idFor = cmmn::safeQVariantToInt( QSqlRelationalTableModel::data( index, Qt::DisplayRole ) ); // foreign key id
+    m_dataGenerator->setQueryGenerator( new QueryGenForeignOneId(idFor, idPrim) );
+    m_dataGenerator->generate( dbi::fieldByNameIndex(tableName(), index.column()) );
     if (m_dataGenerator->hasNextResultData()) {
         const auto &resData = m_dataGenerator->nextResultData();
         m_genDataStorage->updateData(resData.idPrim, storageComplexIndex, resData.genData);

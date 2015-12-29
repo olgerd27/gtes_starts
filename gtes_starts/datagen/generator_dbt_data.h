@@ -58,7 +58,7 @@ private:
     bool isReadyToGeneration();
     void flush();
 
-    QueryGenerator *m_queryDataPrep;
+    QueryGenerator *m_queryGen;
     QString m_strMask;
     T_arrResData m_resData;
     int m_indexResData {INIT_RES_INDEX};
@@ -72,11 +72,11 @@ private:
 class QueryGenForeignOneId : public GeneratorDBTData::QueryGenerator
 {
 public:
-    QueryGenForeignOneId(int idFor);
+    QueryGenForeignOneId(int idFor, int idPrim);
     virtual ~QueryGenForeignOneId();
 protected:
     virtual void doFinalPrepare();
-    int m_idF;
+    int m_idFor, m_idPrim; // foreign and primary keys id's. Primary key need for support the algorithm of a DBT data generation
 };
 
 /*
