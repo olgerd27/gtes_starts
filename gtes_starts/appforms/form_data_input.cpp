@@ -195,7 +195,7 @@ void FormDataInput::slotEditDBT()
     if ( editor->exec() == QDialog::Accepted ) {
 //        m_enginesModel->setDataWithSavings(); /* Spike #1 */
         m_enginesModel->setData( m_enginesModel->index(currentRow, currentCol), editor->selectedId(), Qt::EditRole );
-        qDebug() << "selected ID =" << editor->selectedId();
+        qDebug() << "choosed item with id =" << editor->selectedId();
     }
 
 //    int row = 0;

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images_resources.qrc">
+   <iconset>
     <normaloff>:/images/choice_list_data_input.png</normaloff>:/images/choice_list_data_input.png</iconset>
   </property>
   <property name="locale">
@@ -92,7 +92,7 @@
         </property>
         <property name="icon">
          <iconset resource="../images_resources.qrc">
-          <normaloff>:/images/add_symbol.png</normaloff>:/images/add_symbol.png</iconset>
+          <normaloff>:/images/add2.png</normaloff>:/images/add2.png</iconset>
         </property>
        </widget>
       </item>

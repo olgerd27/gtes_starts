@@ -14,6 +14,7 @@ void StorageGenData::addData(int idPrim, const StorageGenData::T_data &data)
 
 void StorageGenData::updateData(int idPrim, int index, const StorageGenData::T_data &data)
 {
+    qDebug() << "update generated data. id prim:" << idPrim << ", index:" << index << ", data:" << data;
     if ( !isIndexesOk(idPrim, index) ) {
         throw std::out_of_range(
                 QString("Cannot return the data from the generated data storage by the primary id = %1, index = %2")

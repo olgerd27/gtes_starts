@@ -29,7 +29,7 @@ void GeneratorDBTData::QueryGenerator::generateQuery()
     m_resQuery = QString("SELECT %1 FROM %2 WHERE %3;")
                  .arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( concatWhere() );
     flush();
-    qDebug() << "query:" << m_resQuery;
+//    qDebug() << "query:" << m_resQuery;
     qDebug() << "-----------------------------";
 }
 
@@ -180,7 +180,7 @@ void GeneratorDBTData::generateResultData()
         idPrim = cmmn::safeQVariantToInt(query.value(0));
         for (int i = 1; i < m_queryGen->quantityResultData(); ++i)
             strRes = strRes.arg( query.value(i).toString() ); // forming result data
-        qDebug() << "id:" << idPrim << ", data:" << strRes;
+        qDebug() << "generate result data. id prim:" << idPrim << ", data:" << strRes;
         m_resData.push_back( {idPrim, strRes} );
     }
     if (idPrim == -1) {

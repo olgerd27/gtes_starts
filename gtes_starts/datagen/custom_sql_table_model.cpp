@@ -102,11 +102,11 @@ QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
         int idPrim = cmmn::safeQVariantToInt( QSqlRelationalTableModel::data( this->index(item.row(), 0), Qt::DisplayRole ) ); // primary id
         if (m_genDataStorage->isStorageContainsId(idPrim))
             data = m_genDataStorage->data(idPrim, storageDataIndex); // get generated data
-//        qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
+        qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
     }
     else if (role == Qt::UserRole && m_genDataStorage->isComplexDBTFieldIndex(item.column(), storageDataIndex)) {
         data = QSqlRelationalTableModel::data(item, Qt::DisplayRole);
-//        qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
+        qDebug() << "data(), [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
     }
     return data;
 }
@@ -126,7 +126,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value
     int storageComplexIndex = -1;
     if (role == Qt::EditRole && m_genDataStorage->isComplexDBTFieldIndex(item.column(), storageComplexIndex) ) {
         bSetted = QSqlRelationalTableModel::setData(item, value, role);
-//        qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
+        qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
 
         try {
             updateDataInStorage(item, storageComplexIndex);

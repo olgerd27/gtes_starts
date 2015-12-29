@@ -221,7 +221,7 @@ input</string>
   <action name="m_actCreateEngine">
    <property name="icon">
     <iconset resource="../images_resources.qrc">
-     <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
+     <normaloff>:/images/add1.png</normaloff>:/images/add1.png</iconset>
    </property>
    <property name="text">
     <string>Create engine</string>
