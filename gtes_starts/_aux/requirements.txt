@@ -41,14 +41,16 @@
 5 Options
 5.1 There are the application options (application settings), that placed in the "Options" panel.
 5.2 The summary amount of application options is bigger then amount options, placed in this panel.
-5.3 The panel options:
-    - radiobutton choice:
-              --- autosaving data in DB
-                  (tooltip: perform autosaving inputed data on a some panel to DB, when this panel changes to another one)
-              --- manual saving data in DB
-                  (tooltip: perform manual saving inputed data on a some panel to DB, when this panel changes to another one);
+5.3 All options saves in the user settings file in the current user directory.
+5.4 The panel options:
+    - save data mode (radiobutton choice):
+        >>> auto saving (tooltip: perform autosaving inputed data on a some panel to DB, when this panel changes to another one)
+        >>> manual saving (tooltip: perform manual saving inputed data on a some panel to DB, when this panel changes to another one);
+    - appearance application window (radiobutton choice):
+        >>> the center of the monitor -> calculate;
+        >>> the application window previous close position -> take from the user settings file (geometry).
     - .
-5.4 The absentee on this panel options:
+5.5 The absentee on this panel options:
     - Id of the GTE, that has been showed at the moment of window close;
     - geometry (size and position) of the application window at the moment of window close.
 
