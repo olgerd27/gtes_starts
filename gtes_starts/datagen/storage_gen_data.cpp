@@ -54,7 +54,7 @@ void StorageGenData::flushFieldIndex()
     m_indexFIndexes = INIT_FINDEX;
 }
 
-bool StorageGenData::isComplexDBTFieldIndex(int fieldIndex, int &refStorageDataIndex) const
+bool StorageGenData::isComplexDBTField(int fieldIndex, int &refStorageDataIndex) const
 {
     refStorageDataIndex = m_fIndexes.indexOf(fieldIndex);
     return refStorageDataIndex != -1;

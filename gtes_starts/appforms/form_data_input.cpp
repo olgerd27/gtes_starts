@@ -108,27 +108,35 @@ void FormDataInput::slotNeedChangeMapperIndex()
 
 void FormDataInput::slotSubmit()
 {
-    qDebug() << "slotSubmit(); start";
+    qDebug() << "slotSubmit(), start";
     int currentIndex = m_mapper->currentIndex(); /* NOTE: save the current index suit only if performs updating of table. If there are performs
                                                   * delete or insert rows in database operation, there are need to use another way to restore
                                                   * current index (e.g. saving "id" value with following searching current index by it)
                                                   */
-    if (!m_enginesModel->database().transaction())
+    qDebug() << "slotSubmit(), 1";
+    if (!m_enginesModel->database().transaction()) {
+        qDebug() << "slotSubmit(), 2";
         QMessageBox::critical(this, tr("Database transaction error"),
                               tr("The database driver do not support the transactions operations"));
+    }
     if (m_enginesModel->submitAll()) {
         // In this line the mapper current index is -1 (after submitAll() calling)
+        qDebug() << "slotSubmit(), 3";
         m_enginesModel->database().commit();
+        qDebug() << "slotSubmit(), 4";
     }
     else {
+        qDebug() << "slotSubmit(), 5";
         m_enginesModel->database().rollback();
+        qDebug() << "slotSubmit(), 6";
         QMessageBox::critical(this, tr("Error data submit to the database"),
                               tr("Cannot submit data to the database. The database report an error: %1")
                               .arg(m_enginesModel->lastError().text()));
         return;
     }
+    qDebug() << "slotSubmit(), 7";
     m_mapper->setCurrentIndex(currentIndex);
-    qDebug() << "slotSubmit(); end";
+    qDebug() << "slotSubmit(), end";
 }
 
 /* Factory method for creation some type of a database table dialog */
@@ -193,7 +201,7 @@ void FormDataInput::slotEditDBT()
         return;
 
     if ( editor->exec() == QDialog::Accepted ) {
-//        m_enginesModel->setDataWithSavings(); /* Spike #1 */
+        m_enginesModel->spike1_turnOn(true); /* Switch ON the Spike #1 */
         m_enginesModel->setData( m_enginesModel->index(currentRow, currentCol), editor->selectedId(), Qt::EditRole );
         qDebug() << "choosed item with id =" << editor->selectedId();
     }

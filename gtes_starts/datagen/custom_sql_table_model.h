@@ -16,30 +16,31 @@ public:
 
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     ~CustomSqlTableModel();
-    void setDataWithSavings();
     void setTable(const QString &tableName);
     QVariant data(const QModelIndex &item, int role) const;
     bool setData(const QModelIndex &item, const QVariant &value, int role);
-    void printData() const; // NOTE: temporary function, delete
+    void spike1_turnOn(bool bOn);
+    void printData(int role) const; // NOTE: temporary function, delete
 
 public slots:
     void slotRefreshTheModel();
     void slotInsertToTheStorage(int idPrim);
     void slotUpdateTheStorage(int idPrim, int colNumb);
+    void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight); // TODO: for debugging, delete later
 
 private:
     void defineSimpleDBTAndComplexIndex();
     void fillTheStorage();
     void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
     void flush();
-    void saveData(const QModelIndex &currentIndex, int role);
-    void restoreData(int currentRow, int role);
+    void saveData_spike1(const QModelIndex &currIndex);
+    void restoreData_spike1(int currRow);
     void fillGeneratedData();
 
     GeneratorDBTData *m_dataGenerator;
     StorageGenData *m_genDataStorage;
     T_saveRestore m_saveRestore;
-    bool m_bNeedSave;
+    bool m_bNeedSave_spike1;
 };
 
 class CustomSqlRelationalDelegate : public QSqlRelationalDelegate

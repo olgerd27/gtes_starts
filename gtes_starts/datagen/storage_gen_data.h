@@ -20,9 +20,9 @@ public:
     void updateData(int idPrim, int index, const StorageGenData::T_data &data);
     StorageGenData::T_data data(int id, int index);
 
-    /* Checking - is the DBT field related to the complex DBT by the index "fieldIndex"
+    /* Checking - is the DBT foreign field related with the complex DBT by the index "fieldIndex"
      * The refStorageDataIndex is the serial index to the data in the storage */
-    bool isComplexDBTFieldIndex(int fieldIndex, int &refStorageDataIndex) const;
+    bool isComplexDBTField(int fieldIndex, int &refStorageDataIndex) const;
     void addFieldIndex(int colNumb);
     bool hasNextFieldIndex() const;
     StorageGenData::T_fIndex nextFieldIndex();

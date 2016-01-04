@@ -21,7 +21,7 @@ public:
         inline void addFrom(const QString &str) { m_listFrom.push_back(str); }
         inline void addWhere(const QString &str) { m_listWhere.push_back(str); }
         inline int quantityResultData() const { return m_quantityRes; }
-        inline QString resultQuery() const { return m_resQuery; }
+        inline QString lastGeneratedQuery() const { return m_resQuery; }
         void generateQuery();
 
     private:

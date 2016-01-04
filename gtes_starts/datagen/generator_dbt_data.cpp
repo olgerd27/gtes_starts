@@ -18,19 +18,14 @@ void GeneratorDBTData::QueryGenerator::generateQuery()
                                       QObject::tr("Too many attempts to get the query string, used for generation displayed data"),
                                       "QueryGenerator::generateQuery" );
     }
-
 //    qDebug() << "Not ready query data:\nSELECT:" << m_listSelect << "\nFROM:" << m_listFrom << "\nWHERE:" << m_listWhere;
-
     finalPrepare(); // the Template Method
     m_quantityRes = m_listSelect.size(); // save quantity of the result data
-
 //    qDebug() << "Ready query data:\nSELECT:" << m_listSelect.join(", ") << "\nFROM:" << m_listFrom.join(", ") << "\nWHERE:" << m_listWhere.join(", ");
-
     m_resQuery = QString("SELECT %1 FROM %2 WHERE %3;")
                  .arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( concatWhere() );
     flush();
 //    qDebug() << "query:" << m_resQuery;
-    qDebug() << "-----------------------------";
 }
 
 QString GeneratorDBTData::QueryGenerator::concatWhere() const
@@ -173,15 +168,15 @@ void GeneratorDBTData::generateResultData()
     int idPrim = -1;
     QString strRes;
     m_queryGen->generateQuery();
-    QSqlQuery query(m_queryGen->resultQuery());
+    QSqlQuery query(m_queryGen->lastGeneratedQuery());
     m_resData.reserve(query.size()); // allocate the storage memory for effective adding data to the storage
     while (query.next()) {
         strRes = m_strMask;
         idPrim = cmmn::safeQVariantToInt(query.value(0));
         for (int i = 1; i < m_queryGen->quantityResultData(); ++i)
             strRes = strRes.arg( query.value(i).toString() ); // forming result data
-        qDebug() << "generate result data. id prim:" << idPrim << ", data:" << strRes;
         m_resData.push_back( {idPrim, strRes} );
+//        qDebug() << "generate result data. id prim:" << idPrim << ", data:" << strRes;
     }
     if (idPrim == -1) {
         throw cmmn::MessageException( cmmn::MessageException::type_critical,
@@ -190,6 +185,7 @@ void GeneratorDBTData::generateResultData()
                                       + QObject::tr("The database error:") + query.lastError().text(),
                                       "GeneratorDBTData::generateResultData()" );
     }
+//    qDebug() << "-----------------------------";
 }
 
 bool GeneratorDBTData::hasNextResultData() const

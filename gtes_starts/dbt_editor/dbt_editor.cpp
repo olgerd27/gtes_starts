@@ -114,15 +114,19 @@ void DBTEditor::setWindowName()
 
 bool DBTEditor::selectInitial(const QVariant &value, DBTEditor::ColumnNumbers compareCol)
 {
+//    qDebug() << "select initial. value:" << value;
     int selectedRow = -1;
     for (int row = 0; row < m_model->rowCount(); ++row) {
+//        qDebug() << "row:" << row << ", display data:" << m_model->index(row, compareCol).data(Qt::DisplayRole);
         if ( m_model->index(row, compareCol).data(Qt::DisplayRole) == value ) {
             selectedRow = row;
             break;
         }
     }
-    if (selectedRow != -1)
+    if (selectedRow != -1) {
         makeSelect(selectedRow); // the virtual function calling that select the found row
+//        qDebug() << "selected row #" << selectedRow;
+    }
     else {
         QMessageBox::warning( this, tr("Selection error"),
                               tr("Cannot select an item in the list.\n"
