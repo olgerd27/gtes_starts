@@ -18,7 +18,7 @@ public:
     StorageGenData();
     void addData(int idPrim, const StorageGenData::T_data &data);
     void updateData(int idPrim, int index, const StorageGenData::T_data &data);
-    StorageGenData::T_data data(int id, int index);
+    const StorageGenData::T_data & data(int id, int index) const;
 
     /* Checking - is the DBT foreign field related with the complex DBT by the index "fieldIndex"
      * The refStorageDataIndex is the serial index to the data in the storage */

@@ -193,7 +193,7 @@ bool GeneratorDBTData::hasNextResultData() const
     return m_resData.size() > m_indexResData;
 }
 
-GeneratorDBTData::T_resData GeneratorDBTData::nextResultData()
+const GeneratorDBTData::T_resData & GeneratorDBTData::nextResultData()
 {
     return m_resData.at(m_indexResData++);
 }

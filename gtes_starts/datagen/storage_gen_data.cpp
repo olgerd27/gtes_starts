@@ -1,4 +1,4 @@
-#include <QDebug> // TODO: delete
+#include <QDebug> // TODO: delete later
 #include "storage_gen_data.h"
 
 StorageGenData::StorageGenData()
@@ -14,17 +14,16 @@ void StorageGenData::addData(int idPrim, const StorageGenData::T_data &data)
 
 void StorageGenData::updateData(int idPrim, int index, const StorageGenData::T_data &data)
 {
-    qDebug() << "update generated data. id prim:" << idPrim << ", index:" << index << ", data:" << data;
+//    qDebug() << "update generated data. id prim:" << idPrim << ", index:" << index << ", data:" << data;
     if ( !isIndexesOk(idPrim, index) ) {
         throw std::out_of_range(
                 QString("Cannot return the data from the generated data storage by the primary id = %1, index = %2")
                 .arg(idPrim).arg(index).toStdString() );
     }
     m_storage[idPrim][index] = data;
-//    qDebug() << "update data in the storage, id:" << idPrim << ", index:" << index << ", data:" << data.toString();
 }
 
-StorageGenData::T_data StorageGenData::data(int id, int index)
+const StorageGenData::T_data & StorageGenData::data(int id, int index) const
 {
     if ( !isIndexesOk(id, index) ) {
         throw std::out_of_range(

@@ -26,11 +26,11 @@ public slots:
     void slotRefreshTheModel();
     void slotInsertToTheStorage(int idPrim);
     void slotUpdateTheStorage(int idPrim, int colNumb);
-    void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight); // TODO: for debugging, delete later
 
 private:
     void defineSimpleDBTAndComplexIndex();
     void fillTheStorage();
+    void getDataFromStorage(QVariant &data, const QModelIndex &index, int storageComplexIndex) const;
     void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
     void flush();
     void saveData_spike1(const QModelIndex &currIndex);

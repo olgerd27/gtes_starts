@@ -48,7 +48,7 @@ public:
     void setQueryGenerator(QueryGenerator *pr);
     void generate(const dbi::DBTFieldInfo &foreignFieldInf);
     bool hasNextResultData() const;
-    GeneratorDBTData::T_resData nextResultData();
+    const GeneratorDBTData::T_resData &nextResultData();
 
 private:
     enum { INIT_RES_INDEX = 0 };
