@@ -12,8 +12,8 @@
 #include "ui_form_data_input.h"
 #include "../dbt_editor/simple_dbt_editor.h"
 #include "../dbt_editor/complex_dbt_editor.h"
-#include "../common/db_info.h"
 #include "../datagen/custom_sql_table_model.h"
+#include "../common/db_info.h"
 
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
@@ -26,10 +26,12 @@ FormDataInput::FormDataInput(QWidget *parent)
     setDataOperating();
     setDataNavigation();
 
-    connect(this, SIGNAL(sigSaveData()), m_mapper, SLOT(submit())); // submit changes from the mapped widgets to the "engines" model
-    connect(this, SIGNAL(sigSaveData()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
-    connect(this, SIGNAL(sigRefreshAllData()), m_enginesModel, SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
-    connect(this, SIGNAL(sigRefreshAllData()), this, SLOT(slotNeedChangeMapperIndex())); // updating data on the panel and mapper
+    // command signals & slots connections
+    connect(this, SIGNAL(sigInsertNew()), m_enginesModel, SLOT(slotInsertToTheModel()));
+    connect(this, SIGNAL(sigSaveAll()), m_mapper, SLOT(submit())); // submit changes from the mapped widgets to the "engines" model
+    connect(this, SIGNAL(sigSaveAll()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
+    connect(this, SIGNAL(sigRefreshAll()), m_enginesModel, SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
+    connect(this, SIGNAL(sigRefreshAll()), this, SLOT(slotNeedChangeMapperIndex())); // updating data on the panel and mapper
 }
 
 /* set push buttons, that call some widget for editing DB tables */
@@ -85,6 +87,7 @@ void FormDataInput::setDataNavigation()
                                                                                                     argument, that store QLineEdit data */
     connect(this, SIGNAL(sigChangeMapperIndex(int)), m_mapper, SLOT(setCurrentIndex(int)));
     connect(this, SIGNAL(sigWrongIdEntered()), ui->m_leRecordId, SLOT(clear()));
+    connect(this, SIGNAL(sigWrongIdEntered()), m_mapper, SLOT(revert())); // perform a clearing of the mapped widgets
 }
 
 FormDataInput::~FormDataInput()
@@ -94,9 +97,9 @@ FormDataInput::~FormDataInput()
 
 void FormDataInput::slotNeedChangeMapperIndex()
 {
-    int enteredId = ui->m_leRecordId->text().toInt();
+    auto enteredId = ui->m_leRecordId->text().toLongLong();
     for (int row = 0; row < m_enginesModel->rowCount(); ++row) {
-        if (m_enginesModel->record(row).value(0).toInt() == enteredId) {
+        if (m_enginesModel->record(row).value(0).toLongLong() == enteredId) {
             emit sigChangeMapperIndex(row);
             return;
         }
@@ -185,17 +188,18 @@ void FormDataInput::slotEditDBT()
                                                                                              : DBTEditor::col_id );
     int currentRow = m_mapper->currentIndex();
     int currentCol = m_mapper->mappedSection(pbEditDBT->identWidget());
+    const QModelIndex &currIndex = m_enginesModel->index(currentRow, currentCol);
 //    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]"
-//             << ", dataD =" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::DisplayRole).toString()
-//             << ", dataE =" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::EditRole).toString()
-//             << ", dataU =" << m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::UserRole).toString();
-
-    if ( !editor->selectInitial( m_enginesModel->data( m_enginesModel->index(currentRow, currentCol), Qt::UserRole), columnTtype ) )
+//             << ", dataD =" << m_enginesModel->data( currIndex, Qt::DisplayRole).toString()
+//             << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
+//             << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
+    const QVariant &userData = m_enginesModel->data(currIndex, Qt::UserRole);
+    if ( userData != CustomSqlTableModel::NOT_SETTED && !editor->selectInitial( userData, columnTtype ) )
         return;
 
     if ( editor->exec() == QDialog::Accepted ) {
         m_enginesModel->spike1_turnOn(true); /* Switch ON the Spike #1 */
-        m_enginesModel->setData( m_enginesModel->index(currentRow, currentCol), editor->selectedId(), Qt::EditRole );
+        m_enginesModel->setData( currIndex, editor->selectedId(), Qt::EditRole );
 //        qDebug() << "choosed item with id =" << editor->selectedId();
     }
 

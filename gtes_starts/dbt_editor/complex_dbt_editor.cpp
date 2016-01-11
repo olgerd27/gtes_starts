@@ -152,7 +152,12 @@ void ComplexDBTEditor::slotChooseRow(const QItemSelection &selected, const QItem
 
 void ComplexDBTEditor::setSelectedId(int selectedRow)
 {
-    m_selectedId = m_model->index(selectedRow, 1).data().toInt();
+    bool bOk = false;
+    m_selectedId = m_model->index(selectedRow, 1).data().toLongLong(&bOk);
+    if (!bOk) {
+        // TODO: generate the error
+        qCritical() << "Cannot convert id = \"\" for the row selection";
+    }
 }
 
 //void ComplexDBTEditor::setIdentificationData(const QModelIndex &indexInSelectRow)

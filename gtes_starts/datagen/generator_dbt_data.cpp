@@ -4,9 +4,13 @@
 #include <QDebug>
 #include "generator_dbt_data.h"
 #include "../common/db_info.h"
-#include "../common/common_defines.h"
 
 /* QueryGenerator */
+GeneratorDBTData::QueryGenerator::QueryGenerator(TypeQueryGenerator typeqg)
+    : m_type(typeqg)
+{
+}
+
 GeneratorDBTData::QueryGenerator::~QueryGenerator()
 { }
 
@@ -25,7 +29,7 @@ void GeneratorDBTData::QueryGenerator::generateQuery()
     m_resQuery = QString("SELECT %1 FROM %2 WHERE %3;")
                  .arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( concatWhere() );
     flush();
-//    qDebug() << "query:" << m_resQuery;
+    //    qDebug() << "query:" << m_resQuery;
 }
 
 QString GeneratorDBTData::QueryGenerator::concatWhere() const
@@ -55,8 +59,9 @@ void GeneratorDBTData::QueryGenerator::finalPrepare()
 }
 
 /* QueryGenForeignOneId */
-QueryGenForeignOneId::QueryGenForeignOneId(int idFor, int idPrim)
-    : m_idFor(idFor)
+QueryGenForeignOneId::QueryGenForeignOneId(T_id idFor, T_id idPrim, TypeQueryGenerator typeqg)
+    : GeneratorDBTData::QueryGenerator(typeqg)
+    , m_idFor(idFor)
     , m_idPrim(idPrim)
 { }
 
@@ -70,8 +75,9 @@ void QueryGenForeignOneId::doFinalPrepare()
 }
 
 /* QueryGenPrimaryAllId */
-QueryGenPrimaryAllId::QueryGenPrimaryAllId(const QString &mainTableName, const QString &foreignFieldName)
-    : m_mTableName(mainTableName)
+QueryGenPrimaryAllId::QueryGenPrimaryAllId(const QString &mainTableName, const QString &foreignFieldName, TypeQueryGenerator typeqg)
+    : GeneratorDBTData::QueryGenerator(typeqg)
+    , m_mTableName(mainTableName)
     , m_fFieldName(foreignFieldName)
 { }
 
@@ -88,26 +94,27 @@ void QueryGenPrimaryAllId::doFinalPrepare()
 }
 
 /* QueryGenPrimaryOneId */
-QueryGenPrimaryOneId::QueryGenPrimaryOneId(int idPrim, const QString &mainTableName, const QString &foreignFieldName)
-    : QueryGenPrimaryAllId(mainTableName, foreignFieldName)
-    , m_idP(idPrim)
-{ }
+QueryGenPrimaryOneId::QueryGenPrimaryOneId(T_id idPrim, const QString &mainTableName, const QString &foreignFieldName, TypeQueryGenerator typeqg)
+    : QueryGenPrimaryAllId(mainTableName, foreignFieldName, typeqg)
+    , m_idPrim(idPrim)
+{
+}
 
 QueryGenPrimaryOneId::~QueryGenPrimaryOneId()
 { }
 
 void QueryGenPrimaryOneId::doFinalPrepare()
 {
-    if (m_idP == NOT_SET)
+    if (m_idPrim == NOT_SET)
         throw std::logic_error("QueryGenPrimaryOneId::doFinalPrepare(), primary id value was not setted");
     QueryGenPrimaryAllId::doFinalPrepare();
     m_listWhere.push_front(m_mTableName + ".id");
-    m_listWhere.push_front(QString::number(m_idP));
+    m_listWhere.push_front(QString::number(m_idPrim));
 }
 
 void QueryGenPrimaryOneId::setId(const QVariant &varId)
 {
-    m_idP = cmmn::safeQVariantToInt(varId);
+    m_idPrim = cmmn::safeQVariantToIdType(varId);
 }
 
 /*****************************************************************************************************************************/
@@ -123,10 +130,15 @@ GeneratorDBTData::~GeneratorDBTData()
     delete m_queryGen;
 }
 
-void GeneratorDBTData::setQueryGenerator(QueryGenerator *pr)
+GeneratorDBTData::QueryGenerator::TypeQueryGenerator GeneratorDBTData::typeQueryGenerator() const
+{
+    return m_queryGen->typeQG();
+}
+
+void GeneratorDBTData::setQueryGenerator(QueryGenerator *gen)
 {
     delete m_queryGen;
-    m_queryGen = pr;
+    m_queryGen = gen;
 }
 
 void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)
@@ -165,14 +177,14 @@ void GeneratorDBTData::generate_Mask_QueryData(const dbi::DBTFieldInfo &ffield, 
 
 void GeneratorDBTData::generateResultData()
 {
-    int idPrim = -1;
+    T_id idPrim = -1;
     QString strRes;
     m_queryGen->generateQuery();
     QSqlQuery query(m_queryGen->lastGeneratedQuery());
     m_resData.reserve(query.size()); // allocate the storage memory for effective adding data to the storage
     while (query.next()) {
         strRes = m_strMask;
-        idPrim = cmmn::safeQVariantToInt(query.value(0));
+        idPrim = cmmn::safeQVariantToIdType(query.value(0));
         for (int i = 1; i < m_queryGen->quantityResultData(); ++i)
             strRes = strRes.arg( query.value(i).toString() ); // forming result data
         m_resData.push_back( {idPrim, strRes} );
@@ -193,7 +205,7 @@ bool GeneratorDBTData::hasNextResultData() const
     return m_resData.size() > m_indexResData;
 }
 
-const GeneratorDBTData::T_resData & GeneratorDBTData::nextResultData()
+const GeneratorDBTData::T_resData &GeneratorDBTData::nextResultData()
 {
     return m_resData.at(m_indexResData++);
 }

@@ -74,19 +74,20 @@ MainWindow::MainWindow(QWidget *parent) :
 //    qDebug() << "Last error:" << db.lastError().text();
 
     QStackedWidget *sw = ui->m_stackForms;
-    FormDataInput *fDataInput = new FormDataInput(sw);
-    sw->insertWidget(index_data_input, fDataInput);
+    FormDataInput *formDInput = new FormDataInput(sw);
+    sw->insertWidget(index_data_input, formDInput);
     sw->insertWidget(index_queries, new FormQueries(sw));
     sw->insertWidget(index_options, new FormOptions(sw));
 
-    // signals & slots connections
-    connect(ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));
-
-    // actions
-    connect(ui->m_actSave, SIGNAL(triggered()), fDataInput, SIGNAL(sigSaveData()));
-    connect(ui->m_actRefresh, SIGNAL(triggered()), fDataInput, SIGNAL(sigRefreshAllData())); // refresh all data in the FormDataInput window
+    // actions connections
+    connect(ui->m_actCreateEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigInsertNew()));
+    connect(ui->m_actSave, SIGNAL(triggered()), formDInput, SIGNAL(sigSaveAll()));
+    connect(ui->m_actRefresh, SIGNAL(triggered()), formDInput, SIGNAL(sigRefreshAll()));
     connect(ui->m_actAboutApp, SIGNAL(triggered()), this, SLOT(slotAboutApp()));
     connect(ui->m_actAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+    // another signals & slots connections
+    connect(ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));
 }
 
 MainWindow::~MainWindow()

@@ -4,6 +4,7 @@
 #include <QSqlTableModel>
 #include <QIcon>
 #include <QDialog>
+#include "../common/common_defines.h"
 
 namespace dbi {
     class DBTInfo;
@@ -37,9 +38,8 @@ private:
 class DBTEditor : public QDialog
 {
     Q_OBJECT
-
 public:
-    typedef int T_id;
+    typedef cmmn::T_id T_id;
 
     enum ColumnNumbers {
           col_empty = 0

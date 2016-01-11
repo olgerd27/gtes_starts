@@ -6,8 +6,8 @@
 
 namespace cmmn {
     /*
-     * Class for dynamic generation exceptions (STL library version).
-     * This guy can accept data with any type, that can to be added to std::stringstream type instance.
+     * Class for dynamical generation of exceptions (STL library version).
+     * This class can accept data with any type, that can to be added to std::stringstream type instance.
      */
     struct DynExceptionSTL : public std::exception
     {
@@ -60,7 +60,9 @@ namespace cmmn {
     };
 
     // Conversions
+    typedef qlonglong T_id;
     int safeQVariantToInt(const QVariant &value);
+    T_id safeQVariantToIdType(const QVariant &value);
 }
 
 #endif // COMMON_DEFINES_H

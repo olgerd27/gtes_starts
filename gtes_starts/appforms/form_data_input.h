@@ -24,8 +24,9 @@ public:
 
 signals:
     void sigChangeMapperIndex(int index);
-    void sigSaveData();
-    void sigRefreshAllData();
+    void sigInsertNew();
+    void sigSaveAll();
+    void sigRefreshAll();
     void sigWrongIdEntered();
 
 private slots:

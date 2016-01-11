@@ -13,6 +13,7 @@ class CustomSqlTableModel : public QSqlRelationalTableModel
 
 public:
     typedef QMap<int, QVariant> T_saveRestore;
+    enum { NOT_SETTED = -1 };
 
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     ~CustomSqlTableModel();
@@ -24,12 +25,12 @@ public:
 
 public slots:
     void slotRefreshTheModel();
-    void slotInsertToTheStorage(int idPrim);
-    void slotUpdateTheStorage(int idPrim, int colNumb);
+    void slotInsertToTheModel();
 
 private:
     void defineSimpleDBTAndComplexIndex();
     void fillTheStorage();
+    void insertNewRecord();
     void getDataFromStorage(QVariant &data, const QModelIndex &index, int storageComplexIndex) const;
     void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
     void flush();

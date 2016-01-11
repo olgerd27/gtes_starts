@@ -6,13 +6,13 @@ StorageGenData::StorageGenData()
 {
 }
 
-void StorageGenData::addData(int idPrim, const StorageGenData::T_data &data)
+void StorageGenData::addData(T_id idPrim, const StorageGenData::T_data &data)
 {
     // if a data with this "id" is not exist, operator[] create it with help of the StorageGenData::T_data default constructor and assign the "data" value to it
     m_storage[idPrim].push_back(data);
 }
 
-void StorageGenData::updateData(int idPrim, int index, const StorageGenData::T_data &data)
+void StorageGenData::updateData(T_id idPrim, int index, const StorageGenData::T_data &data)
 {
 //    qDebug() << "update generated data. id prim:" << idPrim << ", index:" << index << ", data:" << data;
     if ( !isIndexesOk(idPrim, index) ) {
@@ -23,7 +23,7 @@ void StorageGenData::updateData(int idPrim, int index, const StorageGenData::T_d
     m_storage[idPrim][index] = data;
 }
 
-const StorageGenData::T_data & StorageGenData::data(int id, int index) const
+const StorageGenData::T_data & StorageGenData::data(T_id id, int index) const
 {
     if ( !isIndexesOk(id, index) ) {
         throw std::out_of_range(
@@ -69,7 +69,7 @@ bool StorageGenData::isNotSetted() const
     return m_fIndexes.empty();
 }
 
-bool StorageGenData::isStorageContainsId(int id) const
+bool StorageGenData::isStorageContainsId(T_id id) const
 {
     return m_storage.contains(id);
 }
@@ -79,7 +79,7 @@ void StorageGenData::clear()
     m_storage.clear();
 }
 
-bool StorageGenData::isIndexesOk(int id, int index) const
+bool StorageGenData::isIndexesOk(T_id id, int index) const
 {
     return isStorageContainsId(id) && (index >= 0) && (index < m_storage[id].size());
 }
