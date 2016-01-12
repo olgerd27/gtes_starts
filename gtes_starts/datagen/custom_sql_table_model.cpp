@@ -11,32 +11,26 @@
  * CustomSqlTableModel
  *
  * Description of the spike #1.
- * When user change a some field that is a foreign key (in particular, a foreign key of a related complex DB table), there are performs
- * a calling of the QSqlRelationalTableModel::setData() method from the CustomSqlTableModel::setData().
- * The QSqlRelationalTableModel::setData() method (or maybe the QSqlTableModel::setData() method (called from the
- * QSqlRelationalTableModel::setData()) ) set some incorrect data to the items, that is different from present (current item).
- * This setted data are: to the DisplayRole - a QString-type already generated data, to the EditRole - a QString-type empty instance.
- * This invalid behaviour of data settings, which is protected from influent, need to prevent. This is achieved by usage saving and
- * following restoring data, that must not change.
- * Turn on the run of this operations performs by calling the public method switchSpike1(). Turn off the run of this operations
- * performs without assistance from outside in the restoreData_spike1() method.
+ * When user set a new data in a some field, that is a foreign key related with the complex DB table, to others similar fields in current row assigns
+ * generated string-type values, but here must remain the int-type id values. This not expected behaviour performs in the QSqlRelationalTableModel::setData()
+ * method, which work process is private from outside. Most probably, this string-type generated values was readed from the mapper widgets.
+ * To prevent this invalid behaviour there was added the spike #1. Spike #1 save data, that doesn't must changes, before calling the
+ * QSqlRelationalTableModel::setData() and restore saved data after calling the QSqlRelationalTableModel::setData(). It allows remains the int-type id values
+ * in the foreign keys, that is related with the complex DB table.
+ * Turn on the spike #1 performs by calling the public method spike1_turnOn(). Turn off the spike #1 performs automatically (without assistance from outside)
+ * in the restoreData_spike1() method.
  *
- * Rules of data setting and getting (v.1):
- * - in time of initial running of a view performs getting from the DB all data and saving it in the storage;
- * - calling of the data() method only get data from the storage and put it in the view by current index (index is a row number);
- * - if user performs the UPDATE or INSERT a some record (row) operations, changes sends to the DB and after this updates
- *   the storage and view with appropriate index (row number);
- * - if user performs the DELETE a some record (row) operation, changes sends to the DB and immediately deletes appropriate value in the storage;
- * - if user click to the Refresh action, the custom model clear storage and get all data again.
- *
- * Rules of data setting and getting (v.2):
- * - in time of set model table name, performs filling the model with data with help of the setData() method.
- *   For this, performs extraction from the DB all data for every column, that is foreign key to the complex DB table.
- *   Every value, extracted from the DB, used for generation display data. In the setData() method performs savings the DB data and
- *   the generated display data {manual} {user, edit role};
- * - views extracts any data from the model {automatic} {edit/display role};
- * - if there are need to get a some value from the model -> get it with the {user} role {manual};
- * - if there are need to set a some value to the model -> set it with {edit} role {manual}.
+ * Rules of data setting and getting:
+ * - in time of initial running of a view (and/or mapper) performs getting from the DB all data, generate data of the foreign keys related with
+ *   complex DB tables and saving it in the storage. This operations performs when user choose REFRESH command;
+ * - calling of the data() method get data from the model or storage (depending on field type - foreign key or not) and put it in the view
+ *   by current index (index is a row number). Views extracts data (generated, string-type) from the model automatically with
+ *   the Qt::EditRole and Qt::DisplayRole. User can extract int-type foreign-keys data from the model with Qt::UserRole;
+ * - if a user choose the INSERT command of a some record (row), a new record inserts at the end of the model with the id = max id + 1. Next, user
+ *   populate this row with data and only after this he can save changes in the DB (after populating fields, that is mandatory for populating);
+ * - if user performs the DELETE a some record (row) operation, deletes appropriate value in the storage and model and only after calling SAVE
+ *   this changes sends to the DB;
+ * - user or view set data to the model and the storage with Qt::EditRole role - UPDATE data command.
  *
  * Using primary and foreign keys for changing data in the model:
  * - refreshing all data (filling storage) - primary key id;
@@ -302,6 +296,7 @@ void CustomSqlTableModel::slotInsertToTheModel()
     try {
         insertNewRecord();
         printData(Qt::EditRole);
+        emit sigNewRecordInserted(rowCount() - 1);
     }
     catch (const cmmn::MessageException &me) {
         // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes

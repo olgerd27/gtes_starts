@@ -38,6 +38,7 @@ private:
     void setEditDBTPushButtons();
     void setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, QWidget *identWidget);
     void setDataOperating();
+    void setModel();
     void setDataNavigation();
     DBTEditor * createDBTEditor(dbi::DBTInfo *info);
 

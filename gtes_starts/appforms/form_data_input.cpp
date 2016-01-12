@@ -52,12 +52,10 @@ void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, Q
 
 void FormDataInput::setDataOperating()
 {
-    m_enginesModel->setTable("engines");
-
+    setModel();
     // set combo box
     ui->m_cboxFuel->setModel(m_enginesModel->relationModel(2));
     ui->m_cboxFuel->setModelColumn(1);
-
     // set mapper
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     m_mapper->setModel(m_enginesModel);
@@ -70,6 +68,12 @@ void FormDataInput::setDataOperating()
     m_mapper->addMapping(ui->m_sboxStartDevicesQntyData, 5);
     m_mapper->addMapping(ui->m_pteComments, 6);
     m_mapper->toFirst();
+}
+
+void FormDataInput::setModel()
+{
+    m_enginesModel->setTable("engines");
+    connect(m_enginesModel, SIGNAL(sigNewRecordInserted(int)), m_mapper, SLOT(setCurrentIndex(int)));
 }
 
 void FormDataInput::setDataNavigation()

@@ -23,6 +23,9 @@ public:
     void spike1_turnOn(bool bOn);
     void printData(int role) const; // NOTE: temporary function, delete
 
+signals:
+    void sigNewRecordInserted(int row);
+
 public slots:
     void slotRefreshTheModel();
     void slotInsertToTheModel();
