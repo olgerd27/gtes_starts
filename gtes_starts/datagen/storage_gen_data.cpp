@@ -8,8 +8,19 @@ StorageGenData::StorageGenData()
 
 void StorageGenData::addData(T_id idPrim, const StorageGenData::T_data &data)
 {
-    // if a data with this "id" is not exist, operator[] create it with help of the StorageGenData::T_data default constructor and assign the "data" value to it
+    /*
+     * Add data to the storage with the primary id "idPrim".
+     * If data with "idPrim" does not exist, operator[] create vector (with help of the vector<StorageGenData::T_data> default constructor)
+     * and assign the "data" value to it.
+     * If user does not pass "data" value as 2-th argument, it will be create with help of the StorageGenData::T_data default constructor.
+     * This behaviour is setted in definition of this method.
+     */
     m_storage[idPrim].push_back(data);
+}
+
+bool StorageGenData::deleteData(StorageGenData::T_id idPrim)
+{
+    return m_storage.remove(idPrim);
 }
 
 void StorageGenData::updateData(T_id idPrim, int index, const StorageGenData::T_data &data)
@@ -17,7 +28,7 @@ void StorageGenData::updateData(T_id idPrim, int index, const StorageGenData::T_
 //    qDebug() << "update generated data. id prim:" << idPrim << ", index:" << index << ", data:" << data;
     if ( !isIndexesOk(idPrim, index) ) {
         throw std::out_of_range(
-                QString("Cannot return the data from the generated data storage by the primary id = %1, index = %2")
+                QObject::tr("Cannot update the data in the storage by the primary id = %1, index = %2. This id and/or index is invalid")
                 .arg(idPrim).arg(index).toStdString() );
     }
     m_storage[idPrim][index] = data;

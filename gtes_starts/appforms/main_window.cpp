@@ -81,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // actions connections
     connect(ui->m_actCreateEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigInsertNew()));
+    connect(ui->m_actDeleteEngine, SIGNAL(triggered()), formDInput, SLOT(slotDeleteRow()));
     connect(ui->m_actSave, SIGNAL(triggered()), formDInput, SIGNAL(sigSaveAll()));
     connect(ui->m_actRefresh, SIGNAL(triggered()), formDInput, SIGNAL(sigRefreshAll()));
     connect(ui->m_actAboutApp, SIGNAL(triggered()), this, SLOT(slotAboutApp()));
@@ -94,6 +95,14 @@ MainWindow::~MainWindow()
 {
     QSqlDatabase::database().close(); // TODO: move to the external class for manipulation with DB
     delete ui;
+}
+
+#include <QScrollBar>
+void MainWindow::debugOutput(const QString &msg)
+{
+    ui->m_dbgOut->appendPlainText(msg);
+    QScrollBar *vScrollBar = ui->m_dbgOut->verticalScrollBar();
+    vScrollBar->setValue(vScrollBar->maximum());
 }
 
 void MainWindow::slotAboutApp()

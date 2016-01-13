@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>706</width>
-    <height>486</height>
+    <width>765</width>
+    <height>621</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -145,8 +145,8 @@ input</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>706</width>
-     <height>20</height>
+     <width>765</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_menuHelp">
@@ -188,8 +188,11 @@ input</string>
    <addaction name="m_menuHelp"/>
   </widget>
   <widget class="QToolBar" name="m_mainToolBar">
+   <property name="windowTitle">
+    <string>Toolbar</string>
+   </property>
    <property name="movable">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="allowedAreas">
     <set>Qt::AllToolBarAreas</set>
@@ -218,6 +221,80 @@ input</string>
    <addaction name="m_actDisconnectFromDB"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea|Qt::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Debug output</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPlainTextEdit" name="m_dbgOut">
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>125</red>
+             <green>53</green>
+             <blue>31</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>125</red>
+             <green>53</green>
+             <blue>31</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="Text">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>112</red>
+             <green>111</green>
+             <blue>113</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="font">
+        <font>
+         <family>Courier New</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="m_actCreateEngine">
    <property name="icon">
     <iconset resource="../images_resources.qrc">

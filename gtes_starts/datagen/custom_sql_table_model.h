@@ -13,7 +13,6 @@ class CustomSqlTableModel : public QSqlRelationalTableModel
 
 public:
     typedef QMap<int, QVariant> T_saveRestore;
-    enum { NOT_SETTED = -1 };
 
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     ~CustomSqlTableModel();
@@ -21,7 +20,8 @@ public:
     QVariant data(const QModelIndex &item, int role) const;
     bool setData(const QModelIndex &item, const QVariant &value, int role);
     void spike1_turnOn(bool bOn);
-    void printData(int role) const; // NOTE: temporary function, delete
+    void printData(int role) const; // TODO: temporary function, delete later
+    QString printRecords() const; // TODO: temporary function, delete later
 
 signals:
     void sigNewRecordInserted(int row);
@@ -29,8 +29,11 @@ signals:
 public slots:
     void slotRefreshTheModel();
     void slotInsertToTheModel();
+    void slotDeleteFromTheModel(int row);
 
 private:
+    enum { NOT_SETTED = -1 };
+
     void defineSimpleDBTAndComplexIndex();
     void fillTheStorage();
     void insertNewRecord();

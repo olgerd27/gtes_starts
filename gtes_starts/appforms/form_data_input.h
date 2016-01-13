@@ -25,9 +25,13 @@ public:
 signals:
     void sigChangeMapperIndex(int index);
     void sigInsertNew();
+    void sigDeleteRow(int row);
     void sigSaveAll();
     void sigRefreshAll();
     void sigWrongIdEntered();
+
+public slots:
+    void slotDeleteRow();
 
 private slots:
     void slotNeedChangeMapperIndex();
@@ -38,7 +42,6 @@ private:
     void setEditDBTPushButtons();
     void setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, QWidget *identWidget);
     void setDataOperating();
-    void setModel();
     void setDataNavigation();
     DBTEditor * createDBTEditor(dbi::DBTInfo *info);
 

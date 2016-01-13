@@ -9,7 +9,7 @@
 class StorageGenData
 {
 public:
-    typedef cmmn::T_id T_id;
+    typedef cmmn::T_id T_id; // TODO: replace all T_id to the cmmn::T_id in this class and in the others classes, that uses cmmn::T_id-type value
     typedef QVariant T_data;
     typedef QMap<T_id, QVector<T_data>> T_dataStorage;
     typedef int T_fIndex;
@@ -19,6 +19,7 @@ public:
 
     StorageGenData();
     void addData(StorageGenData::T_id idPrim, const StorageGenData::T_data &data = StorageGenData::T_data());
+    bool deleteData(StorageGenData::T_id idPrim);
     void updateData(StorageGenData::T_id idPrim, int index, const StorageGenData::T_data &data);
     const StorageGenData::T_data & data(StorageGenData::T_id id, int index) const;
 
