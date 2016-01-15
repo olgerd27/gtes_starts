@@ -1,5 +1,6 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QSqlError>
 #include <QDebug>
 #include "custom_sql_table_model.h"
 #include "generator_dbt_data.h"
@@ -60,6 +61,7 @@ void CustomSqlTableModel::setTable(const QString &tableName)
     QSqlRelationalTableModel::setTable(tableName);
     setEditStrategy(QSqlTableModel::OnManualSubmit);
 //    setEditStrategy(QSqlTableModel::OnRowChange);
+    setSort(0, Qt::AscendingOrder);
     if (m_genDataStorage->isEmpty()) {
         defineSimpleDBTAndComplexIndex();
         slotRefreshTheModel();
@@ -189,7 +191,7 @@ void CustomSqlTableModel::insertNewRecord()
     for (int i = 1; i < rec.count(); ++i) {
         rec.setValue(i, NOT_SETTED);
         m_genDataStorage->addData(newIdPrim); /* fill the storages new row by the empty values. The model filling of this row performs
-                                                 in the setData() method, that calls by calling the insertRecord() method. */
+                                                 in the setData() method, that calls by the insertRecord() method. */
     }
     qDebug() << "Record will insert:";
     for (int i = 0; i < rec.count(); ++i)
@@ -201,7 +203,7 @@ void CustomSqlTableModel::insertNewRecord()
     qDebug() << "Before record inserting, rows count =" << rowCount();
     if (!insertRecord(Nrows, rec)) {
         // TODO: generate the error
-        qCritical() << "The new empty record cannot be inserted to the end of DB table" << tableName() << "model";
+        qCritical() << "[ERROR] The new empty record cannot be inserted to the end of DB table" << tableName() << "model";
 
 //        if (!insertRow(Nrows)) qDebug() << "  Cannot be inserted the row #" << Nrows;
 //        else qDebug() << "  The row #" << Nrows << "was inserted";
@@ -218,18 +220,20 @@ void CustomSqlTableModel::insertNewRecord()
 //    int Nrows = rowCount();
 //    QSqlRecord rec = record(Nrows - 1); // get the last existent record
 //    auto newIdPrim = cmmn::safeQVariantToIdType(rec.value(0)) + 1; // generate the new primary key id value
-////    rec.setValue(0, newIdPrim); // set a new primary key id value
-//    for (int i = 1; i < rec.count(); ++i) {
-////        rec.setValue(i, NOT_SETTED);
-//        m_genDataStorage->addData(newIdPrim); // fill the storages new row by the empty values
-//    }
 //    if (!insertRow(Nrows)) {
 //        // TODO: generate error
 //        qDebug() << "Cannot be inserted the row #" << Nrows;
 //    }
 //    else qDebug() << "The row #" << Nrows << "was inserted";
-//    QSqlRelationalTableModel::setData( index(Nrows, 0), newIdPrim, Qt::EditRole ); // set the new primary id value to the model
+//    QSqlRelationalTableModel::setData(index(Nrows, 0), newIdPrim); // set the new primary id value to the model
+//    for (int i = 1; i < rec.count(); ++i) {
+//        if ( dbi::isRelatedWithDBTType(tableName(), i, dbi::DBTInfo::ttype_simple) )
+//            setData(index(Nrows, i), 1);
+////        QSqlRelationalTableModel::setData(index(Nrows, i), QVariant());
+//        m_genDataStorage->addData(newIdPrim); // fill the storages new row by the empty values
+//    }
 //    qDebug() << "All records after inserting:\n" << printRecords();
+//    printData(Qt::EditRole);
 }
 
 void CustomSqlTableModel::getDataFromStorage(QVariant &data, const QModelIndex &index, int storageComplexIndex) const
@@ -321,10 +325,12 @@ void CustomSqlTableModel::slotRefreshTheModel()
 {
     try {
         flush(); // delete previous results.
-        // TODO: maybe need to clear data in the model at here? For example, if there was added a new record (row) in a the DBT.
-        select();
-        fillTheStorage();
-        m_genDataStorage->flushFieldIndex();
+        if (!select()) { // populate the model
+            // TODO: generate the error
+            qCritical() << "Cannot refresh the model - error data populating.\nThe DB error text: " << lastError().text();
+        }
+        fillTheStorage(); // populate the storage
+        m_genDataStorage->flushFieldIndex(); // reset field index
         printData(Qt::EditRole); // TODO: delete later
     }
     catch (const cmmn::MessageException &me) {
@@ -344,7 +350,6 @@ void CustomSqlTableModel::slotInsertToTheModel()
 {
     try {
         insertNewRecord();
-        printData(Qt::EditRole);
         emit sigNewRecordInserted(rowCount() - 1);
     }
     catch (const cmmn::MessageException &me) {
@@ -360,7 +365,6 @@ void CustomSqlTableModel::slotInsertToTheModel()
     }
 }
 
-#include <QMessageBox>
 void CustomSqlTableModel::slotDeleteFromTheModel(int row)
 {
     StorageGenData::T_id idPrimary = cmmn::safeQVariantToIdType( QSqlRelationalTableModel::data( index(row, 0) ) );
@@ -368,12 +372,15 @@ void CustomSqlTableModel::slotDeleteFromTheModel(int row)
         // TODO: generate the critical error
         qCritical() << "Cannot delete the record from the data model of the DB table" << tableName()
                     << "with the primary key id =" << idPrimary << "(row #" << row << ")";
+        return;
     }
     qDebug() << "The record successfully deleted. DBT:" << tableName() << ", primary id =" << idPrimary << ", row =" << row;
+    qDebug() << printRecords();
     if (!m_genDataStorage->deleteData(idPrimary)) {
         // TODO: generate the critical error
         qCritical() << "Cannot delete the record from the custom data storage of the DB table" << tableName()
                     << "with the primary key id =" << idPrimary << "(row #" << row << ")";
+        return;
     }
 }
 

@@ -248,19 +248,21 @@ dbi::DBTFieldInfo dbi::fieldByNames(const QString &tableName, const QString &fie
     return tblInf ? tblInf->fieldByName(fieldName) : DBTFieldInfo();
 }
 
-
 dbi::DBTFieldInfo dbi::fieldByNameIndex(const QString &tableName, int fieldIndex)
 {
     DBTInfo *tblInf = DBINFO.tableByName(tableName);
     return tblInf ? tblInf->fieldByIndex(fieldIndex) : DBTFieldInfo();
 }
 
-
 bool dbi::isRelatedWithDBTType(const dbi::DBTFieldInfo &fieldInfo, dbi::DBTInfo::TableTypes tableType)
 {
     return fieldInfo.isForeign() && (DBINFO.tableByName( fieldInfo.m_relationDBTable )->m_type == tableType);
 }
 
+bool dbi::isRelatedWithDBTType(const QString &tableName, int fieldIndex, DBTInfo::TableTypes tableType)
+{
+    return isRelatedWithDBTType(fieldByNameIndex(tableName, fieldIndex), tableType);
+}
 
 dbi::DBTInfo *dbi::relatedDBT(const dbi::DBTFieldInfo &fieldInf)
 {

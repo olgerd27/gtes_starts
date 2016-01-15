@@ -18,7 +18,7 @@ public:
     ~CustomSqlTableModel();
     void setTable(const QString &tableName);
     QVariant data(const QModelIndex &item, int role) const;
-    bool setData(const QModelIndex &item, const QVariant &value, int role);
+    bool setData(const QModelIndex &item, const QVariant &value, int role = Qt::EditRole);
     void spike1_turnOn(bool bOn);
     void printData(int role) const; // TODO: temporary function, delete later
     QString printRecords() const; // TODO: temporary function, delete later

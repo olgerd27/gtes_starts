@@ -1,7 +1,7 @@
 #include <QApplication>
 #include "appforms/main_window.h"
 
-static MainWindow *pMainWnd = NULL;
+static MainWindow *pMainWnd = 0; // TODO: temporary for debugging, delete later here and from all app code
 
 void OnQDebugMsg(QtMsgType type,
                  const QMessageLogContext& ctx,

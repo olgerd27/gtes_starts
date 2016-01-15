@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QScrollBar>
 
 #include "main_window.h"
 #include "ui_main_window.h"
@@ -27,9 +28,9 @@ public:
     }
 };
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(ui->m_listChoice));
@@ -97,7 +98,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-#include <QScrollBar>
 void MainWindow::debugOutput(const QString &msg)
 {
     ui->m_dbgOut->appendPlainText(msg);

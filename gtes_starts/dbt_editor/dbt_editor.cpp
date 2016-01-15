@@ -82,15 +82,15 @@ DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
     m_model->setTable(dbTable->m_nameInDB);
     m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     if (!m_model->select()) {
-        qDebug() << "Error populating data from the table. The reason is:" + m_model->lastError().text();
-        // TODO: send this error to the some class, inherited from the QWidget, for creating error message box
+        // TODO: generate the error
+        qDebug() << "Cannot populating the model by a data from the database.\nThe DB error text: " + m_model->lastError().text();
         return;
     }
     for (int field = 0; field < dbTable->tableDegree(); ++field) {
         dbi::DBTFieldInfo fieldInfo = dbTable->fieldByIndex(field);
         if (!fieldInfo.isValid()) {
+            // TODO: generate the error
             qDebug() << "Error #XXX. Cannot forming the header of the database table \"" + dbTable->m_nameInDB << "\"";
-            // TODO: send this error to the some class, inherited from the QWidget, for creating error message box
             return;
         }
         m_model->setHeaderData(field, Qt::Horizontal, fieldInfo.m_nameInUI);
@@ -114,7 +114,7 @@ void DBTEditor::setWindowName()
 
 bool DBTEditor::selectInitial(const QVariant &value, DBTEditor::ColumnNumbers compareCol)
 {
-//    qDebug() << "select initial. value:" << value;
+    qDebug() << "select initial. value:" << value;
     int selectedRow = -1;
     for (int row = 0; row < m_model->rowCount(); ++row) {
 //        qDebug() << "row:" << row << ", display data:" << m_model->index(row, compareCol).data(Qt::DisplayRole);

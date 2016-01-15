@@ -127,6 +127,11 @@ namespace dbi {
     bool isRelatedWithDBTType(const dbi::DBTFieldInfo &fieldInfo, dbi::DBTInfo::TableTypes tableType);
 
     /*
+     * Calls the dbi::isRelatedWithDBTType(const dbi::DBTFieldInfo &, dbi::DBTInfo::TableTypes) function
+     */
+    bool isRelatedWithDBTType(const QString &tableName, int fieldIndex, dbi::DBTInfo::TableTypes tableType);
+
+    /*
      * Calls the dbi::DBTFieldInfo::isValid(), the dbi::DBTFieldInfo::isForeign() and the dbi::DBInfo::tableByName(const QString &) methods.
      * If function argument is invalid or isn't a foreign key - throw the std::invalid_argument exception.
      */

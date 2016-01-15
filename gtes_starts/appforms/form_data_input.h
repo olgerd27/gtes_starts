@@ -29,12 +29,15 @@ signals:
     void sigSaveAll();
     void sigRefreshAll();
     void sigWrongIdEntered();
+    void sigFirstRowReached(bool);
+    void sigLastRowReached(bool);
 
 public slots:
     void slotDeleteRow();
 
 private slots:
     void slotNeedChangeMapperIndex();
+    void slotCheckExtremeRowsReaching(int row);
     void slotSubmit();
     void slotEditDBT();
 

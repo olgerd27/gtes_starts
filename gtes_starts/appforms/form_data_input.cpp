@@ -26,11 +26,11 @@ FormDataInput::FormDataInput(QWidget *parent)
     setDataOperating();
     setDataNavigation();
 
-    // command signals & slots connections
+    // the main commands for data manipulation
     connect(this, SIGNAL(sigInsertNew()), m_enginesModel, SLOT(slotInsertToTheModel()));
     connect(m_enginesModel, SIGNAL(sigNewRecordInserted(int)), m_mapper, SLOT(setCurrentIndex(int)));
-    connect(this, SIGNAL(sigDeleteRow(int)), m_enginesModel, SLOT(slotDeleteFromTheModel(int)));
-    connect(this, SIGNAL(sigDeleteRow(int)), m_mapper, SLOT(toPrevious()));
+    connect(this, SIGNAL(sigDeleteRow(int)), m_enginesModel, SLOT(slotDeleteFromTheModel(int))); // delete row from the model
+    connect(this, SIGNAL(sigDeleteRow(int)), m_mapper, SLOT(setCurrentIndex(int))); // update the mapped widgets
     connect(this, SIGNAL(sigSaveAll()), m_mapper, SLOT(submit())); // submit changes from the mapped widgets to the "engines" model
     connect(this, SIGNAL(sigSaveAll()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
     connect(this, SIGNAL(sigRefreshAll()), m_enginesModel, SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
@@ -77,6 +77,14 @@ void FormDataInput::setDataNavigation()
 {
     ui->m_leRecordId->setValidator(new QIntValidator(0, 1e6, ui->m_leRecordId)); /* set validator that control inputing only
                                                                                     integer values in range between 0 and 1e6 */
+    // for holding the inputed values in the mapped widgets when the mapper current index changes
+//    connect(ui->m_leRecordId, SIGNAL(returnPressed()), m_mapper, SLOT(submit()));
+//    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(submit()));
+//    connect(ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(submit()));
+//    connect(ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper, SLOT(submit()));
+//    connect(ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper, SLOT(submit()));
+
+    // navigation set
     connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst()));
     connect(ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(toLast()));
     connect(ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper, SLOT(toPrevious()));
@@ -89,6 +97,14 @@ void FormDataInput::setDataNavigation()
     connect(this, SIGNAL(sigChangeMapperIndex(int)), m_mapper, SLOT(setCurrentIndex(int)));
     connect(this, SIGNAL(sigWrongIdEntered()), ui->m_leRecordId, SLOT(clear()));
     connect(this, SIGNAL(sigWrongIdEntered()), m_mapper, SLOT(revert())); // perform a clearing of the mapped widgets
+
+    // enable & disable navigation buttons
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotCheckExtremeRowsReaching(int)));
+    connect(this, SIGNAL(sigFirstRowReached(bool)), ui->m_tbRecordFirst, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigFirstRowReached(bool)), ui->m_tbRecordPrev, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigLastRowReached(bool)), ui->m_tbRecordLast, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigLastRowReached(bool)), ui->m_tbRecordNext, SLOT(setDisabled(bool)));
+    slotCheckExtremeRowsReaching(m_mapper->currentIndex());
 }
 
 FormDataInput::~FormDataInput()
@@ -115,12 +131,15 @@ void FormDataInput::slotNeedChangeMapperIndex()
     emit sigWrongIdEntered();
 }
 
+void FormDataInput::slotCheckExtremeRowsReaching(int row)
+{
+    emit sigFirstRowReached(row <= 0);
+    emit sigLastRowReached(row >= m_enginesModel->rowCount() - 1);
+}
+
 void FormDataInput::slotSubmit()
 {
     qDebug() << "slotSubmit(), start";
-    m_enginesModel->printData(Qt::EditRole);
-    qDebug() << m_enginesModel->printRecords();
-
     int currentIndex = m_mapper->currentIndex(); /* NOTE: save the current index suit only if performs updating of table. If there are performs
                                                   * delete or insert rows in database operation, there are need to use another way to restore
                                                   * current index (e.g. saving "id" value with following searching current index by it)
@@ -134,18 +153,12 @@ void FormDataInput::slotSubmit()
     m_enginesModel->printData(Qt::EditRole);
     qDebug() << m_enginesModel->printRecords();
     if (m_enginesModel->submitAll()) {
-
         qDebug() << "slotSubmit(), after submitAll(), before commit()";
         m_enginesModel->printData(Qt::EditRole);
         qDebug() << m_enginesModel->printRecords();
 
         // After submit all data, the mapper current index is -1
         m_enginesModel->database().commit();
-
-        qDebug() << "slotSubmit(), after commit()";
-        m_enginesModel->printData(Qt::EditRole);
-        qDebug() << m_enginesModel->printRecords();
-
     }
     else {
         m_enginesModel->database().rollback();
@@ -155,10 +168,7 @@ void FormDataInput::slotSubmit()
         return;
     }
     m_mapper->setCurrentIndex(currentIndex);
-
     qDebug() << "slotSubmit(), end";
-    m_enginesModel->printData(Qt::EditRole);
-    qDebug() << m_enginesModel->printRecords();
 }
 
 /* Factory method for creation some type of a database table dialog */
@@ -220,7 +230,9 @@ void FormDataInput::slotEditDBT()
              << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
              << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
     const QVariant &userData = m_enginesModel->data(currIndex, Qt::UserRole);
-    if ( !userData.isNull() && !editor->selectInitial(userData, columnTtype) ) // data is NULL -> it was not setted and there aren't need select any row
+//    qDebug() << "userData, variant:" << userData << ": is null ->" << userData.isNull()
+//             << ", string:" << userData.toString() << ": is null ->" << userData.toString().isNull() << ": is empty ->" << userData.toString().isEmpty();
+    if ( !userData.isNull() && !editor->selectInitial(userData, columnTtype) ) // data is NULL -> it was not setted and there are not need to select any row
         return;
 
     if ( editor->exec() == QDialog::Accepted ) {
