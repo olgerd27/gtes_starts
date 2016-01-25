@@ -52,7 +52,8 @@ MainWindow::MainWindow(QWidget *parent)
                                .arg(tr("Cannot connect to the database with the next settings"))
                                .arg(tr("hostname"), db.hostName(), tr("port")).arg(db.port())
                                .arg(tr("username"), db.userName(), tr("password"), db.password())
-                               .arg(tr("The error message, that occurred on the database"), db.lastError().text()) );
+                               .arg(tr("The database error message"), db.lastError().text()) );
+        exit(1);
     }
 //    qDebug() << "main: Is DB open? " << db.isOpen();
 
@@ -85,8 +86,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->m_actDeleteEngine, SIGNAL(triggered()), formDInput, SLOT(slotDeleteRow()));
     connect(ui->m_actSave, SIGNAL(triggered()), formDInput, SIGNAL(sigSaveAll()));
     connect(ui->m_actRefresh, SIGNAL(triggered()), formDInput, SIGNAL(sigRefreshAll()));
+//    connect(ui->m_actConnectToDB, SIGNAL(triggered()), formDInput, SIGNAL(sigRevertChanges())); // TODO: replace the action to the appropriate one
     connect(ui->m_actAboutApp, SIGNAL(triggered()), this, SLOT(slotAboutApp()));
     connect(ui->m_actAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    connect(ui->m_actExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     // another signals & slots connections
     connect(ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));

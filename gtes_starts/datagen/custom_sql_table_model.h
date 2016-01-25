@@ -3,6 +3,7 @@
 
 #include <QSqlRelationalTableModel>
 #include <QSqlRelationalDelegate>
+#include "../common/common_defines.h"
 
 class GeneratorDBTData;
 class StorageGenData;
@@ -19,12 +20,15 @@ public:
     void setTable(const QString &tableName);
     QVariant data(const QModelIndex &item, int role) const;
     bool setData(const QModelIndex &item, const QVariant &value, int role = Qt::EditRole);
+    QVariant primaryIdInRow(int row) const;
     void spike1_turnOn(bool bOn);
     void printData(int role) const; // TODO: temporary function, delete later
     QString printRecords() const; // TODO: temporary function, delete later
 
 signals:
-    void sigNewRecordInserted(int row);
+    void sigNewRecordInserted(int row, cmmn::T_id primaryId);
+    void sigRecordDeleted(int row, cmmn::T_id primaryId);
+    void sigModelRefreshed();
 
 public slots:
     void slotRefreshTheModel();
@@ -36,24 +40,24 @@ private:
 
     void defineSimpleDBTAndComplexIndex();
     void fillTheStorage();
-    void insertNewRecord();
+    cmmn::T_id insertNewRecord();
     void getDataFromStorage(QVariant &data, const QModelIndex &index, int storageComplexIndex) const;
     void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
     void flush();
-    void saveData_spike1(const QModelIndex &currIndex);
-    void restoreData_spike1(int currRow);
+    void spike1_saveData(const QModelIndex &currIndex);
+    void spike1_restoreData(const QModelIndex &currIndex);
     void fillGeneratedData();
 
     GeneratorDBTData *m_dataGenerator;
     StorageGenData *m_genDataStorage;
-    T_saveRestore m_saveRestore;
-    bool m_bNeedSave_spike1;
+    T_saveRestore m_saveRestore; // TODO: move this storage to the StorageGenData and produce in the StorageGenData the interface for this storage
+    bool m_spike1_bNeedSave;
 };
 
 class CustomSqlRelationalDelegate : public QSqlRelationalDelegate
 {
 public:
-    CustomSqlRelationalDelegate(QObject *parent);
+    explicit CustomSqlRelationalDelegate(QObject *parent);
     ~CustomSqlRelationalDelegate();
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 private:

@@ -3,6 +3,7 @@
 
 #include <QListWidget>
 #include <QPushButton>
+#include <QLabel>
 
 /*
  * The custom QListWidget class, that resize itself for making all content data visible.
@@ -10,7 +11,7 @@
 class ResizableWidgetList : public QListWidget
 {
 public:
-    ResizableWidgetList(QWidget *parent = 0);
+    explicit ResizableWidgetList(QWidget *parent = 0);
     QSize sizeHint() const;
 };
 
@@ -21,7 +22,7 @@ class PBtnForEditDBT : public QPushButton
 {
     Q_OBJECT
 public:
-    PBtnForEditDBT(QWidget *parent = 0);
+    explicit PBtnForEditDBT(QWidget *parent = 0);
 
     void setDBTableName(const QString &name);
     QString DBTableName() const;
@@ -32,6 +33,26 @@ public:
 private:
     QString m_DBTableName;
     QWidget *m_identWgt;
+};
+
+/*
+ * The custom label for showing a type of a model change
+ */
+class MChTypeLabel : public QLabel
+{
+    Q_OBJECT
+
+public:
+    enum ChangeTypes {
+        ctype_inserted,
+        ctype_deleted,
+        ctype_noChange
+    };
+
+    explicit MChTypeLabel(QWidget *parent = 0);
+
+public slots:
+    void slotChangeType(int ctype);
 };
 
 #endif // REIMPLEMENTED_WIDGETS_H

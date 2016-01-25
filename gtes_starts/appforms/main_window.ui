@@ -188,6 +188,9 @@ input</string>
    <addaction name="m_menuHelp"/>
   </widget>
   <widget class="QToolBar" name="m_mainToolBar">
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
    <property name="windowTitle">
     <string>Toolbar</string>
    </property>
@@ -283,7 +286,6 @@ input</string>
        </property>
        <property name="font">
         <font>
-         <family>Courier New</family>
          <pointsize>8</pointsize>
          <weight>75</weight>
          <bold>true</bold>

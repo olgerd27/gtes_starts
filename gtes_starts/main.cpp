@@ -15,7 +15,7 @@ void OnQDebugMsg(QtMsgType type,
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-//    qInstallMessageHandler(OnQDebugMsg);
+    qInstallMessageHandler(OnQDebugMsg);
     MainWindow w;
     pMainWnd = &w;
     w.show();
