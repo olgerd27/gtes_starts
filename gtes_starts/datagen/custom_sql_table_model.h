@@ -21,6 +21,7 @@ public:
     QVariant data(const QModelIndex &item, int role) const;
     bool setData(const QModelIndex &item, const QVariant &value, int role = Qt::EditRole);
     QVariant primaryIdInRow(int row) const;
+    bool findPrimaryId(const QVariant id, int &row);
     void spike1_turnOn(bool bOn);
     void printData(int role) const; // TODO: temporary function, delete later
     QString printRecords() const; // TODO: temporary function, delete later

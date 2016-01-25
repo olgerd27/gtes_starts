@@ -434,7 +434,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="m_leRecordId">
+      <widget class="DataSendLineEdit" name="m_leRecordId">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -517,6 +517,11 @@
   <customwidget>
    <class>MChTypeLabel</class>
    <extends>QLabel</extends>
+   <header>common/reimplemented_widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DataSendLineEdit</class>
+   <extends>QLineEdit</extends>
    <header>common/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>

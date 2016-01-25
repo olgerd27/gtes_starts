@@ -67,7 +67,7 @@ public slots:
     void slotDeleteRow();
 
 private slots:
-    void slotNeedChangeMapperIndex();
+    void slotNeedChangeMapperIndex(const QString &value);
     void slotRowIndexChanged(int row);
     void slotSubmit();
     void slotEditDBT();

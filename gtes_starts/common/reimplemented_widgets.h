@@ -4,6 +4,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QLabel>
+#include <QLineEdit>
 
 /*
  * The custom QListWidget class, that resize itself for making all content data visible.
@@ -53,6 +54,20 @@ public:
 
 public slots:
     void slotChangeType(int ctype);
+};
+
+/*
+ * The custom line edit that send the inputed value when user press return
+ */
+class DataSendLineEdit : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    explicit DataSendLineEdit(QWidget *parent = 0);
+
+signals:
+    void sigReturnPressed(const QString &value);
 };
 
 #endif // REIMPLEMENTED_WIDGETS_H

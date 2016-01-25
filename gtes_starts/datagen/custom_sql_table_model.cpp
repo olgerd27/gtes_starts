@@ -152,6 +152,17 @@ QVariant CustomSqlTableModel::primaryIdInRow(int row) const
     return QSqlRelationalTableModel::data(index(row, 0));
 }
 
+bool CustomSqlTableModel::findPrimaryId(const QVariant id, int &row)
+{
+    for (int rowi = 0; rowi < rowCount(); ++rowi) {
+        if (primaryIdInRow(rowi) == id) {
+            row = rowi;
+            return true;
+        }
+    }
+    return false;
+}
+
 void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
 {
     /* Model initialization: define relations with simple DBT columns number and save complex DBT columns numbers (indexes) */

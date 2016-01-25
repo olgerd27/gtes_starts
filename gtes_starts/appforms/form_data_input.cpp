@@ -125,8 +125,7 @@ void FormDataInput::setMainControls()
     // Refresh data
     connect(this, SIGNAL(sigRefreshAll()), m_enginesModel, SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
     connect(m_enginesModel, &CustomSqlTableModel::sigModelRefreshed, [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data refreshing
-    connect(this, SIGNAL(sigRefreshAll()), this, SLOT(slotNeedChangeMapperIndex())); // restore the current index
-    // TODO: emit the signal that imitate or cause return pressed in the line edit, that store the current "id" value and cause calling the slotNeedChangeMapperIndex();
+    connect(m_enginesModel, SIGNAL(sigModelRefreshed()), ui->m_leRecordId, SIGNAL(returnPressed())); // restore the current index
 
     // Revert data
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
@@ -191,9 +190,7 @@ void FormDataInput::setDataNavigation()
     connect(ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper, SLOT(toNext()));
 
     // set inputing of the "id" value in the line edit
-    connect(ui->m_leRecordId, SIGNAL(returnPressed()), this, SLOT(slotNeedChangeMapperIndex())); /* TODO: reimplement QLineEdit with
-                                                                                                    adding the signal with QString
-                                                                                                    argument, that store QLineEdit data */
+    connect(ui->m_leRecordId, SIGNAL(sigReturnPressed(QString)), this, SLOT(slotNeedChangeMapperIndex(QString)));
     connect(this, SIGNAL(sigChangeMapperIndex(int)), m_mapper, SLOT(setCurrentIndex(int))); // change mapper index by the id's line edit value
     connect(this, SIGNAL(sigWrongIdEntered()), ui->m_leRecordId, SLOT(clear())); // indicate that inputed value is wrong and there are need to input another
 //    connect(this, SIGNAL(sigWrongIdEntered()), m_mapper, SLOT(revert())); // perform a clearing of the mapped widgets - TODO: maybe delete?
@@ -230,20 +227,16 @@ void FormDataInput::slotDeleteRow()
     emit sigDeleteRow( m_mapper->currentIndex() );
 }
 
-void FormDataInput::slotNeedChangeMapperIndex()
+void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
 {
-    // TODO: the value getting from the ui->m_leRecordId move to the reimplemented QLineEdit class. This slot must receive the id value as argument.
-    auto enteredId = ui->m_leRecordId->text().toLongLong();
-    // TODO: the search of row, that contains id value perform in the model. Here maybe performs just calling this search function with argument - id value.
-    for (int row = 0; row < m_enginesModel->rowCount(); ++row) {
-        if (m_enginesModel->record(row).value(0).toLongLong() == enteredId) {
-            emit sigChangeMapperIndex(row);
-            return;
-        }
+    int row = -1;
+    if (m_enginesModel->findPrimaryId(value, row))
+        emit sigChangeMapperIndex(row);
+    else {
+        QMessageBox::warning(this, tr("Error engine ""id"" value"),
+                             tr("The engine with Id=%1 does not exists. Please enter the valid \"Id\" value of an existent engine").arg(value));
+        emit sigWrongIdEntered();
     }
-    QMessageBox::warning(this, tr("Error engine ""id"" value"),
-                         tr("The engine with Id=%1 does not exists. Please enter the valid \"Id\" value of an existent engine").arg(enteredId));
-    emit sigWrongIdEntered();
 }
 
 void FormDataInput::slotRowIndexChanged(int row)
@@ -257,20 +250,13 @@ void FormDataInput::slotRowIndexChanged(int row)
 
 void FormDataInput::slotSubmit()
 {
-    qDebug() << "slotSubmit(), start";
-    int currentIndex = m_mapper->currentIndex(); /* save the current index suit only if performs updating of table. If there are performs
-                                                  * delete or insert rows in database operation, there are need to use another way to restore
-                                                  * current index (e.g. saving "id" value with following searching current index by it)
-                                                  */
-//    QMessageBox::information(this, "info", QString("Before transaction, current index = %1").arg(currentIndex));
+//    qDebug() << "slotSubmit(), start";
+    int currentIndex = m_mapper->currentIndex();
     if (!m_enginesModel->database().transaction()) {
         QMessageBox::critical(this, tr("Database transaction error"),
                               tr("The database driver do not support the transactions operations"));
     }
 
-//    qDebug() << "slotSubmit(), before submitAll()";
-//    m_enginesModel->printData(Qt::EditRole);
-//    qDebug() << m_enginesModel->printRecords();
     if (m_enginesModel->submitAll()) {
 //        qDebug() << "slotSubmit(), after submitAll(), before commit()";
 //        m_enginesModel->printData(Qt::EditRole);
@@ -286,10 +272,8 @@ void FormDataInput::slotSubmit()
                               .arg(m_enginesModel->lastError().text()));
         return;
     }
-//    QMessageBox::information(this, "info", QString("Before set current index to %1").arg(currentIndex));
-//    m_mapper->setCurrentIndex(currentIndex);
     emit sigChangesSubmitted(currentIndex);
-    qDebug() << "slotSubmit(), end";
+//    qDebug() << "slotSubmit(), end";
 }
 
 /* Factory method for creation some type of a database table dialog */
@@ -346,10 +330,10 @@ void FormDataInput::slotEditDBT()
     int currentRow = m_mapper->currentIndex();
     int currentCol = m_mapper->mappedSection(pbEditDBT->identWidget());
     const QModelIndex &currIndex = m_enginesModel->index(currentRow, currentCol);
-    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]"
-             << ", dataD =" << m_enginesModel->data( currIndex, Qt::DisplayRole).toString()
-             << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
-             << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
+//    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]"
+//             << ", dataD =" << m_enginesModel->data( currIndex, Qt::DisplayRole).toString()
+//             << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
+//             << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
     const QVariant &userData = m_enginesModel->data(currIndex, Qt::UserRole);
     if ( !userData.isNull() && !editor->selectInitial(userData, columnTtype) ) // data is NULL -> it was not setted and there are not need to select any row
         return;
@@ -359,13 +343,6 @@ void FormDataInput::slotEditDBT()
         m_enginesModel->setData( currIndex, editor->selectedId(), Qt::EditRole );
 //        qDebug() << "choosed item with id =" << editor->selectedId();
     }
-
-//    int row = 0;
-//    for (int col = 3; col <= 4; ++col)
-//        qDebug() << "after dialog, [" << row << "," << col << "]"
-//                 << ", dataD =" << m_enginesModel->data( m_enginesModel->index(row, col), Qt::DisplayRole ).toString()
-//                 << ", dataE =" << m_enginesModel->data( m_enginesModel->index(row, col), Qt::EditRole ).toString();
-    //    qDebug() << "=========================";
 }
 
 

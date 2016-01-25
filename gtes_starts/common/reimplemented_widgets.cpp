@@ -83,3 +83,12 @@ void MChTypeLabel::slotChangeType(int ctype)
     setText(strType);
     setPalette(pal);
 }
+
+/*
+ * DataSendLineEdit
+ */
+DataSendLineEdit::DataSendLineEdit(QWidget *parent)
+    : QLineEdit(parent)
+{
+    connect(this, &DataSendLineEdit::returnPressed, [this]{ emit sigReturnPressed(text()); } );
+}
