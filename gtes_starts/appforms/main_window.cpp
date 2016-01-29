@@ -30,10 +30,10 @@ public:
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , m_ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-    ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(ui->m_listChoice));
+    m_ui->setupUi(this);
+    m_ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(m_ui->m_listChoice));
     setWindowIcon(QIcon(":/images/window_icon.png")); // TODO: use another icon
 
     /*
@@ -75,36 +75,35 @@ MainWindow::MainWindow(QWidget *parent)
 //    }
 //    qDebug() << "Last error:" << db.lastError().text();
 
-    QStackedWidget *sw = ui->m_stackForms;
+    QStackedWidget *sw = m_ui->m_stackForms;
     FormDataInput *formDInput = new FormDataInput(sw);
     sw->insertWidget(index_data_input, formDInput);
     sw->insertWidget(index_queries, new FormQueries(sw));
     sw->insertWidget(index_options, new FormOptions(sw));
 
     // actions connections
-    connect(ui->m_actCreateEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigInsertNew()));
-    connect(ui->m_actDeleteEngine, SIGNAL(triggered()), formDInput, SLOT(slotDeleteRow()));
-    connect(ui->m_actSave, SIGNAL(triggered()), formDInput, SIGNAL(sigSaveAll()));
-    connect(ui->m_actRefresh, SIGNAL(triggered()), formDInput, SIGNAL(sigRefreshAll()));
+    connect(m_ui->m_actCreateEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigInsertNew()));
+    connect(m_ui->m_actDeleteEngine, SIGNAL(triggered()), formDInput, SLOT(slotDeleteRow()));
+    connect(m_ui->m_actSave, SIGNAL(triggered()), formDInput, SIGNAL(sigSaveAll()));
+    connect(m_ui->m_actRefresh, SIGNAL(triggered()), formDInput, SIGNAL(sigRefreshAll()));
 //    connect(ui->m_actConnectToDB, SIGNAL(triggered()), formDInput, SIGNAL(sigRevertChanges())); // TODO: replace the action to the appropriate one
-    connect(ui->m_actAboutApp, SIGNAL(triggered()), this, SLOT(slotAboutApp()));
-    connect(ui->m_actAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-    connect(ui->m_actExit, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(m_ui->m_actAboutApp, SIGNAL(triggered()), this, SLOT(slotAboutApp()));
+    connect(m_ui->m_actAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    connect(m_ui->m_actExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     // another signals & slots connections
-    connect(ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));
+    connect(m_ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));
 }
 
 MainWindow::~MainWindow()
 {
     QSqlDatabase::database().close(); // TODO: move to the external class for manipulation with DB
-    delete ui;
 }
 
 void MainWindow::debugOutput(const QString &msg)
 {
-    ui->m_dbgOut->appendPlainText(msg);
-    QScrollBar *vScrollBar = ui->m_dbgOut->verticalScrollBar();
+    m_ui->m_dbgOut->appendPlainText(msg);
+    QScrollBar *vScrollBar = m_ui->m_dbgOut->verticalScrollBar();
     vScrollBar->setValue(vScrollBar->maximum());
 }
 

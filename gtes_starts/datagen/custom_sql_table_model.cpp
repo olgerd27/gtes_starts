@@ -8,6 +8,68 @@
 #include "../common/db_info.h"
 
 /*
+ * Register column insert.
+ * Class that helps define model index, when there was inserted a some one column that do not exists in the DB.
+ */
+class RegisterCI
+{
+public:
+    enum ConversionDirection
+    {
+        cd_baseToCustom,
+        cd_customToBase
+    };
+
+    static RegisterCI &instance()
+    {
+        static RegisterCI theInstance;
+        return theInstance;
+    }
+
+    void setInsertedColumn(int insertedColumn);
+    int convColNumber(int column, RegisterCI::ConversionDirection direction) const;
+    QModelIndex convModelIndex(const QModelIndex &customIndex,
+                               const QAbstractItemModel * const model,
+                               RegisterCI::ConversionDirection direction) const;
+
+private:
+    enum { NOT_SETTED = -1 };
+
+    RegisterCI();
+    RegisterCI(const RegisterCI &) = delete;
+    RegisterCI & operator=(const RegisterCI &) = delete;
+
+    int m_insertedColumn; // number of the inserted column
+};
+
+#define RegCI RegisterCI::instance()
+#define CHECK_SETTING(Func) \
+    if (m_insertedColumn == NOT_SETTED) \
+        throw std::runtime_error( std::string("The inserted column number is unknown [") + Func + "]" );
+
+RegisterCI::RegisterCI()
+    : m_insertedColumn(NOT_SETTED)
+{ }
+
+void RegisterCI::setInsertedColumn(int insertedColumn)
+{
+    m_insertedColumn = insertedColumn;
+}
+
+int RegisterCI::convColNumber(int column, RegisterCI::ConversionDirection direction) const
+{
+    CHECK_SETTING("RegisterCI::convColNumber()")
+    return column >= m_insertedColumn ? (direction == cd_baseToCustom ? ++column : --column) : column;
+}
+
+QModelIndex RegisterCI::convModelIndex(const QModelIndex &customIndex,
+                                       const QAbstractItemModel * const model,
+                                       RegisterCI::ConversionDirection direction) const
+{
+    return model->index( customIndex.row(), convColNumber(customIndex.column(), direction) );
+}
+
+/*
  * CustomSqlTableModel
  *
  * Description of the spike #1.
@@ -42,14 +104,15 @@ CustomSqlTableModel::CustomSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlRelationalTableModel(parent, db)
     , m_dataGenerator(new GeneratorDBTData)
     , m_genDataStorage(new StorageGenData)
+    , m_selectedRow(NOT_SETTED)
+    , m_selectIcon(":/images/ok.png")
     , m_spike1_bNeedSave(false) /* Spike #1 */
-{ }
+{
+    RegCI.setInsertedColumn(SELECT_ICON_COLUMN);
+}
 
 CustomSqlTableModel::~CustomSqlTableModel()
-{
-    delete m_dataGenerator;
-    delete m_genDataStorage;
-}
+{ }
 
 void CustomSqlTableModel::spike1_turnOn(bool bOn)
 {
@@ -68,14 +131,17 @@ void CustomSqlTableModel::setTable(const QString &tableName)
     }
 }
 
-QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
+QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
 {
     QVariant data;
+    if (!idx.isValid()) return data;
+    // convert the model index of the custom model (CustomSqlTableModel) to the model index of the base model (QSqlRelationalTableModel)
+    const QModelIndex &baseIdx = RegCI.convModelIndex(idx, this, RegisterCI::cd_customToBase);
 //    qDebug() << "data() 1, [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
     int storageDataIndex = -1;
-    if ( (role == Qt::EditRole || role == Qt::DisplayRole) && m_genDataStorage->isComplexDBTField(item.column(), storageDataIndex) ) {
+    if ( (role == Qt::EditRole || role == Qt::DisplayRole) && m_genDataStorage->isComplexDBTField(baseIdx.column(), storageDataIndex) ) {
         try {
-            getDataFromStorage(data, item, storageDataIndex);
+            getDataFromStorage(data, baseIdx, storageDataIndex);
         }
         catch (const cmmn::MessageException &me) {
             // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
@@ -89,40 +155,50 @@ QVariant CustomSqlTableModel::data(const QModelIndex &item, int role) const
             return false;
         }
     }
-    else if ( role == Qt::UserRole ) {
-        data = QSqlRelationalTableModel::data(item, Qt::DisplayRole); // take data from the display role
+    else if (role == Qt::UserRole) {
+        data = QSqlRelationalTableModel::data(baseIdx, Qt::DisplayRole); // take data from the display role and neightbor's cell (provides by the baseIdx index)
 //        qDebug() << "data() UserRole, [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
     }
+    else if (role == Qt::DecorationRole && idx.column() == SELECT_ICON_COLUMN && idx.row() == m_selectedRow) {
+        data = m_selectIcon;
+//        qDebug() << "data(), decoration role, [" << idx.row() << "," << idx.column() << "], selected row =" << m_selectedRow;
+    }
+    else if (role == Qt::TextAlignmentRole) {
+        if ( this->data(idx, Qt::DisplayRole).convert(QMetaType::Float) )
+            data = Qt::AlignCenter; // center alignment of the numerical values
+    }
     else
-        data = QSqlRelationalTableModel::data(item, role);
+        data = QSqlRelationalTableModel::data(baseIdx, role);
 //    qDebug() << "data() 2, [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
     return data;
 }
 
-bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value, int role)
+bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value, int role)
 {
     /*
-     * There are not exist an ability to call the QSqlRelationalTableModel::setData() method with the Qt::UserRole to save some data in the existent model.
+     * There are impossible to call the QSqlRelationalTableModel::setData() method with the Qt::UserRole to save some data in the existent model.
      * In this case the QSqlRelationalTableModel::setData() method return false. The setData() method successfully works only with Qt::EditRole.
-     * Saving data with the Qt::UserRole (ot UserRole + 1, +2, ...) can be achieved by means of data saving in a some custom storage.
+     * Saving data with the Qt::UserRole (or UserRole + 1, +2, ...) can be achieved by means of data saving in a some custom storage.
      */
-    if (!item.isValid()) return false;
+    if (!idx.isValid()) return false;
+    // convert the model index of the custom model (CustomSqlTableModel) to the model index of the base model (QSqlRelationalTableModel)
+    const QModelIndex &baseIdx = RegCI.convModelIndex(idx, this, RegisterCI::cd_customToBase);
     bool bSetted = false;
     int storageComplexIndex = -1;
-    spike1_saveData(item);
+    spike1_saveData(baseIdx);
     if (role == Qt::EditRole && value == NOT_SETTED) {
         // fill the model's new row by the empty values. The storages new rows filling performs earlier by calling the CustomSqlTableModel::slotInsertToTheModel()
-        bSetted = QSqlRelationalTableModel::setData(item, QVariant(), role);
+        bSetted = QSqlRelationalTableModel::setData(baseIdx, QVariant(), role);
 //        qDebug() << "setData(), NOT_SETTED, [" << item.row() << "," << item.column() << "], role:" << role << ", set data: " << ", bSetted:" << bSetted;
     }
-    else if (role == Qt::EditRole && m_genDataStorage->isComplexDBTField(item.column(), storageComplexIndex) ) {
-        if (m_spike1_bNeedSave) spike1_saveData(item); // Spike #1
-        bSetted = QSqlRelationalTableModel::setData(item, value, role);
+    else if (role == Qt::EditRole && m_genDataStorage->isComplexDBTField(baseIdx.column(), storageComplexIndex) ) {
+        if (m_spike1_bNeedSave) spike1_saveData(baseIdx); // Spike #1 - TODO: delete?
+        bSetted = QSqlRelationalTableModel::setData(baseIdx, value, role);
 //        qDebug() << "setData(), Complex DBT, [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
-        if (m_spike1_bNeedSave) spike1_restoreData(item); // Spike #1
+        if (m_spike1_bNeedSave) spike1_restoreData(baseIdx); // Spike #1 - TODO: delete?
 
         try {
-            updateDataInStorage(item, storageComplexIndex);
+            updateDataInStorage(baseIdx, storageComplexIndex);
 //            printData(Qt::EditRole); // TODO: delete later
         }
         catch (const cmmn::MessageException &me) {
@@ -136,15 +212,42 @@ bool CustomSqlTableModel::setData(const QModelIndex &item, const QVariant &value
             qCritical() << "[Data setting standard ERROR] Message: " << ex.what();
             return false;
         }
-        if (bSetted) emit dataChanged(item, item);
+        if (bSetted) emit dataChanged(idx, idx);
+    }
+    else if (role == Qt::DecorationRole && idx.column() == SELECT_ICON_COLUMN) {
+        m_selectedRow = idx.row();
+//        qDebug() << "setData(), decoration role, [" << idx.row() << "," << idx.column() << "], selected row =" << m_selectedRow;
     }
     else {
-        bSetted = QSqlRelationalTableModel::setData(item, value, role);
+        bSetted = QSqlRelationalTableModel::setData(baseIdx, value, role);
 //        qDebug() << "setData(), NOT Complex DBT, [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
-    spike1_restoreData(item);
+    spike1_restoreData(baseIdx);
 //    qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     return bSetted;
+}
+
+QVariant CustomSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    QVariant data;
+    if (orientation == Qt::Horizontal)
+        data = section > SELECT_ICON_COLUMN
+               ? QSqlRelationalTableModel::headerData( RegCI.convColNumber(section, RegisterCI::cd_customToBase), orientation, role )
+//               ? QSqlRelationalTableModel::headerData(section - 1, orientation, role) // TODO: delete if this do not need
+               : QVariant();
+    return data;
+}
+
+int CustomSqlTableModel::columnCount(const QModelIndex &parent) const
+{
+    return QSqlRelationalTableModel::columnCount(parent) + 1;
+}
+
+Qt::ItemFlags CustomSqlTableModel::flags(const QModelIndex &index) const
+{
+    return index.column() == columnCount(index.parent()) - 1
+            ? QSqlRelationalTableModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable
+            : QSqlRelationalTableModel::flags(index) & ~Qt::ItemIsEditable;
 }
 
 QVariant CustomSqlTableModel::primaryIdInRow(int row) const
@@ -163,9 +266,15 @@ bool CustomSqlTableModel::findPrimaryId(const QVariant id, int &row)
     return false;
 }
 
+cmmn::T_id CustomSqlTableModel::selectedId() const
+{
+    int colPrimId = RegCI.convColNumber(SELECT_ICON_COLUMN, RegisterCI::cd_baseToCustom); // define the primary id's column
+    return cmmn::safeQVariantToIdType( this->data(index(m_selectedRow, colPrimId), Qt::UserRole) );
+}
+
+/* Model initialization: define relations with simple DBT columns number and save complex DBT columns numbers (indexes) */
 void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
 {
-    /* Model initialization: define relations with simple DBT columns number and save complex DBT columns numbers (indexes) */
     // Check - is this a first calling
     if (!m_genDataStorage->isNotSetted()) {
         // TODO: generate warning about: trying to initialize already initialized model
@@ -173,12 +282,12 @@ void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
         return;
     }
     // Processing
-    for (int col = 0; col < this->columnCount(QModelIndex()); ++col) {
+    for (int col = 0; col < QSqlRelationalTableModel::columnCount(); ++col) {
         const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
         if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple)) {
             dbi::DBTInfo *tableInf = dbi::relatedDBT(fieldInf);
-            setRelation( col, QSqlRelation( tableInf->m_nameInDB,
-                                            tableInf->m_fields.at(0).m_nameInDB, tableInf->m_fields.at(1).m_nameInDB ) );
+            setRelation( RegCI.convColNumber(col, RegisterCI::cd_baseToCustom),
+                         QSqlRelation( tableInf->m_nameInDB, tableInf->m_fields.at(0).m_nameInDB, tableInf->m_fields.at(1).m_nameInDB ) );
         }
         else if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex))
             m_genDataStorage->addFieldIndex(col); // save index of the fields, that is a foreign key to a some complex database table
@@ -204,54 +313,31 @@ void CustomSqlTableModel::fillTheStorage()
 
 cmmn::T_id CustomSqlTableModel::insertNewRecord()
 {
-    // version #1
     int Nrows = rowCount();
     QSqlRecord rec = record(Nrows - 1); // get the last existent record
-    cmmn::T_id newIdPrim = cmmn::safeQVariantToIdType(rec.value(0)) + 1; // generate the new primary key id value
-    rec.setValue(0, newIdPrim); // set a new primary key id value
-    for (int i = 1; i < rec.count(); ++i) {
-        rec.setValue( i, dbi::isRelatedWithDBTType(tableName(), i, dbi::DBTInfo::ttype_simple) ? 1 : NOT_SETTED );
+
+    qDebug() << "The last existent record:";
+    for (int i = 0; i < rec.count(); ++i)
+        qDebug() << i << ":" << rec.value(i).toString();
+
+    int customIdColNumb = RegCI.convColNumber(0, RegisterCI::cd_baseToCustom); // define the number of the id's column in the custom model
+    cmmn::T_id newIdPrim = cmmn::safeQVariantToIdType( rec.value(customIdColNumb) ) + 1; // define the new primary key id value
+
+    rec.setValue(customIdColNumb, newIdPrim); // set a new primary key id value
+    for (int i = ++customIdColNumb; i < rec.count(); ++i) { /* start loop from the next value after id */
+        int baseColNumb = RegCI.convColNumber(i, RegisterCI::cd_customToBase); // column number in the base model and in the DB too
+        rec.setValue( i, dbi::isRelatedWithDBTType(tableName(), baseColNumb, dbi::DBTInfo::ttype_simple) ? 1 : NOT_SETTED );
         m_genDataStorage->addData(newIdPrim); /* fill the storages new row by the empty values. The model filling of this row performs
                                                  in the setData() method, that calls by the insertRecord() method. */
     }
-//    qDebug() << "All records before inserting:\n" << printRecords();
-    /* this one perform a calling of the CustomSqlTableModel::setData() method.
-     * The "-1" row number allow to insert record to the end of the model table. */
-//    qDebug() << "Before record inserting, rows count =" << rowCount();
+    qDebug() << "Inserted record:";
+    for (int i = 0; i < rec.count(); ++i)
+        qDebug() << i << ":" << rec.value(i).toString();
+
     if (!insertRecord(Nrows, rec)) {
         // TODO: generate the error
         qCritical() << "[ERROR] The new empty record cannot be inserted to the end of DB table" << tableName() << "model";
-
-//        if (!insertRow(Nrows)) qDebug() << "  Cannot be inserted the row #" << Nrows;
-//        else qDebug() << "  The row #" << Nrows << "was inserted";
-//        qDebug() << "  after row #" << Nrows << "inserting, rows count =" << rowCount();
-
-//        if (!setRecord(Nrows, rec)) qDebug() << "  Cannot set record to the row #" << Nrows;
-//        else qDebug() << "  The record was setted to the row #" << Nrows;
-//        qDebug() << "  after record setting to the row #" << Nrows << ", rows count =" << rowCount();
     }
-//    qDebug() << "After record inserting, rows count =" << rowCount();
-//    qDebug() << "All records after inserting:\n" << printRecords();
-
-    // version #2
-//    int Nrows = rowCount();
-//    QSqlRecord rec = record(Nrows - 1); // get the last existent record
-//    auto newIdPrim = cmmn::safeQVariantToIdType(rec.value(0)) + 1; // generate the new primary key id value
-//    if (!insertRow(Nrows)) {
-//        // TODO: generate error
-//        qDebug() << "Cannot be inserted the row #" << Nrows;
-//    }
-//    else qDebug() << "The row #" << Nrows << "was inserted";
-//    QSqlRelationalTableModel::setData(index(Nrows, 0), newIdPrim); // set the new primary id value to the model
-//    for (int i = 1; i < rec.count(); ++i) {
-//        if ( dbi::isRelatedWithDBTType(tableName(), i, dbi::DBTInfo::ttype_simple) )
-//            setData(index(Nrows, i), 1);
-////        QSqlRelationalTableModel::setData(index(Nrows, i), QVariant());
-//        m_genDataStorage->addData(newIdPrim); // fill the storages new row by the empty values
-//    }
-//    qDebug() << "All records after inserting:\n" << printRecords();
-//    printData(Qt::EditRole);
-
     return newIdPrim;
 }
 
@@ -298,7 +384,7 @@ void CustomSqlTableModel::spike1_saveData(const QModelIndex &currIndex)
     while (m_genDataStorage->hasNextFieldIndex()) {
         const auto &fieldIndex = m_genDataStorage->nextFieldIndex();
         if (fieldIndex != currIndex.column())
-            m_saveRestore.insert( fieldIndex, this->data( this->index(currIndex.row(), fieldIndex), Qt::UserRole ) );
+            m_spike1_saveRestore.insert( fieldIndex, this->data( this->index(currIndex.row(), fieldIndex), Qt::UserRole ) );
     }
     m_genDataStorage->flushFieldIndex(); // restore the field index for the nexts data gettings
 }
@@ -306,11 +392,9 @@ void CustomSqlTableModel::spike1_saveData(const QModelIndex &currIndex)
 /* Restore saved data after calling the QSqlRelationalTableModel::setData() method. Spike #1 */
 void CustomSqlTableModel::spike1_restoreData(const QModelIndex &currIndex)
 {
-    for (auto it = m_saveRestore.cbegin(); it != m_saveRestore.cend(); ++it) {
-//        qDebug() << "data restoring. col =" << it.key() << ", value =" << it.value().toString();
+    for (auto it = m_spike1_saveRestore.cbegin(); it != m_spike1_saveRestore.cend(); ++it)
         QSqlRelationalTableModel::setData( this->index(currIndex.row(), it.key()), it.value(), Qt::EditRole );
-    }
-    m_saveRestore.clear();
+    m_spike1_saveRestore.clear();
     m_spike1_bNeedSave = false;
 }
 
@@ -405,6 +489,28 @@ void CustomSqlTableModel::slotDeleteFromTheModel(int row)
     emit sigRecordDeleted(row, idPrimary);
 }
 
+void CustomSqlTableModel::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    QItemSelectionModel *selectModel = qobject_cast<QItemSelectionModel *>(sender());
+    QModelIndexList deselectedList = deselected.indexes();
+
+    // catch a deselection of the first left item in current row and setting icons decoration on it
+    if (deselectedList.size() == 1) {
+        setData(deselectedList.first(), QVariant(), Qt::DecorationRole);
+        return;
+    }
+
+    // update the first left items in the previous selected row for clearing icons decoration
+    if (deselectedList.size() > 1) {
+        QModelIndex someDeselected = deselectedList.first();
+        QModelIndex firstDeselected = someDeselected.model()->index(someDeselected.row(), SELECT_ICON_COLUMN);
+        emit sigNeedUpdateView(firstDeselected); // clear remained icons decoration
+    }
+
+    QModelIndex firstSelected = selected.indexes().first();
+    selectModel->select(firstSelected, QItemSelectionModel::Deselect); // this make recursive calling of this slot
+}
+
 /*****************************************************************************************************************************/
 /*
  * CustomSqlRelationalDelegate
@@ -427,20 +533,24 @@ void CustomSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemMod
 //    QSqlRelationalDelegate::setModelData(editor, model, index);
 
     qDebug() << "delegate, [" << index.row() << "," << index.column() << "], data:" << model->data(index);
-    QSqlTableModel *sqlTable = qobject_cast<QSqlTableModel *>(model);
-    if (!sqlTable) return;
-    const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(sqlTable->tableName(), index.column());
+    CustomSqlTableModel *sqlModel = qobject_cast<CustomSqlTableModel *>(model);
+    if (!sqlModel) return;
+
+    // convert the model index of the custom model to the model index of the base model
+    const QModelIndex &baseIdx = RegCI.convModelIndex(index, model, RegisterCI::cd_customToBase);
+
+    dbi::DBTFieldInfo fieldInf = dbi::fieldByNameIndex(sqlModel->tableName(), baseIdx.column());
 
 //    // set data for all field, except the fields that is foreign keys to the complex DBT
     if (!fieldInf.isForeign() || dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple))
-        QSqlRelationalDelegate::setModelData(editor, model, index);
+        QSqlRelationalDelegate::setModelData(editor, model, baseIdx);
 
     // old version - not use
 //    bool isForeign = fieldInf.isForeign();
 //    if (!isForeign)
-//        QSqlRelationalDelegate::setModelData(editor, model, index);
+//        QSqlRelationalDelegate::setModelData(editor, model, baseIdx);
 //    else if ( isForeign && dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple) )
-//        setDataToSimpleDBT(editor, model, index);
+//        setDataToSimpleDBT(editor, model, baseIdx);
 }
 
 void CustomSqlRelationalDelegate::setDataToSimpleDBT(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const

@@ -1,6 +1,7 @@
 #ifndef FORM_OPTIONS_H
 #define FORM_OPTIONS_H
 
+#include <memory>
 #include <QWidget>
 
 namespace Ui {
@@ -16,7 +17,7 @@ public:
     ~FormOptions();
 
 private:
-    Ui::FormOptions *ui;
+    std::unique_ptr<Ui::FormOptions> m_ui;
 };
 
 #endif // FORM_OPTIONS_H

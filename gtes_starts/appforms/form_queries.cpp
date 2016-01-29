@@ -3,12 +3,10 @@
 
 FormQueries::FormQueries(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FormQueries)
+    m_ui(new Ui::FormQueries)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 FormQueries::~FormQueries()
-{
-    delete ui;
-}
+{ }

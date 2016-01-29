@@ -3,12 +3,10 @@
 
 FormOptions::FormOptions(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FormOptions)
+    m_ui(new Ui::FormOptions)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
 }
 
 FormOptions::~FormOptions()
-{
-    delete ui;
-}
+{ }

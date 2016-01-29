@@ -90,9 +90,9 @@ private:
  */
 ComplexDBTEditor::ComplexDBTEditor(dbi::DBTInfo *dbtInfo, QWidget *parent)
     : DBTEditor(dbtInfo, parent)
-    , ui(new Ui::ComplexDBTEditor)
+    , m_ui(new Ui::ComplexDBTEditor)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
     setContentsUI();
     setEditingUI();
@@ -100,15 +100,13 @@ ComplexDBTEditor::ComplexDBTEditor(dbi::DBTInfo *dbtInfo, QWidget *parent)
 
 void ComplexDBTEditor::setContentsUI()
 {
-    QTableView *view = ui->m_tableContents;
-    view->setModel(m_model);
+    QTableView *view = m_ui->m_tableContents;
+    view->setModel(m_model.get());
     view->setItemDelegate(new HighlightTableRowsDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
-    connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
+    setSelection(view);
 }
 
 void ComplexDBTEditor::setEditingUI()
@@ -117,47 +115,11 @@ void ComplexDBTEditor::setEditingUI()
 }
 
 ComplexDBTEditor::~ComplexDBTEditor()
-{
-    delete ui;
-}
+{ }
 
 void ComplexDBTEditor::makeSelect(int row)
 {
-    ui->m_tableContents->selectRow(row);
-}
-
-/* perform choosing by a user some row of a table view */
-void ComplexDBTEditor::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    QModelIndexList deselectedList = deselected.indexes();
-
-    // catch a deselection of the first left item in current row and setting icons decoration on it
-    if (deselectedList.size() == 1) {
-        ui->m_tableContents->model()->setData(deselectedList.first(), QVariant(), Qt::DecorationRole);
-        return;
-    }
-
-    // update the first left items in the previous selected row for clearing icons decoration
-    if (deselectedList.size() > 1) {
-        QModelIndex someDeselected = deselectedList.first();
-        QModelIndex firstDeselected = someDeselected.model()->index(someDeselected.row(), 0);
-        ui->m_tableContents->update(firstDeselected); // clear remained icons decoration
-    }
-
-    QModelIndex firstSelected = selected.indexes().first();
-    ui->m_tableContents->selectionModel()->select(firstSelected, QItemSelectionModel::Deselect); // this make recursive calling of this slot
-    setSelectedId(firstSelected.row()); /* NOTE: sometimes the selected.indexes() list has only 1 item, because of it there are
-                                           used only a row number of the first item in the selected.indexes() list */
-}
-
-void ComplexDBTEditor::setSelectedId(int selectedRow)
-{
-    bool bOk = false;
-    m_selectedId = m_model->index(selectedRow, 1).data().toLongLong(&bOk);
-    if (!bOk) {
-        // TODO: generate the error
-        qCritical() << "Cannot convert id = \"\" for the row selection";
-    }
+    m_ui->m_tableContents->selectRow(row);
 }
 
 //void ComplexDBTEditor::setIdentificationData(const QModelIndex &indexInSelectRow)

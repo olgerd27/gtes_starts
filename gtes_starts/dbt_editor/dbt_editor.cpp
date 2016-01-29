@@ -1,6 +1,7 @@
 #include <QSqlTableModel>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QAbstractItemView>
 #include <QMessageBox>
 #include <QDebug>
 #include "dbt_editor.h"
@@ -32,8 +33,7 @@ QVariant RowsChooseSqlTableModel::data(const QModelIndex &idx, int role) const
     if (!idx.isValid()) return data;
 
     if (idx.column() > SELECT_ICON_COLUMN) {
-        QModelIndex indexLeftCell = QSqlTableModel::index(idx.row(), idx.column() - 1);
-        data = QSqlTableModel::data(indexLeftCell, role); // set a data, getted from the neighbor's left cell
+        data = QSqlTableModel::data( index(idx.row(), idx.column() - 1), role); // set a data, getted from the neighbor's left cell
 //        if (role == Qt::DisplayRole) data = data.toString().trimmed(); // TODO: maybe delete, real inputed data don't need calling trimmed() function
     }
     else {
@@ -69,6 +69,33 @@ Qt::ItemFlags RowsChooseSqlTableModel::flags(const QModelIndex &index) const
             : QSqlTableModel::flags(index) & ~Qt::ItemIsEditable;
 }
 
+cmmn::T_id RowsChooseSqlTableModel::selectedId() const
+{
+    return cmmn::safeQVariantToIdType( data(index(m_selectedRow, 1), Qt::DisplayRole) );
+}
+
+void RowsChooseSqlTableModel::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    QItemSelectionModel *selectModel = qobject_cast<QItemSelectionModel *>(sender());
+    QModelIndexList deselectedList = deselected.indexes();
+
+    // catch a deselection of the first left item in current row and setting icons decoration on it
+    if (deselectedList.size() == 1) {
+        setData(deselectedList.first(), QVariant(), Qt::DecorationRole);
+        return;
+    }
+
+    // update the first left items in the previous selected row for clearing icons decoration
+    if (deselectedList.size() > 1) {
+        QModelIndex someDeselected = deselectedList.first();
+        QModelIndex firstDeselected = someDeselected.model()->index(someDeselected.row(), SELECT_ICON_COLUMN);
+        emit sigNeedUpdateView(firstDeselected); // clear remained icons decoration
+    }
+
+    QModelIndex firstSelected = selected.indexes().first();
+    selectModel->select(firstSelected, QItemSelectionModel::Deselect); // this make recursive calling of this slot
+}
+
 /*
  * DBTEditor
  */
@@ -76,40 +103,55 @@ DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbTable)
     , m_model(new RowsChooseSqlTableModel)
-    , m_selectedId(-1)
 {
+    setModel();
     setWindowName();
-    m_model->setTable(dbTable->m_nameInDB);
+    setHeaderData();
+}
+
+DBTEditor::~DBTEditor()
+{ }
+
+cmmn::T_id DBTEditor::selectedId() const
+{
+    return m_model->selectedId();
+}
+
+void DBTEditor::setModel()
+{
+    m_model->setTable(m_DBTInfo->m_nameInDB);
     m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     if (!m_model->select()) {
         // TODO: generate the error
         qDebug() << "Cannot populating the model by a data from the database.\nThe DB error text: " + m_model->lastError().text();
         return;
     }
-    for (int field = 0; field < dbTable->tableDegree(); ++field) {
-        dbi::DBTFieldInfo fieldInfo = dbTable->fieldByIndex(field);
+}
+
+void DBTEditor::setWindowName()
+{
+    setWindowTitle( tr("Editing the table: ") + m_DBTInfo->m_nameInUI );
+}
+
+void DBTEditor::setHeaderData()
+{
+    for (int field = 0; field < m_DBTInfo->tableDegree(); ++field) {
+        const dbi::DBTFieldInfo &fieldInfo = m_DBTInfo->fieldByIndex(field);
         if (!fieldInfo.isValid()) {
             // TODO: generate the error
-            qDebug() << "Error #XXX. Cannot forming the header of the database table \"" + dbTable->m_nameInDB << "\"";
+            qDebug() << "Invalid field info. Cannot forming the header of the database table \"" + m_DBTInfo->m_nameInDB << "\", field #" << field << "\n.";
             return;
         }
         m_model->setHeaderData(field, Qt::Horizontal, fieldInfo.m_nameInUI);
     }
 }
 
-DBTEditor::~DBTEditor()
+void DBTEditor::setSelection(QAbstractItemView *view)
 {
-    delete m_model;
-}
-
-DBTEditor::T_id DBTEditor::selectedId() const
-{
-    return m_selectedId;
-}
-
-void DBTEditor::setWindowName()
-{
-    setWindowTitle( tr("Editing the table: ") + m_DBTInfo->m_nameInUI );
+    if (!view) return;
+    connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            m_model.get(), SLOT(slotChooseRow(QItemSelection,QItemSelection)));
+    connect(m_model.get(), SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex)));
 }
 
 bool DBTEditor::selectInitial(const QVariant &value, DBTEditor::ColumnNumbers compareCol)

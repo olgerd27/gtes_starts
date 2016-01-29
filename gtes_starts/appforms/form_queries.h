@@ -1,6 +1,7 @@
 #ifndef FORM_QUERIES_H
 #define FORM_QUERIES_H
 
+#include <memory>
 #include <QWidget>
 
 namespace Ui {
@@ -16,7 +17,7 @@ public:
     ~FormQueries();
 
 private:
-    Ui::FormQueries *ui;
+    std::unique_ptr<Ui::FormQueries> m_ui;
 };
 
 #endif // FORM_QUERIES_H

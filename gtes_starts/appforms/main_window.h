@@ -1,6 +1,7 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
+#include <memory>
 #include <QMainWindow>
 
 namespace Ui {
@@ -30,7 +31,7 @@ private:
         , index_options     // Options panel index
     };
 
-    Ui::MainWindow *ui;
+    std::unique_ptr<Ui::MainWindow> m_ui;
 };
 
 #endif // MAIN_WINDOW_H

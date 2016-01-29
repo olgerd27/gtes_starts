@@ -45,9 +45,9 @@ public:
  */
 SimpleDBTEditor::SimpleDBTEditor(dbi::DBTInfo *dbtInfo, QWidget *parent)
     : DBTEditor(dbtInfo, parent)
-    , ui(new Ui::SimpleDBTEditor)
+    , m_ui(new Ui::SimpleDBTEditor)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setDBdataView();
 }
@@ -55,23 +55,21 @@ SimpleDBTEditor::SimpleDBTEditor(dbi::DBTInfo *dbtInfo, QWidget *parent)
 void SimpleDBTEditor::setDBdataView()
 {
     // ListView settings
-    QListView *view = ui->m_listvData;
+    QListView *view = m_ui->m_listvData;
     view->setItemDelegate(new HighlightListDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
-    view->setModel(m_model);
+    view->setModel(m_model.get());
     view->setModelColumn(col_firstWithData); // column number is 2, as the 0-th column is check icon and 1-th is "id"
-    connect(ui->m_leSearchMask, SIGNAL(textChanged(QString)), this, SLOT(slotSetFilter(QString)));
+    connect(m_ui->m_leSearchMask, SIGNAL(textChanged(QString)), this, SLOT(slotSetFilter(QString)));
 }
 
 void SimpleDBTEditor::makeSelect(int row)
 {
-    ui->m_listvData->selectionModel()->select( m_model->index(row, col_firstWithData), QItemSelectionModel::Select );
+    m_ui->m_listvData->selectionModel()->select( m_model->index(row, col_firstWithData), QItemSelectionModel::Select );
 }
 
 SimpleDBTEditor::~SimpleDBTEditor()
-{
-    delete ui;
-}
+{ }
 
 void SimpleDBTEditor::slotSetFilter(const QString &strFilter)
 {

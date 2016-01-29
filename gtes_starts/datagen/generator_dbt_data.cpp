@@ -122,12 +122,10 @@ void QueryGenPrimaryOneId::setId(const QVariant &varId)
  * GeneratorDBTData
  */
 GeneratorDBTData::GeneratorDBTData()
-    : m_queryGen(0)
 { }
 
 GeneratorDBTData::~GeneratorDBTData()
 {
-    delete m_queryGen;
 }
 
 GeneratorDBTData::QueryGenerator::TypeQueryGenerator GeneratorDBTData::typeQueryGenerator() const
@@ -137,8 +135,7 @@ GeneratorDBTData::QueryGenerator::TypeQueryGenerator GeneratorDBTData::typeQuery
 
 void GeneratorDBTData::setQueryGenerator(QueryGenerator *gen)
 {
-    delete m_queryGen;
-    m_queryGen = gen;
+    m_queryGen.reset(gen);
 }
 
 void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)

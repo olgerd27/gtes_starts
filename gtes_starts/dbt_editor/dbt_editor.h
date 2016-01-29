@@ -1,11 +1,14 @@
 #ifndef DBT_EDITOR_H
 #define DBT_EDITOR_H
 
+#include <memory>
 #include <QSqlTableModel>
 #include <QIcon>
 #include <QDialog>
+#include <QItemSelection>
 #include "../common/common_defines.h"
 
+class QAbstractItemView;
 namespace dbi {
     class DBTInfo;
 }
@@ -23,6 +26,13 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     int columnCount(const QModelIndex &parent) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    cmmn::T_id selectedId() const;
+
+signals:
+    void sigNeedUpdateView(const QModelIndex &index);
+
+public slots:
+    void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     enum { DONT_SELECTED_ROW = -1 };
@@ -39,8 +49,6 @@ class DBTEditor : public QDialog
 {
     Q_OBJECT
 public:
-    typedef cmmn::T_id T_id;
-
     enum ColumnNumbers {
           col_empty = 0
         , col_id
@@ -51,15 +59,17 @@ public:
     virtual ~DBTEditor();
 
     bool selectInitial(const QVariant &value, DBTEditor::ColumnNumbers compareCol);
-    T_id selectedId() const;
+    cmmn::T_id selectedId() const;
 
 protected:
+    void setModel();
     void setWindowName();
+    void setHeaderData();
+    void setSelection(QAbstractItemView *view = 0);
     virtual void makeSelect(int row) = 0;
 
     dbi::DBTInfo *m_DBTInfo;
-    RowsChooseSqlTableModel *m_model;
-    T_id m_selectedId;
+    std::unique_ptr<RowsChooseSqlTableModel> m_model;
 };
 
 #endif // DBT_EDITOR_H

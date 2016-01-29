@@ -1,6 +1,7 @@
 #ifndef SIMPLE_DBT_EDITOR_H
 #define SIMPLE_DBT_EDITOR_H
 
+#include <memory>
 #include "dbt_editor.h"
 
 namespace Ui {
@@ -23,7 +24,7 @@ private:
     void setDBdataView();
     virtual void makeSelect(int row);
 
-    Ui::SimpleDBTEditor *ui;
+    std::unique_ptr<Ui::SimpleDBTEditor> m_ui;
 };
 
 #endif // SIMPLE_DBT_EDITOR_H

@@ -1,6 +1,7 @@
 #ifndef GENERATOR_DBT_DATA_H
 #define GENERATOR_DBT_DATA_H
 
+#include <memory>
 #include <QStringList>
 #include "../common/common_defines.h"
 
@@ -74,7 +75,7 @@ private:
     bool isReadyToGeneration();
     void flush();
 
-    QueryGenerator *m_queryGen;
+    std::unique_ptr<QueryGenerator> m_queryGen;
     QString m_strMask;
     T_arrResData m_resData;
     int m_indexResData {INIT_RES_INDEX};
