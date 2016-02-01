@@ -24,9 +24,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
-    int columnCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    bool findPrimaryIdRow(const QVariant &id, int &rRowId);
+    bool findValueRow(const QVariant &value, int column, int &rRowValue);
     cmmn::T_id selectedId() const;
+
+    void printData(int role = Qt::DisplayRole) const;
 
 signals:
     void sigNeedUpdateView(const QModelIndex &index);
@@ -50,15 +55,15 @@ class DBTEditor : public QDialog
     Q_OBJECT
 public:
     enum ColumnNumbers {
-          col_empty = 0
-        , col_id
-        , col_firstWithData
+          col_okIcon = 0
+        , col_id = 1
+        , col_nextAfterId
     };
 
     explicit DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent = 0);
     virtual ~DBTEditor();
 
-    bool selectInitial(const QVariant &value, DBTEditor::ColumnNumbers compareCol);
+    bool selectInitial(const QVariant &compareValue, DBTEditor::ColumnNumbers compareCol);
     cmmn::T_id selectedId() const;
 
 protected:

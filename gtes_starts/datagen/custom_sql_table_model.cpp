@@ -29,7 +29,7 @@ public:
     void setInsertedColumn(int insertedColumn);
     int convColNumber(int column, RegisterCI::ConversionDirection direction) const;
     QModelIndex convModelIndex(const QModelIndex &customIndex,
-                               const QAbstractItemModel * const model,
+                               const QSqlRelationalTableModel * const model,
                                RegisterCI::ConversionDirection direction) const;
 
 private:
@@ -63,7 +63,7 @@ int RegisterCI::convColNumber(int column, RegisterCI::ConversionDirection direct
 }
 
 QModelIndex RegisterCI::convModelIndex(const QModelIndex &customIndex,
-                                       const QAbstractItemModel * const model,
+                                       const QSqlRelationalTableModel * const model,
                                        RegisterCI::ConversionDirection direction) const
 {
     return model->index( customIndex.row(), convColNumber(customIndex.column(), direction) );
@@ -123,7 +123,6 @@ void CustomSqlTableModel::setTable(const QString &tableName)
 {
     QSqlRelationalTableModel::setTable(tableName);
     setEditStrategy(QSqlTableModel::OnManualSubmit);
-//    setEditStrategy(QSqlTableModel::OnRowChange);
     setSort(0, Qt::AscendingOrder);
     if (m_genDataStorage->isEmpty()) {
         defineSimpleDBTAndComplexIndex();
@@ -146,12 +145,12 @@ QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
         catch (const cmmn::MessageException &me) {
             // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
             QString strPlace = QObject::tr("Error placement") + ": " + me.codePlace();
-            qCritical() << "[Data getting custom ERROR] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
+            qCritical() << "[CRITICAL ERROR] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
             return false;
         }
         catch (const std::exception &ex) {
             // TODO: generate a message box with critical error
-            qCritical() << "[Data getting standard ERROR] Message: " << ex.what();
+            qCritical() << "[CRITICAL ERROR] Message: " << ex.what();
             return false;
         }
     }
@@ -185,31 +184,42 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
     const QModelIndex &baseIdx = RegCI.convModelIndex(idx, this, RegisterCI::cd_customToBase);
     bool bSetted = false;
     int storageComplexIndex = -1;
-    spike1_saveData(baseIdx);
+//    if (m_spike1_bNeedSave) spike1_saveData(baseIdx); // TODO: use only this??
     if (role == Qt::EditRole && value == NOT_SETTED) {
         // fill the model's new row by the empty values. The storages new rows filling performs earlier by calling the CustomSqlTableModel::slotInsertToTheModel()
         bSetted = QSqlRelationalTableModel::setData(baseIdx, QVariant(), role);
-//        qDebug() << "setData(), NOT_SETTED, [" << item.row() << "," << item.column() << "], role:" << role << ", set data: " << ", bSetted:" << bSetted;
+        qDebug() << "setData(), custom: [" << idx.row() << "," << idx.column() << "],"
+                 << "base: [" << baseIdx.row() << "," << baseIdx.column() << "],"
+                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
     else if (role == Qt::EditRole && m_genDataStorage->isComplexDBTField(baseIdx.column(), storageComplexIndex) ) {
         if (m_spike1_bNeedSave) spike1_saveData(baseIdx); // Spike #1 - TODO: delete?
+
+//        Why does this piece of shit not work?????
         bSetted = QSqlRelationalTableModel::setData(baseIdx, value, role);
-//        qDebug() << "setData(), Complex DBT, [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
+//        bSetted = QSqlRelationalTableModel::setData( index(idx.row(), idx.column()), value, role );
+
+        qDebug() << "setData(), custom: [" << idx.row() << "," << idx.column() << "],"
+                 << "base: [" << baseIdx.row() << "," << baseIdx.column() << "],"
+                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
+        qDebug() << "index is valid =" << baseIdx.isValid();
+
+
         if (m_spike1_bNeedSave) spike1_restoreData(baseIdx); // Spike #1 - TODO: delete?
 
         try {
             updateDataInStorage(baseIdx, storageComplexIndex);
-//            printData(Qt::EditRole); // TODO: delete later
+//            printData(Qt::EditRole);
         }
         catch (const cmmn::MessageException &me) {
             // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
             QString strPlace = QObject::tr("Error placement") + ": " + me.codePlace();
-            qCritical() << "[Data setting custom ERROR] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
+            qCritical() << "[CRITICAL ERROR] [Data setting custom ERROR] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
             return false;
         }
         catch (const std::exception &ex) {
             // TODO: generate a message box with critical error
-            qCritical() << "[Data setting standard ERROR] Message: " << ex.what();
+            qCritical() << "[CRITICAL ERROR] [Data setting standard ERROR] Message: " << ex.what();
             return false;
         }
         if (bSetted) emit dataChanged(idx, idx);
@@ -222,7 +232,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
         bSetted = QSqlRelationalTableModel::setData(baseIdx, value, role);
 //        qDebug() << "setData(), NOT Complex DBT, [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
-    spike1_restoreData(baseIdx);
+//    if (m_spike1_bNeedSave) spike1_restoreData(baseIdx); // TODO: use only this???
 //    qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     return bSetted;
 }
@@ -230,11 +240,15 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
 QVariant CustomSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     QVariant data;
-    if (orientation == Qt::Horizontal)
+    if (orientation == Qt::Horizontal) {
         data = section > SELECT_ICON_COLUMN
                ? QSqlRelationalTableModel::headerData( RegCI.convColNumber(section, RegisterCI::cd_customToBase), orientation, role )
-//               ? QSqlRelationalTableModel::headerData(section - 1, orientation, role) // TODO: delete if this do not need
                : QVariant();
+//        if (role == Qt::DisplayRole) {
+//            qDebug() << "headerData(), section =" << section << ", orientation =" << orientation << ", role =" << role << ", data:" << data;
+//            printHeader(Qt::DisplayRole);
+//        }
+    }
     return data;
 }
 
@@ -247,23 +261,33 @@ Qt::ItemFlags CustomSqlTableModel::flags(const QModelIndex &index) const
 {
     return index.column() == columnCount(index.parent()) - 1
             ? QSqlRelationalTableModel::flags(index) | Qt::ItemIsEnabled | Qt::ItemIsSelectable
-            : QSqlRelationalTableModel::flags(index) & ~Qt::ItemIsEditable;
+            : QSqlRelationalTableModel::flags(index);
 }
 
 QVariant CustomSqlTableModel::primaryIdInRow(int row) const
 {
-    return QSqlRelationalTableModel::data(index(row, 0));
+    return valueInBaseModel(row, 0);
 }
 
-bool CustomSqlTableModel::findPrimaryId(const QVariant id, int &row)
+bool CustomSqlTableModel::findPrimaryIdRow(const QVariant &idPrim, int &rRowId) const
 {
-    for (int rowi = 0; rowi < rowCount(); ++rowi) {
-        if (primaryIdInRow(rowi) == id) {
-            row = rowi;
+    return findValueRow(idPrim, 0, rRowId);
+}
+
+bool CustomSqlTableModel::findValueRow(const QVariant &value, int column, int &rRowValue) const
+{
+    for (int row = 0; row < rowCount(); ++row) {
+        if (valueInBaseModel(row, column) == value) {
+            rRowValue = row;
             return true;
         }
     }
     return false;
+}
+
+QVariant CustomSqlTableModel::valueInBaseModel(int row, int col) const
+{
+    return QSqlRelationalTableModel::data(index(row, col), Qt::DisplayRole);
 }
 
 cmmn::T_id CustomSqlTableModel::selectedId() const
@@ -282,16 +306,25 @@ void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
         return;
     }
     // Processing
+//    QString str = "";
     for (int col = 0; col < QSqlRelationalTableModel::columnCount(); ++col) {
         const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
+//        str += QString("[%1] |%2| |%3|").arg(col).arg(fieldInf.m_nameInUI).arg(fieldInf.m_nameInDB);
         if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple)) {
-            dbi::DBTInfo *tableInf = dbi::relatedDBT(fieldInf);
-            setRelation( RegCI.convColNumber(col, RegisterCI::cd_baseToCustom),
-                         QSqlRelation( tableInf->m_nameInDB, tableInf->m_fields.at(0).m_nameInDB, tableInf->m_fields.at(1).m_nameInDB ) );
+//            str += " - simple";
+            dbi::DBTInfo *relTableInf = dbi::relatedDBT(fieldInf);
+            setRelation( col, QSqlRelation( relTableInf->m_nameInDB, relTableInf->m_fields.at(0).m_nameInDB, relTableInf->m_fields.at(1).m_nameInDB ) );
         }
-        else if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex))
+        else if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex)) {
             m_genDataStorage->addFieldIndex(col); // save index of the fields, that is a foreign key to a some complex database table
+//            str += " - complex";
+        }
+//        else {
+//            str += " - not foreign";
+//        }
+//        str += "\n";
     }
+//    qDebug() << "definition DB column:\n" << str;
 }
 
 void CustomSqlTableModel::fillTheStorage()
@@ -336,7 +369,7 @@ cmmn::T_id CustomSqlTableModel::insertNewRecord()
 
     if (!insertRecord(Nrows, rec)) {
         // TODO: generate the error
-        qCritical() << "[ERROR] The new empty record cannot be inserted to the end of DB table" << tableName() << "model";
+        qCritical() << "[CRITICAL ERROR] The new empty record cannot be inserted to the end of DB table" << tableName() << "model";
     }
     return newIdPrim;
 }
@@ -361,13 +394,13 @@ void CustomSqlTableModel::updateDataInStorage(const QModelIndex &index, int stor
     }
     else {
         // TODO: generate error message
-        qCritical() << "!--Error. Cannot set a data to the model storage. Data wasn't generated.\n"
+        qCritical() << "[CRITICAL ERROR] Cannot set a data to the model storage. Data wasn't generated.\n"
                     "Please check the query for generating data for the item: [" << index.row() << "," << index.column() << "]";
         return;
     }
     if (m_dataGenerator->hasNextResultData()) {
         // TODO: generate error message
-        qCritical() << "!--Error. Cannot set a data to the model storage. Too many data was generated.\n"
+        qCritical() << "[CRITICAL ERROR] Cannot set a data to the model storage. Too many data was generated.\n"
                     "Please check the query for generating data for the item: [" << index.row() << "," << index.column() << "]";
         return;
     }
@@ -400,7 +433,7 @@ void CustomSqlTableModel::spike1_restoreData(const QModelIndex &currIndex)
 
 void CustomSqlTableModel::printData(int role) const
 {
-    QString strRelatTableModel;
+    QString strRelatTableModel = "\n";
     for(int row = 0; row < rowCount(); ++row) {
         for(int col = 0; col < columnCount(); ++col ) {
             QModelIndex index = QSqlRelationalTableModel::index(row, col);
@@ -408,7 +441,7 @@ void CustomSqlTableModel::printData(int role) const
         }
         strRelatTableModel += "\n";
     }
-    qDebug() << "Relational table model data with role #" << role << ":\n" << strRelatTableModel;
+    qDebug() << "Relational table model data with role #" << role << ":" << strRelatTableModel;
 }
 
 QString CustomSqlTableModel::printRecords() const
@@ -424,14 +457,33 @@ QString CustomSqlTableModel::printRecords() const
     return strPrint;
 }
 
+void CustomSqlTableModel::printHeader(int role) const
+{
+    QString str = "\n";
+    for (int sect = 0; sect < QSqlRelationalTableModel::columnCount(); ++sect) {
+        str += QString("|") += QSqlRelationalTableModel::headerData(sect, Qt::Horizontal, role).toString() += QString("| ");
+    }
+    qDebug() << "horizontal header data, role =" << role << ", data:" << str;
+}
+
 void CustomSqlTableModel::slotRefreshTheModel()
 {
     try {
-        flush(); // delete previous results.
+        flush(); // delete previous results
+
+//        qDebug() << "before slotRefreshTheModel()::select();";
+//        printHeader(Qt::DisplayRole);
+//        printData(Qt::DisplayRole);
+
         if (!select()) { // populate the model
             // TODO: generate the error
-            qCritical() << "Cannot refresh the model - error data populating.\nThe DB error text: " << lastError().text();
+            qCritical() << "[CRITICAL ERROR] Cannot refresh the model - error data populating.\nThe DB error text: " << lastError().text();
         }
+
+//        qDebug() << "after slotRefreshTheModel()::select();";
+//        printHeader(Qt::DisplayRole);
+//        printData(Qt::DisplayRole);
+
         fillTheStorage(); // populate the storage
         m_genDataStorage->flushFieldIndex(); // reset field index
 //        printData(Qt::EditRole); // TODO: delete later
@@ -440,12 +492,12 @@ void CustomSqlTableModel::slotRefreshTheModel()
     catch (const cmmn::MessageException &me) {
         // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
         QString strPlace = QObject::tr("Error placement") + ": " + me.codePlace();
-        qCritical() << "[Refresh model custom ERROR] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
+        qCritical() << "[CRITICAL ERROR] [Refresh model custom ERROR] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
         return;
     }
     catch (const std::exception &ex) {
         // TODO: generate a message box with critical error
-        qCritical() << "[Refresh model standard ERROR] Message: " << ex.what();
+        qCritical() << "[CRITICAL ERROR] [Refresh model standard ERROR] Message: " << ex.what();
         return;
     }
 }
@@ -459,12 +511,12 @@ void CustomSqlTableModel::slotInsertToTheModel()
     catch (const cmmn::MessageException &me) {
         // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
         QString strPlace = QObject::tr("Error placement") + ": " + me.codePlace();
-        qCritical() << "[Insert data custom ERROR] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
+        qCritical() << "[CRITICAL ERROR] [Insert data custom ERROR] Title:" << me.title() << "\nMessage:" << me.message() << "\n" << strPlace;
         return;
     }
     catch (const std::exception &ex) {
         // TODO: generate a message box with critical error
-        qCritical() << "[Insert data standard ERROR] Message: " << ex.what();
+        qCritical() << "[CRITICAL ERROR] [Insert data standard ERROR] Message: " << ex.what();
         return;
     }
 }
@@ -474,13 +526,13 @@ void CustomSqlTableModel::slotDeleteFromTheModel(int row)
     cmmn::T_id idPrimary = cmmn::safeQVariantToIdType( primaryIdInRow(row) );
     if (!removeRow(row)) {
         // TODO: generate the critical error
-        qCritical() << "Cannot delete the record from the data model of the DB table" << tableName()
+        qCritical() << "[CRITICAL ERROR] Cannot delete the record from the data model of the DB table" << tableName()
                     << "with the primary key id =" << idPrimary << "(row #" << row << ")";
         return;
     }
     if (!m_genDataStorage->deleteData(idPrimary)) {
         // TODO: generate the critical error
-        qCritical() << "Cannot delete the record from the custom data storage of the DB table" << tableName()
+        qCritical() << "[CRITICAL ERROR] Cannot delete the record from the custom data storage of the DB table" << tableName()
                     << "with the primary key id =" << idPrimary << "(row #" << row << ")";
         return;
     }
@@ -537,13 +589,13 @@ void CustomSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemMod
     if (!sqlModel) return;
 
     // convert the model index of the custom model to the model index of the base model
-    const QModelIndex &baseIdx = RegCI.convModelIndex(index, model, RegisterCI::cd_customToBase);
+    const QModelIndex &baseIdx = RegCI.convModelIndex(index, sqlModel, RegisterCI::cd_customToBase);
 
-    dbi::DBTFieldInfo fieldInf = dbi::fieldByNameIndex(sqlModel->tableName(), baseIdx.column());
+    const auto &fieldInf = dbi::fieldByNameIndex(sqlModel->tableName(), baseIdx.column());
 
 //    // set data for all field, except the fields that is foreign keys to the complex DBT
     if (!fieldInf.isForeign() || dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple))
-        QSqlRelationalDelegate::setModelData(editor, model, baseIdx);
+        QSqlRelationalDelegate::setModelData(editor, model, index);
 
     // old version - not use
 //    bool isForeign = fieldInf.isForeign();

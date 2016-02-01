@@ -69,9 +69,38 @@ Qt::ItemFlags RowsChooseSqlTableModel::flags(const QModelIndex &index) const
             : QSqlTableModel::flags(index) & ~Qt::ItemIsEditable;
 }
 
+bool RowsChooseSqlTableModel::findPrimaryIdRow(const QVariant &id, int &rRowId)
+{
+    return findValueRow(id, 0, rRowId);
+}
+
+bool RowsChooseSqlTableModel::findValueRow(const QVariant &value, int column, int &rRowValue)
+{
+    for (int row = 0; row < rowCount(); ++row) {
+        if (data(index(row, column), Qt::DisplayRole) == value) {
+            rRowValue = row;
+            return true;
+        }
+    }
+    return false;
+}
+
 cmmn::T_id RowsChooseSqlTableModel::selectedId() const
 {
     return cmmn::safeQVariantToIdType( data(index(m_selectedRow, 1), Qt::DisplayRole) );
+}
+
+void RowsChooseSqlTableModel::printData(int role) const
+{
+    QString strData;
+    for(int row = 0; row < rowCount(); ++row) {
+        for(int col = 0; col < columnCount(); ++col ) {
+            QModelIndex index = QSqlTableModel::index(row, col);
+            strData += (QSqlTableModel::data(index, role).toString() + "  ");
+        }
+        strData += "\n";
+    }
+    qDebug() << "Table model data with role #" << role << ":\n" << strData;
 }
 
 void RowsChooseSqlTableModel::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
@@ -154,42 +183,19 @@ void DBTEditor::setSelection(QAbstractItemView *view)
     connect(m_model.get(), SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex)));
 }
 
-bool DBTEditor::selectInitial(const QVariant &value, DBTEditor::ColumnNumbers compareCol)
+bool DBTEditor::selectInitial(const QVariant &compareValue, ColumnNumbers compareCol)
 {
-    qDebug() << "select initial. value:" << value;
+//    qDebug() << "select initial. primary id value:" << idPrim;
+//    m_model->printData(Qt::DisplayRole);
     int selectedRow = -1;
-    for (int row = 0; row < m_model->rowCount(); ++row) {
-//        qDebug() << "row:" << row << ", display data:" << m_model->index(row, compareCol).data(Qt::DisplayRole);
-        if ( m_model->index(row, compareCol).data(Qt::DisplayRole) == value ) {
-            selectedRow = row;
-            break;
-        }
-    }
-    if (selectedRow != -1) {
-        makeSelect(selectedRow); // the virtual function calling that select the found row
-//        qDebug() << "selected row #" << selectedRow;
-    }
+    if (m_model->findValueRow(compareValue, compareCol, selectedRow))
+        makeSelect(selectedRow); // the virtual function that select the found row
     else {
-        QMessageBox::warning( this, tr("Selection error"),
-                              tr("Cannot select an item in the list.\n"
-                                 "The reason is: cannot find in the database table \"%1\" the item with id = %2")
-                              .arg(m_DBTInfo->m_nameInUI).arg(value.toString()) );
+        QMessageBox::warning( this, tr("Table row selection error"),
+                              tr("Cannot select an item in the view.\n"
+                                 "Cannot find in the internal model of the database table \"%1\" the item with id = %2")
+                              .arg(m_DBTInfo->m_nameInUI).arg(compareValue.toString()) );
         return false;
     }
     return true;
 }
-
-//void DBTEditor::selectInitial(const QVariant &value, ColumnNumbers compareCol)
-//{
-//    QModelIndex selectRowIndex;
-//    for (int row = 0; row < m_model->rowCount(); ++row)
-//        if ( m_model->index(row, compareCol).data() == value )
-//            selectRowIndex = m_model->index(row, compareCol);
-//    if (selectRowIndex.isValid())
-//        makeSelect(selectRowIndex.row()); // calling the virtual function for selection the found row
-//    else
-//        QMessageBox::warning( this, tr("Selection error"),
-//                              tr("Cannot select an item in the list.\n"
-//                                 "The reason is: cannot find in the database table \"%1\" the item: \"%2\" in the column #%3")
-//                              .arg( m_DBTInfo->m_nameInUI ).arg( value.toString() ).arg((int)compareCol) );
-//}

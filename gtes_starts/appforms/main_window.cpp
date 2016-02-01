@@ -17,8 +17,7 @@ class DelegateListIconsLeft : public QStyledItemDelegate
 public:
     DelegateListIconsLeft(QObject *parent = 0)
         : QStyledItemDelegate(parent)
-    {
-    }
+    { }
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
@@ -35,6 +34,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->setupUi(this);
     m_ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(m_ui->m_listChoice));
     setWindowIcon(QIcon(":/images/window_icon.png")); // TODO: use another icon
+
+    // TODO: delete later
+    m_ui->dockWidget->hide();
+    adjustSize();
 
     /*
      * Open database connection

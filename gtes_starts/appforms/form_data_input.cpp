@@ -16,7 +16,7 @@
 #include "../common/db_info.h"
 
 /*
- * ChangerMChTypeImpl
+ * ChangerMChTypeImpl - private section of the ChangerMChType class
  */
 class ChangerMChTypeImpl
 {
@@ -46,13 +46,13 @@ ChangerMChType::ChangerMChType(QObject *parent)
 { }
 
 ChangerMChType::~ChangerMChType()
-{}
+{ }
 
 void ChangerMChType::updateModelChange(const QVariant &idPrimary, int changeType)
 {
     if (!idPrimary.isValid()) {
         // TODO: generate the error
-        qCritical() << "Cannot update the model change storage. The primary id value is invalid";
+        qCritical() << "[CRITICAL ERROR] Cannot update the model change storage. The primary id value is invalid";
     }
     m_pImpl->updateModelChange( cmmn::safeQVariantToIdType(idPrimary), (MChTypeLabel::ChangeTypes)changeType );
 }
@@ -66,7 +66,7 @@ void ChangerMChType::slotCheckModelChanges(const QVariant &idPrimary)
 {
     if (!idPrimary.isValid()) {
         // TODO: generate the error
-        qCritical() << "Cannot check the model changes. The primary id value is invalid";
+        qCritical() << "[CRITICAL ERROR] Cannot check the model changes. The primary id value is invalid";
     }
     MChTypeLabel::ChangeTypes ctype = MChTypeLabel::ctype_noChange;
     bool isDeleted = false;
@@ -80,12 +80,12 @@ void ChangerMChType::slotCheckModelChanges(const QVariant &idPrimary)
  */
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::FormDataInput)
+    , m_ui(new Ui::FormDataInput)
     , m_enginesModel(new CustomSqlTableModel(this))
     , m_mapper(new QDataWidgetMapper(this))
     , m_mchTChanger(new ChangerMChType(this))
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
     setMainControls();
     setEditDBTPushButtons();
     setDataOperating();
@@ -125,7 +125,7 @@ void FormDataInput::setMainControls()
     // Refresh data
     connect(this, SIGNAL(sigRefreshAll()), m_enginesModel.get(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
     connect(m_enginesModel.get(), &CustomSqlTableModel::sigModelRefreshed, [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data refreshing
-    connect(m_enginesModel.get(), SIGNAL(sigModelRefreshed()), ui->m_leRecordId, SIGNAL(returnPressed())); // restore the current index
+    connect(m_enginesModel.get(), SIGNAL(sigModelRefreshed()), m_ui->m_leRecordId, SIGNAL(returnPressed())); // restore the current index
 
     // Revert data
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
@@ -137,10 +137,10 @@ void FormDataInput::setMainControls()
 /* set push buttons, that call some widget for editing DB tables */
 void FormDataInput::setEditDBTPushButtons()
 {
-    setEditDBTOnePB( ui->m_pbEditFullName, "full_names_engines", ui->m_leFullNameData );
-    setEditDBTOnePB( ui->m_pbEditFuels, "fuels_types", ui->m_cboxFuel );
-    setEditDBTOnePB( ui->m_pbEditChambers, "combustion_chambers", ui->m_leChamberData );
-    setEditDBTOnePB( ui->m_pbEditStartDevices, "start_devices", ui->m_leStartDeviceData );
+    setEditDBTOnePB( m_ui->m_pbEditFullName, "full_names_engines", m_ui->m_leFullNameData );
+    setEditDBTOnePB( m_ui->m_pbEditFuels, "fuels_types", m_ui->m_cboxFuel );
+    setEditDBTOnePB( m_ui->m_pbEditChambers, "combustion_chambers", m_ui->m_leChamberData );
+    setEditDBTOnePB( m_ui->m_pbEditStartDevices, "start_devices", m_ui->m_leStartDeviceData );
 }
 
 void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, QWidget *identWidget)
@@ -162,7 +162,7 @@ void FormDataInput::setDataOperating()
     table->setModel(m_enginesModel.get());
     table->resize(800, 500);
     table->move(10, 10);
-    table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     table->show();
     connect(m_mapper.get(), SIGNAL(currentIndexChanged(int)), table, SLOT(selectRow(int)));
@@ -172,46 +172,63 @@ void FormDataInput::setDataOperating()
     connect(m_enginesModel.get(), SIGNAL(sigNeedUpdateView(QModelIndex)), table, SLOT(update(QModelIndex)));
     // ***********************************************************************************
 
+    //*************************************************************************************
+    // Checking the table view header renaming after setting the relation with other table
+//    QSqlRelationalTableModel *model = new QSqlRelationalTableModel(this);
+//    model->setTable("engines");
+//    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+//    model->setRelation(2, QSqlRelation("fuels_types", "id", "name"));
+//    model->select();
+//    QTableView *tview = new QTableView(0);
+//    tview->setModel(model);
+//    tview->setItemDelegate(new QSqlRelationalDelegate(tview));
+//    tview->setWindowTitle("Test table view: the \"engines\" DB table");
+//    tview->resize(800, 500);
+//    tview->move(30, 50);
+//    tview->show();
+    //*************************************************************************************
+
     // set combo box
-    ui->m_cboxFuel->setModel(m_enginesModel->relationModel(3)); // 2 - in the base model and 3-th in the custom (derived) model. Maybe need to convert
-    ui->m_cboxFuel->setModelColumn(1);
+    m_ui->m_cboxFuel->setModel(m_enginesModel->relationModel(2)); // the 3-th index - in the custom (derived) model
+    m_ui->m_cboxFuel->setModelColumn(1);
     // set mapper
-    m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this));
+    m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this)); // NOTE: is this need?
     m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
     m_mapper->setModel(m_enginesModel.get());
     // indexes starts from 1, because in the 0-th section place the selection icon
-    m_mapper->addMapping(ui->m_leIdData, 1);
-    m_mapper->addMapping(ui->m_leFullNameData, 2);
-    m_mapper->addMapping(ui->m_cboxFuel, 3);
-    m_mapper->addMapping(ui->m_leChamberData, 4);
-    m_mapper->addMapping(ui->m_leStartDeviceData, 5);
-    m_mapper->addMapping(ui->m_sboxStartDevicesQntyData, 6);
-    m_mapper->addMapping(ui->m_pteComments, 7);
+    // TODO: insert new column
+    m_mapper->addMapping(m_ui->m_leIdData, 1);
+    m_mapper->addMapping(m_ui->m_leFullNameData, 2);
+    m_mapper->addMapping(m_ui->m_cboxFuel, 3);
+    m_mapper->addMapping(m_ui->m_leChamberData, 4);
+    m_mapper->addMapping(m_ui->m_leStartDeviceData, 5);
+    m_mapper->addMapping(m_ui->m_sboxStartDevicesQntyData, 6);
+    m_mapper->addMapping(m_ui->m_pteComments, 7);
     m_mapper->toFirst();
 }
 
 void FormDataInput::setDataNavigation()
 {
-    ui->m_leRecordId->setValidator(new QIntValidator(0, 1e6, ui->m_leRecordId)); /* set validator that control inputing only
+    m_ui->m_leRecordId->setValidator(new QIntValidator(0, 1e6, m_ui->m_leRecordId)); /* set validator that control inputing only
                                                                                     integer values in range between 0 and 1e6 */
     // navigation set
-    connect(ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper.get(), SLOT(toFirst()));
-    connect(ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper.get(), SLOT(toLast()));
-    connect(ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper.get(), SLOT(toPrevious()));
-    connect(ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper.get(), SLOT(toNext()));
+    connect(m_ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper.get(), SLOT(toFirst()));
+    connect(m_ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper.get(), SLOT(toLast()));
+    connect(m_ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper.get(), SLOT(toPrevious()));
+    connect(m_ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper.get(), SLOT(toNext()));
 
     // set inputing of the "id" value in the line edit
-    connect(ui->m_leRecordId, SIGNAL(sigReturnPressed(QString)), this, SLOT(slotNeedChangeMapperIndex(QString)));
+    connect(m_ui->m_leRecordId, SIGNAL(sigReturnPressed(QString)), this, SLOT(slotNeedChangeMapperIndex(QString)));
     connect(this, SIGNAL(sigChangeMapperIndex(int)), m_mapper.get(), SLOT(setCurrentIndex(int))); // change mapper index by the id's line edit value
-    connect(this, SIGNAL(sigWrongIdEntered()), ui->m_leRecordId, SLOT(clear())); // indicate that inputed value is wrong and there are need to input another
+    connect(this, SIGNAL(sigWrongIdEntered()), m_ui->m_leRecordId, SLOT(clear())); // indicate that inputed value is wrong and there are need to input another
 //    connect(this, SIGNAL(sigWrongIdEntered()), m_mapper, SLOT(revert())); // perform a clearing of the mapped widgets - TODO: maybe delete?
 
     // enable & disable navigation buttons
     connect(m_mapper.get(), SIGNAL(currentIndexChanged(int)), this, SLOT(slotRowIndexChanged(int)));
-    connect(this, SIGNAL(sigFirstRowReached(bool)), ui->m_tbRecordFirst, SLOT(setDisabled(bool)));
-    connect(this, SIGNAL(sigFirstRowReached(bool)), ui->m_tbRecordPrev, SLOT(setDisabled(bool)));
-    connect(this, SIGNAL(sigLastRowReached(bool)), ui->m_tbRecordLast, SLOT(setDisabled(bool)));
-    connect(this, SIGNAL(sigLastRowReached(bool)), ui->m_tbRecordNext, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordFirst, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordPrev, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordLast, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordNext, SLOT(setDisabled(bool)));
     slotRowIndexChanged(m_mapper->currentIndex()); // the initial checking
 }
 
@@ -220,13 +237,12 @@ void FormDataInput::setModelChange()
     // implementation the behaviour of window form when changes current index
     connect(m_mapper.get(), &QDataWidgetMapper::currentIndexChanged,
             [this](int index){ m_mchTChanger->slotCheckModelChanges( m_enginesModel->primaryIdInRow(index) ); } );
-    connect(m_mchTChanger.get(), SIGNAL(sigChangeChangedType(bool)), ui->m_gboxEngineData, SLOT(setDisabled(bool)));
-    connect(m_mchTChanger.get(), SIGNAL(sigChangeChangedType(int)), ui->m_lblModelChangeType, SLOT(slotChangeType(int)));
+    connect(m_mchTChanger.get(), SIGNAL(sigChangeChangedType(bool)), m_ui->m_gboxEngineData, SLOT(setDisabled(bool)));
+    connect(m_mchTChanger.get(), SIGNAL(sigChangeChangedType(int)), m_ui->m_lblModelChangeType, SLOT(slotChangeType(int)));
 }
 
 FormDataInput::~FormDataInput()
-{
-}
+{ }
 
 void FormDataInput::slotDeleteRow()
 {
@@ -237,7 +253,7 @@ void FormDataInput::slotDeleteRow()
 void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
 {
     int row = -1;
-    if (m_enginesModel->findPrimaryId(value, row))
+    if (m_enginesModel->findPrimaryIdRow(value, row))
         emit sigChangeMapperIndex(row);
     else {
         QMessageBox::warning(this, tr("Error engine ""id"" value"),
@@ -248,7 +264,7 @@ void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
 
 void FormDataInput::slotRowIndexChanged(int row)
 {
-    qDebug() << "change mapper index, current index =" << m_mapper->currentIndex() << ", row =" << row;
+//    qDebug() << "change mapper index, current index =" << m_mapper->currentIndex() << ", row =" << row;
     emit sigFirstRowReached(row <= 0);
     emit sigLastRowReached(row >= m_enginesModel->rowCount() - 1);
 //    qDebug() << "slotRowIndexChanged(" << row << "), DisplayRole data:";
@@ -304,6 +320,11 @@ void FormDataInput::slotEditDBT()
 {
     PBtnForEditDBT *pbEditDBT = qobject_cast<PBtnForEditDBT *>(sender());
     if ( !pbEditDBT ) {
+        /*
+         * TODO: wrong error message text. There are need to say some like "cannot edit database table" and
+         * not "cannot open the dialog", or maybe there are need rename this slot.
+         * This also applies to the other error messageboxes in this slot.
+         */
         QMessageBox::critical(this, tr("Invalid widget"),
                               tr("Cannot open the dialog.\n"
                                  "The reason is: clicked on an unexpected widget.\n\n"
@@ -320,8 +341,8 @@ void FormDataInput::slotEditDBT()
         return;
     }
 
-    std::shared_ptr<DBTEditor> editor(createDBTEditor(tableInfo));
-    if ( !editor.operator bool() ) {
+    std::unique_ptr<DBTEditor> editor(createDBTEditor(tableInfo));
+    if ( editor == 0 ) {
         QMessageBox::critical(this, tr("Invalid database table information"),
                               tr("Cannot open the dialog.\n"
                                  "The reason is: cannot define the created dialog type, database table information is incorrect.\n\n"
@@ -330,26 +351,25 @@ void FormDataInput::slotEditDBT()
     }
 
     /* define the column number, that used for defining the initial selection in dialog.
-     * As the relational table model return a related DB table data (not a foreign key), then there are need to use the next (after "id")
-     * column for definition the selection of a row in the table of an opened dialog */
-    DBTEditor::ColumnNumbers columnTtype = ( tableInfo->m_type == dbi::DBTInfo::ttype_simple ? DBTEditor::col_firstWithData
-                                                                                             : DBTEditor::col_id );
-    int currentRow = m_mapper->currentIndex();
-    int currentCol = m_mapper->mappedSection(pbEditDBT->identWidget());
-    const QModelIndex &currIndex = m_enginesModel->index(currentRow, currentCol);
-//    qDebug() << "before selectInitial(), columnTtype =" << columnTtype << ", [" << currentRow << "," << currentCol << "]"
+     * As the relational table model return a related DB table data (not a id value), then there are need to use the next (after "id")
+     * column for definition the selection of a row in the view, placed in the opened dialog */
+    auto columnNumber = ( tableInfo->m_type == dbi::DBTInfo::ttype_simple ? DBTEditor::col_nextAfterId : DBTEditor::col_id );
+    const QModelIndex &currIndex = m_enginesModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbEditDBT->identWidget()));
+//    qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
 //             << ", dataD =" << m_enginesModel->data( currIndex, Qt::DisplayRole).toString()
 //             << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
 //             << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
-    const QVariant &userData = m_enginesModel->data(currIndex, Qt::UserRole);
-    if ( !userData.isNull() && !editor->selectInitial(userData, columnTtype) ) // data is NULL -> it was not setted and there are not need to select any row
+    const QVariant &compareData = m_enginesModel->data(currIndex, Qt::UserRole);
+    if ( !compareData.isNull() && !editor->selectInitial(compareData, columnNumber) ) // if data is NULL -> don't select any row
         return;
 
     if ( editor->exec() == QDialog::Accepted ) {
         m_enginesModel->spike1_turnOn(true); /* Switch ON the Spike #1 */
-        m_enginesModel->setData( currIndex, editor->selectedId(), Qt::EditRole );
-//        qDebug() << "choosed item with id =" << editor->selectedId();
+        if ( !m_enginesModel->setData( currIndex, editor->selectedId(), Qt::EditRole ) ) {
+            // TODO: generate the error
+            qCritical() << "[CRITICAL ERROR] Cannot set data: \"" << editor->selectedId() << "\" to the model";
+            return;
+        }
+        qDebug() << "The id value: \"" << editor->selectedId() << "\" was successfully setted to the model";
     }
 }
-
-

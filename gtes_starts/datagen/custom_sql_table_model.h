@@ -27,13 +27,15 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     QVariant primaryIdInRow(int row) const;
-    bool findPrimaryId(const QVariant id, int &row);
+    bool findPrimaryIdRow(const QVariant &idPrim, int &rRowId) const;
+    bool findValueRow(const QVariant &value, int column, int &rRowValue) const;
     cmmn::T_id selectedId() const;
 
     void spike1_turnOn(bool bOn); // spike 1
 
     void printData(int role) const; // TODO: temporary function, delete later
     QString printRecords() const; // TODO: temporary function, delete later
+    void printHeader(int role) const; // TODO: temporary function, delete later
 
 signals:
     void sigNewRecordInserted(int row, cmmn::T_id primaryId);
@@ -60,6 +62,7 @@ private:
     void spike1_saveData(const QModelIndex &currIndex); // spike 1
     void spike1_restoreData(const QModelIndex &currIndex); // spike 1
     void fillGeneratedData();
+    QVariant valueInBaseModel(int row, int col) const;
 
     std::unique_ptr<GeneratorDBTData> m_dataGenerator;
     std::unique_ptr<StorageGenData> m_genDataStorage;

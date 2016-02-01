@@ -59,13 +59,13 @@ void SimpleDBTEditor::setDBdataView()
     view->setItemDelegate(new HighlightListDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
     view->setModel(m_model.get());
-    view->setModelColumn(col_firstWithData); // column number is 2, as the 0-th column is check icon and 1-th is "id"
+    view->setModelColumn(col_nextAfterId);
     connect(m_ui->m_leSearchMask, SIGNAL(textChanged(QString)), this, SLOT(slotSetFilter(QString)));
 }
 
 void SimpleDBTEditor::makeSelect(int row)
 {
-    m_ui->m_listvData->selectionModel()->select( m_model->index(row, col_firstWithData), QItemSelectionModel::Select );
+    m_ui->m_listvData->selectionModel()->select( m_model->index(row, col_nextAfterId), QItemSelectionModel::Select );
 }
 
 SimpleDBTEditor::~SimpleDBTEditor()

@@ -82,7 +82,7 @@ private:
 
     DBTEditor * createDBTEditor(dbi::DBTInfo *info);
 
-    std::unique_ptr<Ui::FormDataInput> ui;
+    std::unique_ptr<Ui::FormDataInput> m_ui;
     std::unique_ptr<CustomSqlTableModel> m_enginesModel;
     std::unique_ptr<QDataWidgetMapper> m_mapper;
     std::unique_ptr<ChangerMChType> m_mchTChanger;
