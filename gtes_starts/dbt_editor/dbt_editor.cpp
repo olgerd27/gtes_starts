@@ -87,7 +87,10 @@ bool RowsChooseSqlTableModel::findValueRow(const QVariant &value, int column, in
 
 cmmn::T_id RowsChooseSqlTableModel::selectedId() const
 {
-    return cmmn::safeQVariantToIdType( data(index(m_selectedRow, 1), Qt::DisplayRole) );
+    cmmn::T_id id;
+    const QVariant &varId = data(index(m_selectedRow, 1), Qt::DisplayRole);
+    CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(varId, id), varId );
+    return id;
 }
 
 void RowsChooseSqlTableModel::printData(int role) const
@@ -150,6 +153,7 @@ void DBTEditor::setModel()
 {
     m_model->setTable(m_DBTInfo->m_nameInDB);
     m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    // TODO: move the select() calling to the RowsChooseSqlTableModel::setTable() reimplemented method
     if (!m_model->select()) {
         // TODO: generate the error
         qDebug() << "Cannot populating the model by a data from the database.\nThe DB error text: " + m_model->lastError().text();

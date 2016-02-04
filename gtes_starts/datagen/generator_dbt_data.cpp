@@ -114,7 +114,7 @@ void QueryGenPrimaryOneId::doFinalPrepare()
 
 void QueryGenPrimaryOneId::setId(const QVariant &varId)
 {
-    m_idPrim = cmmn::safeQVariantToIdType(varId);
+    CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(varId, m_idPrim), varId );
 }
 
 /*****************************************************************************************************************************/
@@ -146,8 +146,11 @@ void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)
                                      QObject::tr("Error data generating"),
                                      QObject::tr("The functor for database query was not setted"), "GeneratorDBTData::generate");
     int fieldsCounter = 0;
+    qDebug() << "generate() 1";
     generate_Mask_QueryData( foreignFieldInf, fieldsCounter );
+    qDebug() << "generate() 2";
     generateResultData();
+    qDebug() << "generate() 3";
 }
 
 /* Generate data mask and data for generation query string */
@@ -180,8 +183,11 @@ void GeneratorDBTData::generateResultData()
     QSqlQuery query(m_queryGen->lastGeneratedQuery());
     m_resData.reserve(query.size()); // allocate the storage memory for effective adding data to the storage
     while (query.next()) {
+        // get the primary id value
+        const QVariant &varId = query.value(0);
+        CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(varId, idPrim), varId );
+
         strRes = m_strMask;
-        idPrim = cmmn::safeQVariantToIdType(query.value(0));
         for (int i = 1; i < m_queryGen->quantityResultData(); ++i)
             strRes = strRes.arg( query.value(i).toString() ); // forming result data
         m_resData.push_back( {idPrim, strRes} );
@@ -193,6 +199,7 @@ void GeneratorDBTData::generateResultData()
                                       QObject::tr("Cannot get a data from the database table for generation.") + "\n"
                                       + QObject::tr("The database error:") + query.lastError().text(),
                                       "GeneratorDBTData::generateResultData()" );
+        ASSERT_DBG(false)
     }
 //    qDebug() << "-----------------------------";
 }

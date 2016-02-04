@@ -50,7 +50,7 @@ namespace cmmn {
         inline MessageTypes type() const { return m_type; }
         inline QString title() const { return m_title; }
         inline QString message() const { return m_msg; }
-        inline QString codePlace() const { return m_codePlace; }
+        inline QString codePlace() const { return m_codePlace; } // TODO: maybe delete this. Code place shows only with help of Q_ASSERT macro
 
     private:
         MessageTypes m_type;
@@ -78,6 +78,15 @@ namespace cmmn {
 #else
 #define CHECK_ERROR_CONVERT_ID(bOk, varValue) \
     Q_ASSERT(bOk);
+#endif
+
+    // TODO: replace this macro to the macro, that throw an exception in the release mode or call the Q_ASSERT_X macro in the debug mode
+#ifdef QT_NO_DEBUG
+#define ASSERT_DBG(b) \
+    ;
+#else
+#define ASSERT_DBG(b) \
+    Q_ASSERT(b);
 #endif
 
 }

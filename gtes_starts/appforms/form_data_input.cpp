@@ -54,7 +54,9 @@ void ChangerMChType::updateModelChange(const QVariant &idPrimary, int changeType
         // TODO: generate the error
         qCritical() << "[CRITICAL ERROR] Cannot update the model change storage. The primary id value is invalid";
     }
-    m_pImpl->updateModelChange( cmmn::safeQVariantToIdType(idPrimary), (MChTypeLabel::ChangeTypes)changeType );
+    cmmn::T_id id;
+    CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(idPrimary, id), idPrimary );
+    m_pImpl->updateModelChange( id, (MChTypeLabel::ChangeTypes)changeType );
 }
 
 void ChangerMChType::clearChanges()
@@ -70,7 +72,9 @@ void ChangerMChType::slotCheckModelChanges(const QVariant &idPrimary)
     }
     MChTypeLabel::ChangeTypes ctype = MChTypeLabel::ctype_noChange;
     bool isDeleted = false;
-    m_pImpl->checkModelChanges( cmmn::safeQVariantToIdType(idPrimary), ctype, &isDeleted );
+    cmmn::T_id id;
+    CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(idPrimary, id), idPrimary );
+    m_pImpl->checkModelChanges( id, ctype, &isDeleted );
     emit sigChangeChangedType(ctype);
     emit sigChangeChangedType(isDeleted);
 }
@@ -189,7 +193,7 @@ void FormDataInput::setDataOperating()
     //*************************************************************************************
 
     // set combo box
-    m_ui->m_cboxFuel->setModel(m_enginesModel->relationModel(2)); // the 3-th index - in the custom (derived) model
+    m_ui->m_cboxFuel->setModel(m_enginesModel->relationModel(3));
     m_ui->m_cboxFuel->setModelColumn(1);
     // set mapper
     m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this)); // NOTE: is this need?
