@@ -9,6 +9,7 @@
 #include "../common/common_defines.h"
 
 class QAbstractItemView;
+class CustomSqlTableModel;
 namespace dbi {
     class DBTInfo;
 }
@@ -55,7 +56,7 @@ class DBTEditor : public QDialog
     Q_OBJECT
 public:
     enum ColumnNumbers {
-          col_okIcon = 0
+          col_selectIcon = 0
         , col_id = 1
         , col_nextAfterId
     };
@@ -75,6 +76,7 @@ protected:
 
     dbi::DBTInfo *m_DBTInfo;
     std::unique_ptr<RowsChooseSqlTableModel> m_model;
+//    std::unique_ptr<CustomSqlTableModel> m_model;
 };
 
 #endif // DBT_EDITOR_H

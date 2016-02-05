@@ -35,9 +35,10 @@ namespace cmmn {
     struct MessageException
     {
         enum MessageTypes {
-            type_info,
-            type_warning,
-            type_critical
+              type_info
+            , type_warning
+            , type_critical
+            , type_fatal
         };
 
         MessageException(MessageTypes type, const QString &title, const QString &msg, const QString &codePlace)
@@ -64,6 +65,8 @@ namespace cmmn {
     T_id safeQVariantToIdType(const QVariant &value);
     bool safeQVariantToIdType(const QVariant &value, cmmn::T_id &id);
     void throwConversionIdErrorMsg(bool bConv, const QVariant &varId);
+    void throwErrorMsg(bool bSuccess, cmmn::MessageException::MessageTypes msgType,
+                       const QString &title, const QString &what, const QString &where);
 
     /*
      * The definition, that check the conversion the id value from the QVariant to the T_id type,
@@ -73,20 +76,20 @@ namespace cmmn {
      * in release - call the cmmn::throwConversionIdErrorMsg() function, that throws the cmmn::MessageException type error message.
      */
 #ifdef QT_NO_DEBUG
-#define CHECK_ERROR_CONVERT_ID(bOk, varId) \
-    cmmn::throwConversionIdErrorMsg(bOk, varId);
+#define CHECK_ERROR_CONVERT_ID(bAssert, varId) \
+    cmmn::throwConversionIdErrorMsg(bAssert, varId);
 #else
-#define CHECK_ERROR_CONVERT_ID(bOk, varValue) \
-    Q_ASSERT(bOk);
+#define CHECK_ERROR_CONVERT_ID(bAssert, varValue) \
+    Q_ASSERT(bAssert);
 #endif
 
-    // TODO: replace this macro to the macro, that throw an exception in the release mode or call the Q_ASSERT_X macro in the debug mode
+// Macro's definition for error generating in the two modes: release (QT_NOT_DEBUG) and debug (else)
 #ifdef QT_NO_DEBUG
-#define ASSERT_DBG(b) \
-    ;
+#define ASSERT_DBG(bAssert, msgType, qstrTitle, qstrWhat, qstrWhere) \
+    cmmn::throwErrorMsg(bAssert, msgType, qstrTitle, qstrWhat, qstrWhere);
 #else
-#define ASSERT_DBG(b) \
-    Q_ASSERT(b);
+#define ASSERT_DBG(bAssert, msgType, qstrTitle, qstrWhat, qstrWhere) \
+    Q_ASSERT_X(bAssert, (qstrWhere).toStdString().c_str(), (qstrWhat).toStdString().c_str());
 #endif
 
 }

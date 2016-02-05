@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include "dbt_editor.h"
+//#include "../datagen/custom_sql_table_model.h"
 #include "../common/db_info.h"
 
 /*
@@ -135,6 +136,7 @@ DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbTable)
     , m_model(new RowsChooseSqlTableModel)
+//    , m_model(new CustomSqlTableModel(this))
 {
     setModel();
     setWindowName();

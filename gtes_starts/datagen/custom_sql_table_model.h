@@ -60,8 +60,8 @@ private:
     QVariant getDataFromStorage(const QModelIndex &baseIndex, int storageComplexIndex) const;
     void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
     void flush();
-    void spike1_saveData(const QModelIndex &baseIndex); // spike 1
-    void spike1_restoreData(const QModelIndex &baseIndex); // spike 1
+    void spike1_saveData(const QModelIndex &modelIndex); // spike 1
+    void spike1_restoreData(const QModelIndex &modelIndex); // spike 1
     void fillGeneratedData();
     QVariant valueInBaseModel(int row, int col) const;
 

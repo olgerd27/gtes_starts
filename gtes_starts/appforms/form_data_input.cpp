@@ -359,10 +359,10 @@ void FormDataInput::slotEditDBT()
      * column for definition the selection of a row in the view, placed in the opened dialog */
     auto columnNumber = ( tableInfo->m_type == dbi::DBTInfo::ttype_simple ? DBTEditor::col_nextAfterId : DBTEditor::col_id );
     const QModelIndex &currIndex = m_enginesModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbEditDBT->identWidget()));
-//    qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
-//             << ", dataD =" << m_enginesModel->data( currIndex, Qt::DisplayRole).toString()
-//             << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
-//             << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
+    qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
+             << ", dataD =" << m_enginesModel->data( currIndex, Qt::DisplayRole).toString()
+             << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
+             << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
     const QVariant &compareData = m_enginesModel->data(currIndex, Qt::UserRole);
     if ( !compareData.isNull() && !editor->selectInitial(compareData, columnNumber) ) // if data is NULL -> don't select any row
         return;

@@ -8,20 +8,18 @@
 /* QueryGenerator */
 GeneratorDBTData::QueryGenerator::QueryGenerator(TypeQueryGenerator typeqg)
     : m_type(typeqg)
-{
-}
+{ }
 
 GeneratorDBTData::QueryGenerator::~QueryGenerator()
 { }
 
 void GeneratorDBTData::QueryGenerator::generateQuery()
 {
-    if (m_listFrom.isEmpty() || m_listSelect.isEmpty()) {
-        throw cmmn::MessageException( cmmn::MessageException::type_critical,
-                                      QObject::tr("Error query generation"),
-                                      QObject::tr("Too many attempts to get the query string, used for generation displayed data"),
-                                      "QueryGenerator::generateQuery" );
-    }
+    ASSERT_DBG( !m_listFrom.isEmpty() && !m_listSelect.isEmpty(),
+                cmmn::MessageException::type_critical, QObject::tr("Error query generation"),
+                QObject::tr("Too many attempts to get the query string, used for generation displayed data"),
+                QString("GeneratorDBTData::QueryGenerator::generateQuery()") );
+
 //    qDebug() << "Not ready query data:\nSELECT:" << m_listSelect << "\nFROM:" << m_listFrom << "\nWHERE:" << m_listWhere;
     finalPrepare(); // the Template Method
     m_quantityRes = m_listSelect.size(); // save quantity of the result data
@@ -141,16 +139,16 @@ void GeneratorDBTData::setQueryGenerator(QueryGenerator *gen)
 void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)
 {
     flush();
-    if (!isReadyToGeneration())
-        throw cmmn::MessageException(cmmn::MessageException::type_critical,
-                                     QObject::tr("Error data generating"),
-                                     QObject::tr("The functor for database query was not setted"), "GeneratorDBTData::generate");
+    ASSERT_DBG( isReadyToGeneration(),
+                cmmn::MessageException::type_critical, QObject::tr("Error data generating"),
+                QObject::tr("The functor for database query was not setted"),
+                QString("GeneratorDBTData::generate()") );
     int fieldsCounter = 0;
-    qDebug() << "generate() 1";
+//    qDebug() << "generate() 1, field:" << foreignFieldInf.m_nameInDB;
     generate_Mask_QueryData( foreignFieldInf, fieldsCounter );
-    qDebug() << "generate() 2";
+//    qDebug() << "generate() 2";
     generateResultData();
-    qDebug() << "generate() 3";
+//    qDebug() << "generate() 3";
 }
 
 /* Generate data mask and data for generation query string */
@@ -180,6 +178,7 @@ void GeneratorDBTData::generateResultData()
     T_id idPrim = -1;
     QString strRes;
     m_queryGen->generateQuery();
+//    qDebug() << "generateResultData(), last generated query:" << m_queryGen->lastGeneratedQuery();
     QSqlQuery query(m_queryGen->lastGeneratedQuery());
     m_resData.reserve(query.size()); // allocate the storage memory for effective adding data to the storage
     while (query.next()) {
@@ -193,14 +192,11 @@ void GeneratorDBTData::generateResultData()
         m_resData.push_back( {idPrim, strRes} );
 //        qDebug() << "generate result data. id prim:" << idPrim << ", data:" << strRes;
     }
-    if (idPrim == -1) {
-        throw cmmn::MessageException( cmmn::MessageException::type_critical,
-                                      QObject::tr("Error data getting"),
-                                      QObject::tr("Cannot get a data from the database table for generation.") + "\n"
-                                      + QObject::tr("The database error:") + query.lastError().text(),
-                                      "GeneratorDBTData::generateResultData()" );
-        ASSERT_DBG(false)
-    }
+    ASSERT_DBG( idPrim != -1,
+                cmmn::MessageException::type_critical, QObject::tr("Error data getting"),
+                QObject::tr("Cannot get a data from the database table for generation. ") +
+                QObject::tr("The database error: ") + query.lastError().text(),
+                QString("GeneratorDBTData::generateResultData()") );
 //    qDebug() << "-----------------------------";
 }
 
