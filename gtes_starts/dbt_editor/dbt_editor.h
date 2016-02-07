@@ -10,6 +10,9 @@
 
 class QAbstractItemView;
 class CustomSqlTableModel;
+namespace Ui {
+    class ComplexDBTEditor;
+}
 namespace dbi {
     class DBTInfo;
 }
@@ -17,10 +20,13 @@ namespace dbi {
 /*
  * The custom QSqlTableModel class, that add a new first column and show choice icon there for rows choosing.
  */
+ // TODO: delete this model and not use anymore
 class RowsChooseSqlTableModel : public QSqlTableModel
 {
     Q_OBJECT
 public:
+    enum { SELECT_ICON_COLUMN = 0 };
+
     RowsChooseSqlTableModel(QObject *parent = 0);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &idx, int role) const;
@@ -28,8 +34,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    bool findPrimaryIdRow(const QVariant &id, int &rRowId);
-    bool findValueRow(const QVariant &value, int column, int &rRowValue);
+    bool findPrimaryIdRow(const QVariant &idPrim, int &rRowValue);
     cmmn::T_id selectedId() const;
 
     void printData(int role = Qt::DisplayRole) const;
@@ -42,7 +47,6 @@ public slots:
 
 private:
     enum { DONT_SELECTED_ROW = -1 };
-    enum { SELECT_ICON_COLUMN = 0 };
 
     int m_selectedRow;
     QIcon m_selectIcon;
@@ -55,28 +59,24 @@ class DBTEditor : public QDialog
 {
     Q_OBJECT
 public:
-    enum ColumnNumbers {
-          col_selectIcon = 0
-        , col_id = 1
-        , col_nextAfterId
-    };
-
     explicit DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent = 0);
     virtual ~DBTEditor();
 
-    bool selectInitial(const QVariant &compareValue, DBTEditor::ColumnNumbers compareCol);
+    bool selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
-protected:
+protected: // TODO: make private
+    void setContentsUI();
+    void setEditingUI();
     void setModel();
     void setWindowName();
     void setHeaderData();
-    void setSelection(QAbstractItemView *view = 0);
-    virtual void makeSelect(int row) = 0;
+    void makeSelect(int row);
 
     dbi::DBTInfo *m_DBTInfo;
-    std::unique_ptr<RowsChooseSqlTableModel> m_model;
-//    std::unique_ptr<CustomSqlTableModel> m_model;
+    std::unique_ptr<Ui::ComplexDBTEditor> m_ui;
+//    std::unique_ptr<RowsChooseSqlTableModel> m_model;
+    std::unique_ptr<CustomSqlTableModel> m_model;
 };
 
 #endif // DBT_EDITOR_H

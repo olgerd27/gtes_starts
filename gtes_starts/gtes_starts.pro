@@ -15,8 +15,6 @@ SOURCES += main.cpp\
     appforms/form_data_input.cpp \
     appforms/form_options.cpp \
     dbt_editor/dbt_editor.cpp \
-    dbt_editor/simple_dbt_editor.cpp \
-    dbt_editor/complex_dbt_editor.cpp \
     common/db_info.cpp \
     common/reimplemented_widgets.cpp \
     common/common_defines.cpp \
@@ -30,8 +28,6 @@ HEADERS  += \
     appforms/form_data_input.h \
     appforms/form_options.h \
     dbt_editor/dbt_editor.h \
-    dbt_editor/simple_dbt_editor.h \
-    dbt_editor/complex_dbt_editor.h \
     common/db_info.h \
     common/reimplemented_widgets.h \
     common/common_defines.h \
@@ -44,9 +40,7 @@ FORMS    += \
     appforms/form_queries.ui \
     appforms/form_data_input.ui \
     appforms/form_options.ui \
-    dbt_editor/complex_dbt_editor.ui \
-    dbt_editor/simple_dbt_editor.ui \
-    dbt_editor/simple_dbt_editor2.ui
+    dbt_editor/complex_dbt_editor.ui
 
 OTHER_FILES += \
     _aux/requirements.txt

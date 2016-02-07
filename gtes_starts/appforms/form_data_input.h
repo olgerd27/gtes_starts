@@ -17,7 +17,7 @@ class PBtnForEditDBT;
 class ChangerMChTypeImpl;
 
 /*
- * Class for change model change type. The available types are defined in the MChTypeLabel class.
+ * Class for change model change type. The available types are defined in the MChTypeLabel class, inherited from the QLabel.
  */
 class ChangerMChType : public QObject
 {
@@ -41,7 +41,7 @@ private:
 };
 
 /*
- * The form for data inputing in the database
+ * The form for data input in the database
  */
 class FormDataInput : public QWidget
 {
@@ -80,14 +80,10 @@ private:
     void setDataNavigation();
     void setModelChange();
 
-    DBTEditor * createDBTEditor(dbi::DBTInfo *info);
-
     std::unique_ptr<Ui::FormDataInput> m_ui;
     std::unique_ptr<CustomSqlTableModel> m_enginesModel;
     std::unique_ptr<QDataWidgetMapper> m_mapper;
     std::unique_ptr<ChangerMChType> m_mchTChanger;
 };
-
-
 
 #endif // FORM_DATA_INPUT_H

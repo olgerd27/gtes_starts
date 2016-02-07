@@ -10,8 +10,7 @@
 
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
-#include "../dbt_editor/simple_dbt_editor.h"
-#include "../dbt_editor/complex_dbt_editor.h"
+#include "../dbt_editor/dbt_editor.h"
 #include "../datagen/custom_sql_table_model.h"
 #include "../common/db_info.h"
 
@@ -303,23 +302,6 @@ void FormDataInput::slotSubmit()
 //    qDebug() << "slotSubmit(), end";
 }
 
-/* Factory method for creation some type of a database table dialog */
-DBTEditor * FormDataInput::createDBTEditor(dbi::DBTInfo *info)
-{
-    DBTEditor *dlg = 0;
-    switch (info->m_type) {
-    case dbi::DBTInfo::ttype_simple:
-        dlg = new SimpleDBTEditor(info, this);
-        break;
-    case dbi::DBTInfo::ttype_complex:
-        dlg = new ComplexDBTEditor(info, this);
-        break;
-    default:
-        break;
-    }
-    return dlg;
-}
-
 void FormDataInput::slotEditDBT()
 {
     PBtnForEditDBT *pbEditDBT = qobject_cast<PBtnForEditDBT *>(sender());
@@ -331,7 +313,7 @@ void FormDataInput::slotEditDBT()
          */
         QMessageBox::critical(this, tr("Invalid widget"),
                               tr("Cannot open the dialog.\n"
-                                 "The reason is: clicked on an unexpected widget.\n\n"
+                                 "The reason is: clicked on an unexpected push button.\n\n"
                                  "Please consult with the application developer for fixing this problem."));
         return;
     }
@@ -345,35 +327,23 @@ void FormDataInput::slotEditDBT()
         return;
     }
 
-    std::unique_ptr<DBTEditor> editor(createDBTEditor(tableInfo));
-    if ( editor == 0 ) {
-        QMessageBox::critical(this, tr("Invalid database table information"),
-                              tr("Cannot open the dialog.\n"
-                                 "The reason is: cannot define the created dialog type, database table information is incorrect.\n\n"
-                                 "Please consult with the application developer for fixing this problem."));
-        return;
-    }
-
-    /* define the column number, that used for defining the initial selection in dialog.
-     * As the relational table model return a related DB table data (not a id value), then there are need to use the next (after "id")
-     * column for definition the selection of a row in the view, placed in the opened dialog */
-    auto columnNumber = ( tableInfo->m_type == dbi::DBTInfo::ttype_simple ? DBTEditor::col_nextAfterId : DBTEditor::col_id );
+    DBTEditor editor(tableInfo, this);
     const QModelIndex &currIndex = m_enginesModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbEditDBT->identWidget()));
     qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
              << ", dataD =" << m_enginesModel->data( currIndex, Qt::DisplayRole).toString()
              << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
              << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
-    const QVariant &compareData = m_enginesModel->data(currIndex, Qt::UserRole);
-    if ( !compareData.isNull() && !editor->selectInitial(compareData, columnNumber) ) // if data is NULL -> don't select any row
+    const QVariant &forId = m_enginesModel->data(currIndex, Qt::UserRole);
+    if ( !forId.isNull() && !editor.selectInitial(forId) ) // if data is NULL -> don't select any row
         return;
 
-    if ( editor->exec() == QDialog::Accepted ) {
+    if ( editor.exec() == QDialog::Accepted ) {
         m_enginesModel->spike1_turnOn(true); /* Switch ON the Spike #1 */
-        if ( !m_enginesModel->setData( currIndex, editor->selectedId(), Qt::EditRole ) ) {
+        if ( !m_enginesModel->setData( currIndex, editor.selectedId(), Qt::EditRole ) ) {
             // TODO: generate the error
-            qCritical() << "[CRITICAL ERROR] Cannot set data: \"" << editor->selectedId() << "\" to the model";
+            qCritical() << "[CRITICAL ERROR] Cannot set data: \"" << editor.selectedId() << "\" to the model";
             return;
         }
-        qDebug() << "The id value: \"" << editor->selectedId() << "\" was successfully setted to the model";
+        qDebug() << "The id value: \"" << editor.selectedId() << "\" was successfully setted to the model";
     }
 }

@@ -15,6 +15,7 @@ class CustomSqlTableModel : public QSqlRelationalTableModel
 
 public:
     typedef QMap<int, QVariant> T_saveRestore;
+    enum { SELECT_ICON_COLUMN = 0 };
 
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     ~CustomSqlTableModel();
@@ -27,8 +28,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     QVariant primaryIdInRow(int row) const;
-    bool findPrimaryIdRow(const QVariant &idPrim, int &rRowId) const;
-    bool findValueRow(const QVariant &value, int column, int &rRowValue) const;
+    bool findPrimaryIdRow(const QVariant &idPrim, int &rRowValue) const;
     cmmn::T_id selectedId() const;
 
     void spike1_turnOn(bool bOn); // spike 1
@@ -52,7 +52,6 @@ public slots:
 
 private:
     enum { NOT_SETTED = -1 };
-    enum { SELECT_ICON_COLUMN = 0 };
 
     void defineSimpleDBTAndComplexIndex();
     void fillTheStorage();
@@ -63,7 +62,6 @@ private:
     void spike1_saveData(const QModelIndex &modelIndex); // spike 1
     void spike1_restoreData(const QModelIndex &modelIndex); // spike 1
     void fillGeneratedData();
-    QVariant valueInBaseModel(int row, int col) const;
 
     std::unique_ptr<GeneratorDBTData> m_dataGenerator;
     std::unique_ptr<StorageGenData> m_genDataStorage;

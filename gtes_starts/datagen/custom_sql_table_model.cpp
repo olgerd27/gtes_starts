@@ -66,7 +66,6 @@ QModelIndex ConverterMDBIdx::convModelIndex(const QModelIndex &modelIndex,
     return modelIndex.model()->index( modelIndex.row(), convColumn(modelIndex.column(), direction) );
 }
 
-
 /*
  * CustomSqlTableModel
  *
@@ -293,28 +292,19 @@ Qt::ItemFlags CustomSqlTableModel::flags(const QModelIndex &index) const
 
 QVariant CustomSqlTableModel::primaryIdInRow(int row) const
 {
-    return valueInBaseModel(row, 0 + 1); // the 1-th column store the primary id's values (the 0-th column store select image)
+    int colPrimId = ConvMDBI.convColumn(0, ConverterMDBIdx::DBToModel); // define the primary id's column
+    return QSqlRelationalTableModel::data(index(row, colPrimId), Qt::DisplayRole);
 }
 
-bool CustomSqlTableModel::findPrimaryIdRow(const QVariant &idPrim, int &rRowId) const
-{
-    return findValueRow(idPrim, 0 + 1, rRowId); // the 1-th column store the primary id's values (the 0-th column store select image)
-}
-
-bool CustomSqlTableModel::findValueRow(const QVariant &value, int column, int &rRowValue) const
+bool CustomSqlTableModel::findPrimaryIdRow(const QVariant &idPrim, int &rRowValue) const
 {
     for (int row = 0; row < rowCount(); ++row) {
-        if (valueInBaseModel(row, column) == value) {
+        if (primaryIdInRow(row) == idPrim) {
             rRowValue = row;
             return true;
         }
     }
     return false;
-}
-
-QVariant CustomSqlTableModel::valueInBaseModel(int row, int col) const
-{
-    return QSqlRelationalTableModel::data(index(row, col), Qt::DisplayRole);
 }
 
 cmmn::T_id CustomSqlTableModel::selectedId() const
@@ -341,6 +331,7 @@ void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
         if (col == SELECT_ICON_COLUMN) continue;
         auto dbColumn = ConvMDBI.convColumn(col, ConverterMDBIdx::ModelToDB);
         const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex( tableName(), dbColumn);
+        setHeaderData(col, Qt::Horizontal, fieldInf.m_nameInUI, Qt::EditRole);
 //        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple)) {
 //            dbi::DBTInfo *relTableInf = dbi::relatedDBT(fieldInf);
 //            setRelation( col,

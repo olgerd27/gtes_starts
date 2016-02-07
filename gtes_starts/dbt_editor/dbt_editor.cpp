@@ -1,11 +1,16 @@
 #include <QSqlTableModel>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QAbstractItemView>
+#include <QStyledItemDelegate>
+#include <QPainter>
+#include <QTableView>
+#include <QHeaderView>
+#include <QItemSelection>
 #include <QMessageBox>
 #include <QDebug>
 #include "dbt_editor.h"
-//#include "../datagen/custom_sql_table_model.h"
+#include "ui_complex_dbt_editor.h"
+#include "../datagen/custom_sql_table_model.h"
 #include "../common/db_info.h"
 
 /*
@@ -70,15 +75,10 @@ Qt::ItemFlags RowsChooseSqlTableModel::flags(const QModelIndex &index) const
             : QSqlTableModel::flags(index) & ~Qt::ItemIsEditable;
 }
 
-bool RowsChooseSqlTableModel::findPrimaryIdRow(const QVariant &id, int &rRowId)
-{
-    return findValueRow(id, 0, rRowId);
-}
-
-bool RowsChooseSqlTableModel::findValueRow(const QVariant &value, int column, int &rRowValue)
+bool RowsChooseSqlTableModel::findPrimaryIdRow(const QVariant &idPrim, int &rRowValue)
 {
     for (int row = 0; row < rowCount(); ++row) {
-        if (data(index(row, column), Qt::DisplayRole) == value) {
+        if (data(index(row, SELECT_ICON_COLUMN + 1), Qt::DisplayRole) == idPrim) {
             rRowValue = row;
             return true;
         }
@@ -88,8 +88,9 @@ bool RowsChooseSqlTableModel::findValueRow(const QVariant &value, int column, in
 
 cmmn::T_id RowsChooseSqlTableModel::selectedId() const
 {
+    int colPrimId = SELECT_ICON_COLUMN + 1; // TODO: use the ConvMDBI.convColumn() method
     cmmn::T_id id;
-    const QVariant &varId = data(index(m_selectedRow, 1), Qt::DisplayRole);
+    const QVariant &varId = this->data(index(m_selectedRow, colPrimId), Qt::DisplayRole);
     CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(varId, id), varId );
     return id;
 }
@@ -130,17 +131,98 @@ void RowsChooseSqlTableModel::slotChooseRow(const QItemSelection &selected, cons
 }
 
 /*
+ * HighlightTableRowsDelegate
+ */
+class HighlightTableRowsDelegate : public QStyledItemDelegate
+{
+public:
+    enum { DONT_HIGHLIGHTED = -1 }; // number of a table row that is not highlighted (need for highlighting removing)
+
+    HighlightTableRowsDelegate(QObject *parent = 0)
+        : QStyledItemDelegate(parent)
+    {
+    }
+
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        static int hRow = DONT_HIGHLIGHTED; /* initialization of the highlighted row number.
+                                             * Use static variable, bacause this is const method and it cannot to change any class data.
+                                             * Also you may use global variable, defined outside of current class.
+                                             */
+        QTableView *tableView = qobject_cast<QTableView *>(this->parent());
+
+        /* Definition the fact of necessity of highlighting removing */
+        if ( isMouseOutTable(tableView) )
+            hRow = DONT_HIGHLIGHTED;
+
+        /* Definition the table row number for highlighting, and initiate highlighting of the current row
+         * and highlighting removing of the previous highlighted row
+         */
+        if (option.state & QStyle::State_MouseOver) {
+            if (index.row() != hRow) {
+                // mouse is over item, that placed in another row, than previous "mouse over" item
+                const QAbstractItemModel *model = index.model();
+                for (int col = 0; col < model->columnCount(); ++col) {
+                    tableView->update(model->index(index.row(), col)); // update items from current row for painting visual row highlighting
+                    tableView->update(model->index(hRow, col)); // update items from previous row for removing visual row highlighting
+                }
+                hRow = index.row();
+            }
+        }
+
+        /* Creation a visual view of the highlighted row items */
+        if (index.row() == hRow && hRow != DONT_HIGHLIGHTED) {
+            // color variant #1 - horizontal linear gradient. Highlighting is the same as in simple DB table dialog
+            QRect rectView = tableView->rect();
+            QPoint topLeft = rectView.topLeft();
+            QLinearGradient gradient( topLeft.x(), topLeft.y(),
+                                      topLeft.x() + tableView->horizontalHeader()->length(), rectView.topRight().y() );
+            gradient.setColorAt(0, Qt::white);
+            gradient.setColorAt(0.8, Qt::lightGray);
+            gradient.setColorAt(1, Qt::gray);
+
+            // color variant #2 - vertical linear gradient
+//            QRect rectItem = option.rect;
+//            QLinearGradient gradient(rectItem.topLeft(), rectItem.bottomLeft());
+//            gradient.setColorAt(0, Qt::white);
+//            gradient.setColorAt(0.5, Qt::lightGray);
+//            gradient.setColorAt(1, Qt::white);
+
+            // painter paint a rectangle with setted gradient
+            painter->setBrush(gradient);
+            painter->setPen(Qt::NoPen);
+            painter->drawRect(option.rect);
+        }
+        QStyledItemDelegate::paint(painter, option, index);
+    }
+
+private:
+    bool isMouseOutTable(const QTableView * const table) const
+    {
+        /*  Checking - is a mouse out of the viewport of a table view or not */
+        QPoint viewportCursorPos = table->viewport()->mapFromGlobal(QCursor::pos());
+        return !table->indexAt(viewportCursorPos).isValid();
+    }
+};
+
+/*
  * DBTEditor
+ * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
  */
 DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbTable)
-    , m_model(new RowsChooseSqlTableModel)
-//    , m_model(new CustomSqlTableModel(this))
+    , m_ui(new Ui::ComplexDBTEditor)
+//    , m_model(new RowsChooseSqlTableModel)
+    , m_model(new CustomSqlTableModel(this))
 {
+    m_ui->setupUi(this);
+    setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
     setModel();
     setWindowName();
-    setHeaderData();
+//    setHeaderData();
+    setContentsUI();
+    setEditingUI();
 }
 
 DBTEditor::~DBTEditor()
@@ -151,16 +233,29 @@ cmmn::T_id DBTEditor::selectedId() const
     return m_model->selectedId();
 }
 
+void DBTEditor::setContentsUI()
+{
+    QTableView *view = m_ui->m_tableContents;
+    view->setModel(m_model.get());
+    view->setItemDelegate(new HighlightTableRowsDelegate(view));
+    view->viewport()->setAttribute(Qt::WA_Hover);
+    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    // set selection
+    connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            m_model.get(), SLOT(slotChooseRow(QItemSelection,QItemSelection)));
+    connect(m_model.get(), SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex)));
+}
+
+void DBTEditor::setEditingUI()
+{
+    // TODO: code here
+}
+
 void DBTEditor::setModel()
 {
     m_model->setTable(m_DBTInfo->m_nameInDB);
-    m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    // TODO: move the select() calling to the RowsChooseSqlTableModel::setTable() reimplemented method
-    if (!m_model->select()) {
-        // TODO: generate the error
-        qDebug() << "Cannot populating the model by a data from the database.\nThe DB error text: " + m_model->lastError().text();
-        return;
-    }
 }
 
 void DBTEditor::setWindowName()
@@ -168,6 +263,7 @@ void DBTEditor::setWindowName()
     setWindowTitle( tr("Editing the table: ") + m_DBTInfo->m_nameInUI );
 }
 
+// TODO: move to the model class
 void DBTEditor::setHeaderData()
 {
     for (int field = 0; field < m_DBTInfo->tableDegree(); ++field) {
@@ -181,27 +277,24 @@ void DBTEditor::setHeaderData()
     }
 }
 
-void DBTEditor::setSelection(QAbstractItemView *view)
-{
-    if (!view) return;
-    connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            m_model.get(), SLOT(slotChooseRow(QItemSelection,QItemSelection)));
-    connect(m_model.get(), SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex)));
-}
-
-bool DBTEditor::selectInitial(const QVariant &compareValue, ColumnNumbers compareCol)
+bool DBTEditor::selectInitial(const QVariant &idPrim)
 {
 //    qDebug() << "select initial. primary id value:" << idPrim;
 //    m_model->printData(Qt::DisplayRole);
     int selectedRow = -1;
-    if (m_model->findValueRow(compareValue, compareCol, selectedRow))
+    if (m_model->findPrimaryIdRow(idPrim, selectedRow))
         makeSelect(selectedRow); // the virtual function that select the found row
     else {
         QMessageBox::warning( this, tr("Table row selection error"),
                               tr("Cannot select an item in the view.\n"
                                  "Cannot find in the internal model of the database table \"%1\" the item with id = %2")
-                              .arg(m_DBTInfo->m_nameInUI).arg(compareValue.toString()) );
+                              .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()) );
         return false;
     }
     return true;
+}
+
+void DBTEditor::makeSelect(int row)
+{
+    m_ui->m_tableContents->selectRow(row);
 }
