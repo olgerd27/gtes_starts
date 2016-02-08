@@ -53,7 +53,8 @@ public slots:
 private:
     enum { NOT_SETTED = -1 };
 
-    void defineSimpleDBTAndComplexIndex();
+    void setComplexIdx();
+    void defineSimpleDBTAndHeader();
     void fillTheStorage();
     cmmn::T_id insertNewRecord();
     QVariant getDataFromStorage(const QModelIndex &baseIndex, int storageComplexIndex) const;

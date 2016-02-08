@@ -18,9 +18,9 @@ SOURCES += main.cpp\
     common/db_info.cpp \
     common/reimplemented_widgets.cpp \
     common/common_defines.cpp \
-    datagen/custom_sql_table_model.cpp \
-    datagen/generator_dbt_data.cpp \
-    datagen/storage_gen_data.cpp
+    model/custom_sql_table_model.cpp \
+    model/generator_dbt_data.cpp \
+    model/storage_gen_data.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -31,9 +31,9 @@ HEADERS  += \
     common/db_info.h \
     common/reimplemented_widgets.h \
     common/common_defines.h \
-    datagen/custom_sql_table_model.h \
-    datagen/generator_dbt_data.h \
-    datagen/storage_gen_data.h
+    model/custom_sql_table_model.h \
+    model/generator_dbt_data.h \
+    model/storage_gen_data.h
 
 FORMS    += \
     appforms/main_window.ui \

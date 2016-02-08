@@ -123,7 +123,7 @@ void CustomSqlTableModel::setTable(const QString &tableName)
     setSort(0, Qt::AscendingOrder);
     try {
         if (m_genDataStorage->isEmpty()) {
-            defineSimpleDBTAndComplexIndex();
+            setComplexIdx();
             slotRefreshTheModel();
         }
     }
@@ -317,7 +317,7 @@ cmmn::T_id CustomSqlTableModel::selectedId() const
 }
 
 /* Model initialization: define relations with simple DBT columns number and save complex DBT columns numbers (indexes) */
-void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
+void CustomSqlTableModel::setComplexIdx()
 {
     // Check - is this a first calling
     if (!m_genDataStorage->isNotSetted()) {
@@ -326,19 +326,24 @@ void CustomSqlTableModel::defineSimpleDBTAndComplexIndex()
         return;
     }
     // Processing
-    qDebug() << "Recognize the simple and complex DBT:";
+    for (int col = 0; col < columnCount(); ++col) {
+        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex( tableName(), col);
+        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex)) {
+            m_genDataStorage->addFieldIndex(col); // save the DB fields indexes, that is a foreign key to a some complex database table
+        }
+    }
+}
+
+void CustomSqlTableModel::defineSimpleDBTAndHeader()
+{
     for (int col = 0; col < columnCount(); ++col) {
         if (col == SELECT_ICON_COLUMN) continue;
-        auto dbColumn = ConvMDBI.convColumn(col, ConverterMDBIdx::ModelToDB);
-        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex( tableName(), dbColumn);
+        const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex( tableName(), ConvMDBI.convColumn(col, ConverterMDBIdx::ModelToDB) );
         setHeaderData(col, Qt::Horizontal, fieldInf.m_nameInUI, Qt::EditRole);
-//        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple)) {
-//            dbi::DBTInfo *relTableInf = dbi::relatedDBT(fieldInf);
-//            setRelation( col,
-//                         QSqlRelation( relTableInf->m_nameInDB, relTableInf->m_fields.at(0).m_nameInDB, relTableInf->m_fields.at(1).m_nameInDB ) );
-//        }
-        /*else */if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_complex)) {
-            m_genDataStorage->addFieldIndex(dbColumn); // save the DB fields indexes, that is a foreign key to a some complex database table
+        if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple)) {
+            dbi::DBTInfo *relTableInf = dbi::relatedDBT(fieldInf);
+            setRelation( col,
+                         QSqlRelation( relTableInf->m_nameInDB, relTableInf->m_fields.at(0).m_nameInDB, relTableInf->m_fields.at(1).m_nameInDB ) );
         }
     }
 }
@@ -566,16 +571,8 @@ void CustomSqlTableModel::slotRefreshTheModel()
 
         insertColumn(0); // must be only after calling the select() method
         // setHeaderData() // must be only after calling the select() method
-
-        for (int col = 0; col < columnCount(); ++col) {
-            if (col == SELECT_ICON_COLUMN) continue;
-            const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex( tableName(), ConvMDBI.convColumn(col, ConverterMDBIdx::ModelToDB) );
-            if (dbi::isRelatedWithDBTType(fieldInf, dbi::DBTInfo::ttype_simple)) {
-                dbi::DBTInfo *relTableInf = dbi::relatedDBT(fieldInf);
-                setRelation( col,
-                             QSqlRelation( relTableInf->m_nameInDB, relTableInf->m_fields.at(0).m_nameInDB, relTableInf->m_fields.at(1).m_nameInDB ) );
-            }
-        }
+//        setComplexIdx();
+        defineSimpleDBTAndHeader();
 
         qDebug() << "after slotRefreshTheModel()::insertColumn(0), column count =" << columnCount();
         printHeader(Qt::DisplayRole);

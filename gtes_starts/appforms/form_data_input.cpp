@@ -11,7 +11,7 @@
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
 #include "../dbt_editor/dbt_editor.h"
-#include "../datagen/custom_sql_table_model.h"
+#include "../model/custom_sql_table_model.h"
 #include "../common/db_info.h"
 
 /*

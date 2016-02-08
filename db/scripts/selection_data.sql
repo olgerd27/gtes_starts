@@ -69,3 +69,6 @@ WHERE
     AND full_names_engines.name_modif_id = names_modifications_engines.id 
     AND names_modifications_engines.name_id = names_engines.id;
    
+-- Retrieve the id values of the all related tables to the full_names_engines, when is known the engines.full_name_id value
+-- SELECT
+    

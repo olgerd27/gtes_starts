@@ -10,7 +10,7 @@
 #include <QDebug>
 #include "dbt_editor.h"
 #include "ui_complex_dbt_editor.h"
-#include "../datagen/custom_sql_table_model.h"
+#include "../model/custom_sql_table_model.h"
 #include "../common/db_info.h"
 
 /*
