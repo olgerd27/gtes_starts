@@ -40,7 +40,7 @@ FORMS    += \
     appforms/form_queries.ui \
     appforms/form_data_input.ui \
     appforms/form_options.ui \
-    dbt_editor/complex_dbt_editor.ui
+    dbt_editor/dbt_editor.ui
 
 OTHER_FILES += \
     _aux/requirements.txt

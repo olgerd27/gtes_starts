@@ -33,8 +33,8 @@ public:
 
     void spike1_turnOn(bool bOn); // spike 1
 
-    void printDataBase(int role) const; // TODO: temporary function, delete later
-    void printDataCustom(int role) const; // TODO: temporary function, delete later
+    void printDataDB(int role) const; // TODO: temporary function, delete later
+    void printDataModel(int role) const; // TODO: temporary function, delete later
     QString printRecords() const; // TODO: temporary function, delete later
     void printHeader(int role) const; // TODO: temporary function, delete later
 
@@ -53,14 +53,14 @@ public slots:
 private:
     enum { NOT_SETTED = -1 };
 
-    void setComplexIdx();
-    void defineSimpleDBTAndHeader();
+    void defineForeignFields();
+    void setHeader();
     void fillTheStorage();
     cmmn::T_id insertNewRecord();
     QVariant getDataFromStorage(const QModelIndex &baseIndex, int storageComplexIndex) const;
     void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
     void flush();
-    void spike1_saveData(const QModelIndex &modelIndex); // spike 1
+    void spike1_saveData(const QModelIndex &modelIndex, const QVariant &setData); // spike 1
     void spike1_restoreData(const QModelIndex &modelIndex); // spike 1
     void fillGeneratedData();
 

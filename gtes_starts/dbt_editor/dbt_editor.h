@@ -11,7 +11,7 @@
 class QAbstractItemView;
 class CustomSqlTableModel;
 namespace Ui {
-    class ComplexDBTEditor;
+    class DBTEditor;
 }
 namespace dbi {
     class DBTInfo;
@@ -62,7 +62,7 @@ public:
     explicit DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent = 0);
     virtual ~DBTEditor();
 
-    bool selectInitial(const QVariant &idPrim);
+    void selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
 protected: // TODO: make private
@@ -70,11 +70,9 @@ protected: // TODO: make private
     void setEditingUI();
     void setModel();
     void setWindowName();
-    void setHeaderData();
-    void makeSelect(int row);
 
     dbi::DBTInfo *m_DBTInfo;
-    std::unique_ptr<Ui::ComplexDBTEditor> m_ui;
+    std::unique_ptr<Ui::DBTEditor> m_ui;
 //    std::unique_ptr<RowsChooseSqlTableModel> m_model;
     std::unique_ptr<CustomSqlTableModel> m_model;
 };

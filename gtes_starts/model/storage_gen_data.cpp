@@ -3,8 +3,7 @@
 
 StorageGenData::StorageGenData()
     : m_indexFIndexes(INIT_FINDEX)
-{
-}
+{ }
 
 void StorageGenData::addData(T_id idPrim, const StorageGenData::T_data &data)
 {
@@ -26,22 +25,31 @@ bool StorageGenData::deleteData(StorageGenData::T_id idPrim)
 void StorageGenData::updateData(T_id idPrim, int index, const StorageGenData::T_data &data)
 {
 //    qDebug() << "update generated data. id prim:" << idPrim << ", index:" << index << ", data:" << data;
-    if ( !isIndexesOk(idPrim, index) ) {
-        throw std::out_of_range(
-                QObject::tr("Cannot update the data in the storage by the primary id = %1, index = %2. This id and/or index is invalid")
-                .arg(idPrim).arg(index).toStdString() );
+    QString str;
+    for (auto itId = m_storage.begin(); itId != m_storage.end(); ++itId) {
+        str += (QString::number(itId.key()) + ": ");
+        for (auto itIdx = itId->begin(); itIdx != itId->end(); ++itIdx) {
+            str += "[";
+            str += ((*itIdx).toString() + "]");
+        }
+        str += "\n";
     }
+    qDebug() << str;
+    ASSERT_DBG( isIndexesOk(idPrim, index),
+                cmmn::MessageException::type_critical, QObject::tr("Data update error"),
+                QObject::tr("Cannot update data in the storage by the primary id = %1, index = %2. "
+                            "This id and/or index is invalid").arg(idPrim).arg(index),
+                QString("StorageGenData::updateData()") );
     m_storage[idPrim][index] = data;
 }
 
-const StorageGenData::T_data & StorageGenData::data(T_id id, int index) const
+const StorageGenData::T_data & StorageGenData::data(T_id idPrim, int index) const
 {
-    if ( !isIndexesOk(id, index) ) {
-        throw std::out_of_range(
-                QString("Cannot return the data from the generated data storage by the id = %1, index = %2")
-                .arg(id).arg(index).toStdString() );
-    }
-    return m_storage[id][index];
+    ASSERT_DBG( isIndexesOk(idPrim, index),
+                cmmn::MessageException::type_critical, QObject::tr("Data update error"),
+                QObject::tr("Cannot return the data from the generated data storage by the id = %1, index = %2."),
+                QString("StorageGenData::data()") );
+    return m_storage[idPrim][index];
 }
 
 void StorageGenData::addFieldIndex(int colNumb)
@@ -64,7 +72,7 @@ void StorageGenData::flushFieldIndex()
     m_indexFIndexes = INIT_FINDEX;
 }
 
-bool StorageGenData::isComplexDBTField(int fieldIndex, int &refStorageDataIndex) const
+bool StorageGenData::isForeignField(int fieldIndex, int &refStorageDataIndex) const
 {
     refStorageDataIndex = m_fIndexes.indexOf(fieldIndex);
     return refStorageDataIndex != -1;

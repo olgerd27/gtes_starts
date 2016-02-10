@@ -1,9 +1,5 @@
-﻿#include <QSqlRelationalTableModel>
-#include <QSqlRelationalDelegate>
-#include <QDataWidgetMapper>
-#include <QSqlQuery>
+﻿#include <QDataWidgetMapper>
 #include <QSqlError>
-#include <QSqlRecord>
 #include <QMessageBox>
 #include <QDebug>
 #include <memory> /* smart pointer */
@@ -141,7 +137,7 @@ void FormDataInput::setMainControls()
 void FormDataInput::setEditDBTPushButtons()
 {
     setEditDBTOnePB( m_ui->m_pbEditFullName, "full_names_engines", m_ui->m_leFullNameData );
-    setEditDBTOnePB( m_ui->m_pbEditFuels, "fuels_types", m_ui->m_cboxFuel );
+    setEditDBTOnePB( m_ui->m_pbEditFuels, "fuels_types", m_ui->m_leFuel ); // use line edit for simple DB table instead of the combo box
     setEditDBTOnePB( m_ui->m_pbEditChambers, "combustion_chambers", m_ui->m_leChamberData );
     setEditDBTOnePB( m_ui->m_pbEditStartDevices, "start_devices", m_ui->m_leStartDeviceData );
 }
@@ -163,6 +159,7 @@ void FormDataInput::setDataOperating()
     table->setSelectionMode(QAbstractItemView::SingleSelection);
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
     table->setModel(m_enginesModel.get());
+    table->setAlternatingRowColors(true);
     table->resize(800, 500);
     table->move(10, 10);
 //    table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -191,9 +188,9 @@ void FormDataInput::setDataOperating()
 //    tview->show();
     //*************************************************************************************
 
-    // set combo box
-    m_ui->m_cboxFuel->setModel(m_enginesModel->relationModel(3));
-    m_ui->m_cboxFuel->setModelColumn(1);
+    // set combo box - do not use. Instead combo box use the line edit
+//    m_ui->m_cboxFuel->setModel(m_enginesModel->relationModel(3));
+//    m_ui->m_cboxFuel->setModelColumn(1);
     // set mapper
     m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this)); // NOTE: is this need?
     m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
@@ -202,7 +199,7 @@ void FormDataInput::setDataOperating()
     // TODO: insert new column
     m_mapper->addMapping(m_ui->m_leIdData, 1);
     m_mapper->addMapping(m_ui->m_leFullNameData, 2);
-    m_mapper->addMapping(m_ui->m_cboxFuel, 3);
+    m_mapper->addMapping(m_ui->m_leFuel, 3);
     m_mapper->addMapping(m_ui->m_leChamberData, 4);
     m_mapper->addMapping(m_ui->m_leStartDeviceData, 5);
     m_mapper->addMapping(m_ui->m_sboxStartDevicesQntyData, 6);
@@ -304,6 +301,7 @@ void FormDataInput::slotSubmit()
 
 void FormDataInput::slotEditDBT()
 {
+    // TODO: use try-catch
     PBtnForEditDBT *pbEditDBT = qobject_cast<PBtnForEditDBT *>(sender());
     if ( !pbEditDBT ) {
         /*
@@ -334,16 +332,15 @@ void FormDataInput::slotEditDBT()
              << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
              << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
     const QVariant &forId = m_enginesModel->data(currIndex, Qt::UserRole);
-    if ( !forId.isNull() && !editor.selectInitial(forId) ) // if data is NULL -> don't select any row
-        return;
+    if ( !forId.isNull() ) // if data is NULL -> don't select any row in the editor view
+        editor.selectInitial(forId);
 
     if ( editor.exec() == QDialog::Accepted ) {
         m_enginesModel->spike1_turnOn(true); /* Switch ON the Spike #1 */
-        if ( !m_enginesModel->setData( currIndex, editor.selectedId(), Qt::EditRole ) ) {
-            // TODO: generate the error
-            qCritical() << "[CRITICAL ERROR] Cannot set data: \"" << editor.selectedId() << "\" to the model";
-            return;
-        }
+        ASSERT_DBG( m_enginesModel->setData( currIndex, editor.selectedId(), Qt::EditRole ),
+                    cmmn::MessageException::type_critical, tr("Error data setting"),
+                    tr("Cannot set data: \"%1\" to the model").arg(editor.selectedId()),
+                    QString("FormDataInput::slotEditDBT()") );
         qDebug() << "The id value: \"" << editor.selectedId() << "\" was successfully setted to the model";
     }
 }

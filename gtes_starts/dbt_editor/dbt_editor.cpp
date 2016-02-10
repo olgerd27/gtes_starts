@@ -9,7 +9,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include "dbt_editor.h"
-#include "ui_complex_dbt_editor.h"
+#include "ui_dbt_editor.h"
 #include "../model/custom_sql_table_model.h"
 #include "../common/db_info.h"
 
@@ -212,7 +212,7 @@ private:
 DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbTable)
-    , m_ui(new Ui::ComplexDBTEditor)
+    , m_ui(new Ui::DBTEditor)
 //    , m_model(new RowsChooseSqlTableModel)
     , m_model(new CustomSqlTableModel(this))
 {
@@ -220,7 +220,6 @@ DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
     setModel();
     setWindowName();
-//    setHeaderData();
     setContentsUI();
     setEditingUI();
 }
@@ -241,6 +240,7 @@ void DBTEditor::setContentsUI()
     view->viewport()->setAttribute(Qt::WA_Hover);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    view->setAlternatingRowColors(true);
 
     // set selection
     connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -263,38 +263,13 @@ void DBTEditor::setWindowName()
     setWindowTitle( tr("Editing the table: ") + m_DBTInfo->m_nameInUI );
 }
 
-// TODO: move to the model class
-void DBTEditor::setHeaderData()
+void DBTEditor::selectInitial(const QVariant &idPrim)
 {
-    for (int field = 0; field < m_DBTInfo->tableDegree(); ++field) {
-        const dbi::DBTFieldInfo &fieldInfo = m_DBTInfo->fieldByIndex(field);
-        if (!fieldInfo.isValid()) {
-            // TODO: generate the error
-            qDebug() << "Invalid field info. Cannot forming the header of the database table \"" + m_DBTInfo->m_nameInDB << "\", field #" << field << "\n.";
-            return;
-        }
-        m_model->setHeaderData(field, Qt::Horizontal, fieldInfo.m_nameInUI);
-    }
-}
-
-bool DBTEditor::selectInitial(const QVariant &idPrim)
-{
-//    qDebug() << "select initial. primary id value:" << idPrim;
-//    m_model->printData(Qt::DisplayRole);
     int selectedRow = -1;
-    if (m_model->findPrimaryIdRow(idPrim, selectedRow))
-        makeSelect(selectedRow); // the virtual function that select the found row
-    else {
-        QMessageBox::warning( this, tr("Table row selection error"),
-                              tr("Cannot select an item in the view.\n"
-                                 "Cannot find in the internal model of the database table \"%1\" the item with id = %2")
-                              .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()) );
-        return false;
-    }
-    return true;
-}
-
-void DBTEditor::makeSelect(int row)
-{
-    m_ui->m_tableContents->selectRow(row);
+    ASSERT_DBG( m_model->findPrimaryIdRow(idPrim, selectedRow),
+                cmmn::MessageException::type_warning, tr("Selection error"),
+                tr("Cannot select the row in the table \"%1\". Cannot find the item with id: %2")
+                .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),
+                QString("FormDataInput::slotEditDBT()") );
+    m_ui->m_tableContents->selectRow(selectedRow);
 }
