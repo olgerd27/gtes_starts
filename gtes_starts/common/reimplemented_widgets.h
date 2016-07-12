@@ -17,7 +17,7 @@ public:
 };
 
 /*
- * The custom QPushButton class, that store name of the database table, with which this button related.
+ * The custom QPushButton class, that store name of the database table, this button related with.
  */
 class PBtnForEditDBT : public QPushButton
 {

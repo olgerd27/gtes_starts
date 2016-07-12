@@ -62,18 +62,19 @@ namespace cmmn {
 
     // Conversions
     typedef qlonglong T_id;
-    T_id safeQVariantToIdType(const QVariant &value);
-    bool safeQVariantToIdType(const QVariant &value, cmmn::T_id &id);
-    void throwConversionIdErrorMsg(bool bConv, const QVariant &varId);
-    void throwErrorMsg(bool bSuccess, cmmn::MessageException::MessageTypes msgType,
+    T_id safeQVariantToIdType(const QVariant &value); // version with exception
+    bool safeQVariantToIdType(const QVariant &value, cmmn::T_id &id); // no exception version
+    void throwConversionIdErrorMsg(bool isConv, const QVariant &varId);
+    void throwErrorMsg(bool isSuccess, cmmn::MessageException::MessageTypes msgType,
                        const QString &title, const QString &what, const QString &where);
 
     /*
-     * The definition, that check the conversion the id value from the QVariant to the T_id type,
+     * The definition, that check the conversion of id value from the QVariant to the T_id type,
      * performed with help of the cmmn::safeQVariantToIdType() function.
-     * The 1-th macro parameter is conversion success, the 2-th is initial QVariant-type id value.
-     * If conversion cannot be realized (bOk == false), in debug mode - calls assert macro,
-     * in release - call the cmmn::throwConversionIdErrorMsg() function, that throws the cmmn::MessageException type error message.
+     * The 1-th macro parameter is conversion success (bool type), the 2-th is initial QVariant-type id value.
+     * If conversion cannot be realized (bAssert == false), in debug mode - calls assert macro,
+     * in release - call the cmmn::throwConversionIdErrorMsg() function, that throws the
+     * cmmn::MessageException type error message.
      */
 #ifdef QT_NO_DEBUG
 #define CHECK_ERROR_CONVERT_ID(bAssert, varId) \

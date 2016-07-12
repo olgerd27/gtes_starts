@@ -1,6 +1,7 @@
 #include <QObject>
 #include <QDebug>
 #include <stdexcept>
+#include <algorithm>
 #include "db_info.h"
 
 /*
@@ -22,16 +23,17 @@ int dbi::DBTFieldInfo::relationDBTtype() const
 }
 
 /*
- * Comparison a some database table (the name passed in QString format) with the template some "info" class instance.
+ * Comparison a some database item (table, field and so on (the name, used in DB, passed in QString format))
+ * with the template some "info" class instance.
  * A some template "info" class instance must have variable "m_nameInDB".
  * Have 2 overloaded version of functor predicate with pointer and refference arguments.
  */
 template<typename T_info>
 struct CompareInfoWithString
 {
-    CompareInfoWithString(const QString &tableName)
+    CompareInfoWithString(const QString &itemNameInDB)
     {
-        m_info.m_nameInDB = tableName;
+        m_info.m_nameInDB = itemNameInDB;
     }
 
     inline bool operator()(const T_info &item)
@@ -59,7 +61,7 @@ int dbi::DBTInfo::tableDegree() const
 dbi::DBTFieldInfo dbi::DBTInfo::fieldByName(const QString &fieldName) const
 {
     if (fieldName.isEmpty())
-        throw std::invalid_argument("The string argument to dbi::DBTInfo::fieldByName(QString) function is empty. "
+        throw std::invalid_argument("Cannot return field by name - the string argument is empty. "
                                     "Please set a valid data");
     auto it = std::find_if(m_fields.begin(), m_fields.end(), CompareInfoWithString<DBTFieldInfo>(fieldName));
     return it == m_fields.end() ? DBTFieldInfo() : *it;
@@ -70,7 +72,7 @@ dbi::DBTFieldInfo dbi::DBTInfo::fieldByIndex(int index) const
     if (index < 0 || index >= (int)m_fields.size())
         throw std::out_of_range( QString("Cannot return the dbi::DBTFieldInfo instance, the argument index \"%1\" is out of range")
                                  .arg(index).toStdString() );
-    return m_fields.at(index);
+    return m_fields[index];
 }
 
 /*
@@ -223,6 +225,7 @@ struct DeletePtrData
 
 dbi::DBInfo::~DBInfo()
 {
+    std::for_each(m_tables.begin(), m_tables.end(), DeletePtrData());
 }
 
 QString dbi::DBInfo::name() const

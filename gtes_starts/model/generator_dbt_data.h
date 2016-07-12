@@ -75,7 +75,7 @@ private:
     bool isReadyToGeneration();
     void flush();
 
-    std::unique_ptr<QueryGenerator> m_queryGen;
+    QueryGenerator *m_queryGen; // use std::unique_ptr<> here
     QString m_strMask;
     T_arrResData m_resData;
     int m_indexResData {INIT_RES_INDEX};
@@ -100,7 +100,7 @@ protected:
 /*
  * Query generator primary key all id - is a strategy class, that generate a query for obtaining data from database
  * for all id's of a some main table (all values of the primary key).   This class allow obtain all data, stored in the main table.
- * This class grows up the application work effectiveness - minimize the access to DB when need to extract all data from DB.
+ * This class grows up the effectiveness of application work - minimize the access to DB when need to extract all data from DB.
  */
 class QueryGenPrimaryAllId : public GeneratorDBTData::QueryGenerator
 {

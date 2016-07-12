@@ -9,8 +9,8 @@
  */
 namespace dbi {
     /*
-    * Database table (DBT) field info
-    */
+     * Database table (DBT) field info
+     */
     struct DBTFieldInfo
     {
         enum WidgetsTypes
@@ -36,8 +36,8 @@ namespace dbi {
     };
 
     /*
-    * Database table (DBT) info
-    */
+     * Database table (DBT) info
+     */
     struct DBTInfo
     {
         struct IdentityInfo
@@ -83,8 +83,8 @@ namespace dbi {
     };
 
     /*
-    * Database info
-    */
+     * Database info
+     */
     struct DBInfo
     {
         static DBInfo & Instance()
@@ -110,29 +110,28 @@ namespace dbi {
         std::vector<DBTInfo *> m_tables; /* array of all DB tables */
     };
 
-    // External convenient functions
     /*
-     * Calls the dbi::DBInfo::tableByName(const QString &) and the dbi::DBTInfo::fieldByName(const QString &) methods
+     * Calling the dbi::DBInfo::tableByName(const QString &) and the dbi::DBTInfo::fieldByName(const QString &) methods
      */
     dbi::DBTFieldInfo fieldByNames(const QString &tableName, const QString &fieldName);
 
     /*
-     * Calls the dbi::DBInfo::tableByName(const QString &) and the dbi::DBTInfo::fieldByIndex(int) methods
+     * Calling the dbi::DBInfo::tableByName(const QString &) and the dbi::DBTInfo::fieldByIndex(int) methods
      */
     dbi::DBTFieldInfo fieldByNameIndex(const QString &tableName, int fieldIndex);
 
     /*
-     * Calls the dbi::DBTFieldInfo::isValid(), the dbi::DBTFieldInfo::isForeign() and the dbi::DBInfo::tableByName(const QString &) methods
+     * Calling the dbi::DBTFieldInfo::isValid(), the dbi::DBTFieldInfo::isForeign() and the dbi::DBInfo::tableByName(const QString &) methods
      */
     bool isRelatedWithDBTType(const dbi::DBTFieldInfo &fieldInfo, dbi::DBTInfo::TableTypes tableType);
 
     /*
-     * Calls the dbi::isRelatedWithDBTType(const dbi::DBTFieldInfo &, dbi::DBTInfo::TableTypes) function
+     * Calling the dbi::isRelatedWithDBTType(const dbi::DBTFieldInfo &, dbi::DBTInfo::TableTypes) function
      */
     bool isRelatedWithDBTType(const QString &tableName, int fieldIndex, dbi::DBTInfo::TableTypes tableType);
 
     /*
-     * Calls the dbi::DBTFieldInfo::isValid(), the dbi::DBTFieldInfo::isForeign() and the dbi::DBInfo::tableByName(const QString &) methods.
+     * Calling the dbi::DBTFieldInfo::isValid(), the dbi::DBTFieldInfo::isForeign() and the dbi::DBInfo::tableByName(const QString &) methods.
      * If function argument is invalid or isn't a foreign key - throw the std::invalid_argument exception.
      */
     dbi::DBTInfo * relatedDBT(const DBTFieldInfo &fieldInf);

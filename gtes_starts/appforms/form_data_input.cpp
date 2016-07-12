@@ -2,12 +2,15 @@
 #include <QSqlError>
 #include <QMessageBox>
 #include <QDebug>
-#include <memory> /* smart pointer */
+
+#include "../model/proxy_model.h"
+#include <QTableView> // TODO: for testing, delete later
 
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
 #include "../dbt_editor/dbt_editor.h"
 #include "../model/custom_sql_table_model.h"
+#include "../model/proxy_model.h"
 #include "../common/db_info.h"
 
 /*
@@ -20,16 +23,16 @@ public:
     typedef QMap<T_id, MChTypeLabel::ChangeTypes> T_modelChanges;
     inline void updateModelChange(T_id idPrim, MChTypeLabel::ChangeTypes changeType) { m_changes[idPrim] = changeType; }
     inline void clearChanges() { m_changes.clear(); }
-    void checkModelChanges(T_id idPrim, MChTypeLabel::ChangeTypes &changeType, bool *isDeleted);
+    void checkModelChanges(T_id idPrim, MChTypeLabel::ChangeTypes *changeType, bool *isDeleted);
 private:
     T_modelChanges m_changes;
 };
 
-void ChangerMChTypeImpl::checkModelChanges(T_id idPrim, MChTypeLabel::ChangeTypes &changeType, bool *isDeleted)
+void ChangerMChTypeImpl::checkModelChanges(T_id idPrim, MChTypeLabel::ChangeTypes *changeType, bool *isDeleted)
 {
     auto it = m_changes.find(idPrim);
-    if (it != m_changes.end()) changeType = it.value();
-    *isDeleted = (changeType == MChTypeLabel::ctype_deleted);
+    if (it != m_changes.end()) *changeType = it.value();
+    *isDeleted = (*changeType == MChTypeLabel::ctype_deleted);
 }
 
 /*
@@ -69,7 +72,7 @@ void ChangerMChType::slotCheckModelChanges(const QVariant &idPrimary)
     bool isDeleted = false;
     cmmn::T_id id;
     CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(idPrimary, id), idPrimary );
-    m_pImpl->checkModelChanges( id, ctype, &isDeleted );
+    m_pImpl->checkModelChanges( id, &ctype, &isDeleted );
     emit sigChangeChangedType(ctype);
     emit sigChangeChangedType(isDeleted);
 }
@@ -80,7 +83,7 @@ void ChangerMChType::slotCheckModelChanges(const QVariant &idPrimary)
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::FormDataInput)
-    , m_enginesModel(new CustomSqlTableModel(this))
+    , m_proxyModel(new ProxySqlModel(this))
     , m_mapper(new QDataWidgetMapper(this))
     , m_mchTChanger(new ChangerMChType(this))
 {
@@ -96,40 +99,58 @@ FormDataInput::FormDataInput(QWidget *parent)
 void FormDataInput::setMainControls()
 {
     // Insert data
-    connect(this, SIGNAL(sigInsertNew()), m_enginesModel.get(), SLOT(slotInsertToTheModel())); // insert data to the model
+//    qDebug() << "source model:" << (void*)m_proxyModel->customSourceModel();
+    connect(this, SIGNAL(sigInsertNew()),
+            m_proxyModel->customSourceModel(), SLOT(slotInsertToTheModel())); // insert data to the model
     // update model changes - this must take place before the connection that update the current index
-    connect(m_enginesModel.get(), &CustomSqlTableModel::sigNewRecordInserted,
-            [this](int row, cmmn::T_id primId) { Q_UNUSED(row); m_mchTChanger->updateModelChange( primId, MChTypeLabel::ctype_inserted ); } );
-    connect(m_enginesModel.get(), SIGNAL(sigNewRecordInserted(int,cmmn::T_id)), m_mapper.get(), SLOT(setCurrentIndex(int))); // go to the inserted row
+    connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigNewRecordInserted,
+            [this](int row, cmmn::T_id primId)
+            {
+                Q_UNUSED(row);
+                m_mchTChanger->updateModelChange( primId, MChTypeLabel::ctype_inserted );
+            } );
+    connect(m_proxyModel->customSourceModel(), SIGNAL(sigNewRecordInserted(int, cmmn::T_id)),
+            m_mapper, SLOT(setCurrentIndex(int))); // mapper go to the inserted record (row)  --- use m_mapper.get()
 
     // Delete data
-    connect(this, SIGNAL(sigDeleteRow(int)), m_enginesModel.get(), SLOT(slotDeleteFromTheModel(int))); // delete row from the model
+    connect(this, SIGNAL(sigDeleteRow(int)),
+            m_proxyModel->customSourceModel(), SLOT(slotDeleteFromTheModel(int))); // delete row from the model
     // update model changes - this must take place before the connection that update the current index
-    connect(m_enginesModel.get(), &CustomSqlTableModel::sigRecordDeleted,
-            [this](int row, cmmn::T_id primId) { Q_UNUSED(row); m_mchTChanger->updateModelChange( primId, MChTypeLabel::ctype_deleted ); } );
-
-    /* Behaviour after deletion a some record (row) in the model. The last decision is: after calling delete operation - go to the previous record.
-     * This implementation also excellent suit for the case when user insert a new record, don't save that and call the delete operation (from the model).
-     * After deletion this record, the mapper toPrevious() slot doesn't work and the ability go to the previous record is calling
-     * the setCurrentIndex(int) method with passing previous value of the current index (row).
+    connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
+            [this](int row, cmmn::T_id primId)
+            {
+                Q_UNUSED(row);
+                m_mchTChanger->updateModelChange( primId, MChTypeLabel::ctype_deleted );
+            } );
+    /*
+     * Behaviour after deletion a some record (row) in the model.
+     * The last decision is: after calling delete operation - go to the previous record.
+     * This implementation also excellent suit for the case when user insert a new record, don't save that and
+     * call the delete operation (from the model).
+     * After deletion this record from the model, the mapper's toPrevious() slot doesn't work and
+     * the ability go to the previous record is calling the setCurrentIndex(int) method with passing decremented value
+     * of the current index (row).
      */
-    connect(m_enginesModel.get(), &CustomSqlTableModel::sigRecordDeleted,
+    connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
             [this](int row){ if (row > 0) --row; m_mapper->setCurrentIndex(row); } );
 
     // Save data
     connect(this, SIGNAL(sigSaveAll()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
     connect(this, &FormDataInput::sigChangesSubmitted, [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data saving
-    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper.get(), SLOT(setCurrentIndex(int)));
+    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int))); // use m_mapper.get()
 
     // Refresh data
-    connect(this, SIGNAL(sigRefreshAll()), m_enginesModel.get(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
-    connect(m_enginesModel.get(), &CustomSqlTableModel::sigModelRefreshed, [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data refreshing
-    connect(m_enginesModel.get(), SIGNAL(sigModelRefreshed()), m_ui->m_leRecordId, SIGNAL(returnPressed())); // restore the current index
+    connect(this, SIGNAL(sigRefreshAll()),
+            m_proxyModel->customSourceModel(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
+    connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigModelRefreshed,
+            [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data refreshing
+    connect(m_proxyModel->customSourceModel(), SIGNAL(sigModelRefreshed()),
+            m_ui->m_leRecordId, SIGNAL(returnPressed())); // restore the current index
 
     // Revert data
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
-//    connect(this, SIGNAL(sigRevertChanges()), m_enginesModel, SLOT(revert()));
-//    connect(this, SIGNAL(sigRevertChanges()), m_enginesModel, SLOT(revertAll()));
+//    connect(this, SIGNAL(sigRevertChanges()), m_proxyModel->customSourceModel(), SLOT(revert()));
+//    connect(this, SIGNAL(sigRevertChanges()), m_proxyModel->customSourceModel(), SLOT(revertAll()));
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
 }
 
@@ -137,7 +158,7 @@ void FormDataInput::setMainControls()
 void FormDataInput::setEditDBTPushButtons()
 {
     setEditDBTOnePB( m_ui->m_pbEditFullName, "full_names_engines", m_ui->m_leFullNameData );
-    setEditDBTOnePB( m_ui->m_pbEditFuels, "fuels_types", m_ui->m_leFuel ); // use line edit for simple DB table instead of the combo box
+    setEditDBTOnePB( m_ui->m_pbEditFuels, "fuels_types", m_ui->m_leFuel );
     setEditDBTOnePB( m_ui->m_pbEditChambers, "combustion_chambers", m_ui->m_leChamberData );
     setEditDBTOnePB( m_ui->m_pbEditStartDevices, "start_devices", m_ui->m_leStartDeviceData );
 }
@@ -149,52 +170,101 @@ void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, Q
     connect(pb, SIGNAL(clicked()), this, SLOT(slotEditDBT()));
 }
 
-#include <QTableView>
+#include <QItemSelection>
 void FormDataInput::setDataOperating()
 {
-    m_enginesModel->setTable("engines");
+    m_proxyModel->customSourceModel()->setTable("engines");
 
-    // NOTE: for debugging. Delete later ************************************************
-    QTableView *table = new QTableView(0);
-    table->setSelectionMode(QAbstractItemView::SingleSelection);
-    table->setSelectionBehavior(QAbstractItemView::SelectRows);
-    table->setModel(m_enginesModel.get());
-    table->setAlternatingRowColors(true);
-    table->resize(800, 500);
-    table->move(10, 10);
-//    table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    table->show();
-    connect(m_mapper.get(), SIGNAL(currentIndexChanged(int)), table, SLOT(selectRow(int)));
+    // ************************************************************************************
+    // NOTE: for debugging. Delete later
+    // The proxy model
+    QTableView *tablePrx = new QTableView;
+    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
+                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
+    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tablePrx->setModel(m_proxyModel); // use m_proxyModel.get()
+    tablePrx->setAlternatingRowColors(true);
+    tablePrx->resize(800, 500);
+    tablePrx->move(30, 30);
+    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    tablePrx->show();
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // use m_mapper.get()
     // selection setting - testing
-    connect(table->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            m_enginesModel.get(), SLOT(slotChooseRow(QItemSelection,QItemSelection)));
-    connect(m_enginesModel.get(), SIGNAL(sigNeedUpdateView(QModelIndex)), table, SLOT(update(QModelIndex)));
-    // ***********************************************************************************
+    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // use m_proxyModel.get()
+    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // use m_proxyModel.get()
+
+    // The source model
+    QTableView *tableSrc = new QTableView;
+    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
+                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableSrc->setModel(m_proxyModel->customSourceModel());
+    tableSrc->resize(800, 500);
+    tableSrc->move(10, 10);
+    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    tableSrc->show();
+//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // use m_mapper.get()
+    // selection setting - testing
+    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
+            [tableSrc](const QItemSelection &selected, const QItemSelection &)
+    {
+        const QModelIndexList &selectedList = selected.indexes();
+        if (selectedList.size() > 0)
+            tableSrc->selectRow(selectedList.at(0).row());
+    } );
+    // ************************************************************************************
 
     //*************************************************************************************
-    // Checking the table view header renaming after setting the relation with other table
+    // Test the table view header renaming after setting the relation with other table
 //    QSqlRelationalTableModel *model = new QSqlRelationalTableModel(this);
 //    model->setTable("engines");
 //    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 //    model->setRelation(2, QSqlRelation("fuels_types", "id", "name"));
 //    model->select();
-//    QTableView *tview = new QTableView(0);
+//    QTableView *tview = new QTableView;
 //    tview->setModel(model);
 //    tview->setItemDelegate(new QSqlRelationalDelegate(tview));
-//    tview->setWindowTitle("Test table view: the \"engines\" DB table");
+//    tview->setWindowTitle( QString("Test the \"%1\" table view header after setting relation with other DB table").arg(model->tableName()) );
 //    tview->resize(800, 500);
-//    tview->move(30, 50);
+//    tview->move(30, 30);
 //    tview->show();
     //*************************************************************************************
 
-    // set combo box - do not use. Instead combo box use the line edit
-//    m_ui->m_cboxFuel->setModel(m_enginesModel->relationModel(3));
-//    m_ui->m_cboxFuel->setModelColumn(1);
+    //*************************************************************************************
+    // Test using of the proxy model
+//    QSqlTableModel *model = new QSqlTableModel(this);
+//    model->setTable("engines");
+//    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+//    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+//    proxyModel->setSourceModel(model);
+
+//    QTableView *tview = new QTableView;
+//    tview->setModel(proxyModel);
+//    tview->setSelectionMode(QAbstractItemView::SingleSelection);
+//    tview->setSelectionBehavior(QAbstractItemView::SelectRows);
+//    tview->setWindowTitle( QString("Test proxy model. Use the \"%1\" DB table").arg(model->tableName()) );
+//    tview->resize(800, 500);
+//    tview->move(50, 50);
+//    tview->show();
+
+//    model->select();
+
+//    qDebug() << "!!! before insertion, source model count:" << model->columnCount()
+//             << ", proxy model count:" << proxyModel->columnCount();
+//    bool bIns = proxyModel->insertColumn(0);
+//    qDebug() << "!!! after insertion, success:" << bIns << ", source model count:" << model->columnCount()
+//             << ", proxy model count:" << proxyModel->columnCount();
+    //*************************************************************************************
+
     // set mapper
-    m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this)); // NOTE: is this need?
+//    m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this)); // NOTE: is this need?
     m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-    m_mapper->setModel(m_enginesModel.get());
+    m_mapper->setModel(m_proxyModel); // use m_proxyModel.get()
     // indexes starts from 1, because in the 0-th section place the selection icon
     // TODO: insert new column
     m_mapper->addMapping(m_ui->m_leIdData, 1);
@@ -212,19 +282,23 @@ void FormDataInput::setDataNavigation()
     m_ui->m_leRecordId->setValidator(new QIntValidator(0, 1e6, m_ui->m_leRecordId)); /* set validator that control inputing only
                                                                                     integer values in range between 0 and 1e6 */
     // navigation set
-    connect(m_ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper.get(), SLOT(toFirst()));
-    connect(m_ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper.get(), SLOT(toLast()));
-    connect(m_ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper.get(), SLOT(toPrevious()));
-    connect(m_ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper.get(), SLOT(toNext()));
+    connect(m_ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst())); // use m_mapper.get()
+    connect(m_ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(toLast())); // use m_mapper.get()
+    connect(m_ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper, SLOT(toPrevious())); // use m_mapper.get()
+    connect(m_ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper, SLOT(toNext())); // use m_mapper.get()
 
     // set inputing of the "id" value in the line edit
-    connect(m_ui->m_leRecordId, SIGNAL(sigReturnPressed(QString)), this, SLOT(slotNeedChangeMapperIndex(QString)));
-    connect(this, SIGNAL(sigChangeMapperIndex(int)), m_mapper.get(), SLOT(setCurrentIndex(int))); // change mapper index by the id's line edit value
-    connect(this, SIGNAL(sigWrongIdEntered()), m_ui->m_leRecordId, SLOT(clear())); // indicate that inputed value is wrong and there are need to input another
-//    connect(this, SIGNAL(sigWrongIdEntered()), m_mapper, SLOT(revert())); // perform a clearing of the mapped widgets - TODO: maybe delete?
+    connect(m_ui->m_leRecordId, SIGNAL(sigReturnPressed(QString)),
+            this, SLOT(slotNeedChangeMapperIndex(QString)));
+    connect(this, SIGNAL(sigChangeMapperIndex(int)),
+            m_mapper, SLOT(setCurrentIndex(int))); // change mapper index by the id's line edit value --- // use m_mapper.get()
+    connect(this, SIGNAL(sigWrongIdEntered()),
+            m_ui->m_leRecordId, SLOT(clear())); // indicate that inputed value is wrong and there are need to input another
+//    connect(this, SIGNAL(sigWrongIdEntered()),
+//              m_mapper, SLOT(revert())); // perform a clearing of the mapped widgets - TODO: maybe delete?
 
     // enable & disable navigation buttons
-    connect(m_mapper.get(), SIGNAL(currentIndexChanged(int)), this, SLOT(slotRowIndexChanged(int)));
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotRowIndexChanged(int))); // use m_mapper.get()
     connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordFirst, SLOT(setDisabled(bool)));
     connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordPrev, SLOT(setDisabled(bool)));
     connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordLast, SLOT(setDisabled(bool)));
@@ -234,15 +308,23 @@ void FormDataInput::setDataNavigation()
 
 void FormDataInput::setModelChange()
 {
-    // implementation the behaviour of window form when changes current index
-    connect(m_mapper.get(), &QDataWidgetMapper::currentIndexChanged,
-            [this](int index){ m_mchTChanger->slotCheckModelChanges( m_enginesModel->primaryIdInRow(index) ); } );
-    connect(m_mchTChanger.get(), SIGNAL(sigChangeChangedType(bool)), m_ui->m_gboxEngineData, SLOT(setDisabled(bool)));
-    connect(m_mchTChanger.get(), SIGNAL(sigChangeChangedType(int)), m_ui->m_lblModelChangeType, SLOT(slotChangeType(int)));
+    // implementation the behaviour of window form when current index changes
+    connect(m_mapper, &QDataWidgetMapper::currentIndexChanged,
+            [this](int index)
+    {
+        m_mchTChanger->slotCheckModelChanges( m_proxyModel->customSourceModel()->primaryIdInRow(index) );
+    } );  // use m_mapper.get()
+    connect(m_mchTChanger, SIGNAL(sigChangeChangedType(bool)), m_ui->m_gboxEngineData, SLOT(setDisabled(bool))); // use m_mchTChanger.get()
+    connect(m_mchTChanger, SIGNAL(sigChangeChangedType(int)), m_ui->m_lblModelChangeType, SLOT(slotChangeType(int)));  // use m_mchTChanger.get()
 }
 
 FormDataInput::~FormDataInput()
-{ }
+{
+    delete m_ui;
+    delete m_proxyModel;
+    delete m_mapper;
+    delete m_mchTChanger;
+}
 
 void FormDataInput::slotDeleteRow()
 {
@@ -253,7 +335,7 @@ void FormDataInput::slotDeleteRow()
 void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
 {
     int row = -1;
-    if (m_enginesModel->findPrimaryIdRow(value, row))
+    if (m_proxyModel->customSourceModel()->findPrimaryIdRow(value, row))
         emit sigChangeMapperIndex(row);
     else {
         QMessageBox::warning(this, tr("Error engine ""id"" value"),
@@ -266,33 +348,32 @@ void FormDataInput::slotRowIndexChanged(int row)
 {
 //    qDebug() << "change mapper index, current index =" << m_mapper->currentIndex() << ", row =" << row;
     emit sigFirstRowReached(row <= 0);
-    emit sigLastRowReached(row >= m_enginesModel->rowCount() - 1);
+    emit sigLastRowReached(row >= m_proxyModel->rowCount() - 1);
 //    qDebug() << "slotRowIndexChanged(" << row << "), DisplayRole data:";
-//    m_enginesModel->printData(Qt::DisplayRole);
+//    m_proxyModel->customSourceModel()->printData(Qt::DisplayRole);
 }
 
 void FormDataInput::slotSubmit()
 {
 //    qDebug() << "slotSubmit(), start";
     int currentIndex = m_mapper->currentIndex();
-    if (!m_enginesModel->database().transaction()) {
+    if (!m_proxyModel->customSourceModel()->database().transaction()) {
         QMessageBox::critical(this, tr("Database transaction error"),
                               tr("The database driver do not support the transactions operations"));
     }
 
-    if (m_enginesModel->submitAll()) {
+    if (m_proxyModel->customSourceModel()->submitAll()) {
 //        qDebug() << "slotSubmit(), after submitAll(), before commit()";
-//        m_enginesModel->printData(Qt::EditRole);
-//        qDebug() << m_enginesModel->printRecords();
+//        m_proxyModel->customSourceModel()->printData(Qt::EditRole);
 
         // After submit all data, the mapper current index is -1
-        m_enginesModel->database().commit();
+        m_proxyModel->customSourceModel()->database().commit();
     }
     else {
-        m_enginesModel->database().rollback();
+        m_proxyModel->customSourceModel()->database().rollback();
         QMessageBox::critical(this, tr("Error data submit to the database"),
                               tr("Cannot submit data to the database. The database report an error: %1")
-                              .arg(m_enginesModel->lastError().text()));
+                              .arg(m_proxyModel->customSourceModel()->lastError().text()));
         return;
     }
     emit sigChangesSubmitted(currentIndex);
@@ -310,7 +391,8 @@ void FormDataInput::slotEditDBT()
          * This also applies to the other error messageboxes in this slot.
          */
         QMessageBox::critical(this, tr("Invalid widget"),
-                              tr("Cannot open the dialog.\n"
+                              tr("Error of editing database table\n"
+                                 "Cannot open the dialog for database table editing.\n"
                                  "The reason is: clicked on an unexpected push button.\n\n"
                                  "Please consult with the application developer for fixing this problem."));
         return;
@@ -319,25 +401,26 @@ void FormDataInput::slotEditDBT()
     dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbEditDBT->DBTableName());
     if ( !tableInfo ) {
         QMessageBox::critical(this, tr("Invalid push button"),
-                              tr("Cannot open the dialog.\n"
+                              tr("Error of editing database table\n"
+                                 "Cannot open the dialog for database table editing.\n"
                                  "The reason is: cannot define the database table - pressed unknown push button.\n\n"
                                  "Please consult with the application developer for fixing this problem."));
         return;
     }
 
     DBTEditor editor(tableInfo, this);
-    const QModelIndex &currIndex = m_enginesModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbEditDBT->identWidget()));
+    const QModelIndex &currIndex = m_proxyModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbEditDBT->identWidget()));
     qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
-             << ", dataD =" << m_enginesModel->data( currIndex, Qt::DisplayRole).toString()
-             << ", dataE =" << m_enginesModel->data( currIndex, Qt::EditRole).toString()
-             << ", dataU =" << m_enginesModel->data( currIndex, Qt::UserRole).toString();
-    const QVariant &forId = m_enginesModel->data(currIndex, Qt::UserRole);
+             << ", dataD =" << m_proxyModel->data( currIndex, Qt::DisplayRole).toString()
+             << ", dataE =" << m_proxyModel->data( currIndex, Qt::EditRole).toString()
+             << ", dataU =" << m_proxyModel->data( currIndex, Qt::UserRole).toString();
+    const QVariant &forId = m_proxyModel->data(currIndex, Qt::UserRole);
     if ( !forId.isNull() ) // if data is NULL -> don't select any row in the editor view
         editor.selectInitial(forId);
 
     if ( editor.exec() == QDialog::Accepted ) {
-        m_enginesModel->spike1_turnOn(true); /* Switch ON the Spike #1 */
-        ASSERT_DBG( m_enginesModel->setData( currIndex, editor.selectedId(), Qt::EditRole ),
+        m_proxyModel->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */
+        ASSERT_DBG( m_proxyModel->setData( currIndex, editor.selectedId(), Qt::EditRole ),
                     cmmn::MessageException::type_critical, tr("Error data setting"),
                     tr("Cannot set data: \"%1\" to the model").arg(editor.selectedId()),
                     QString("FormDataInput::slotEditDBT()") );

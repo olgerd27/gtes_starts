@@ -12,12 +12,14 @@ namespace dbi {
 }
 class DBTEditor;
 class CustomSqlTableModel;
+class ProxySqlModel;
 class QDataWidgetMapper;
 class PBtnForEditDBT;
 class ChangerMChTypeImpl;
 
 /*
- * Class for change model change type. The available types are defined in the MChTypeLabel class, inherited from the QLabel.
+ * Class for change model change type.
+ * The available types are defined in the MChTypeLabel class, inherited from the QLabel.
  */
 class ChangerMChType : public QObject
 {
@@ -37,7 +39,7 @@ signals:
     void sigChangeChangedType(bool isDeleted);
 
 private:
-    std::unique_ptr<ChangerMChTypeImpl> m_pImpl; // for using std::unique_ptr<> there are need to implement the ChangerMChType destructor
+    std::unique_ptr<ChangerMChTypeImpl> m_pImpl; // std::unique_ptr<> needs ChangerMChType destructor implementation
 };
 
 /*
@@ -80,10 +82,15 @@ private:
     void setDataNavigation();
     void setModelChange();
 
-    std::unique_ptr<Ui::FormDataInput> m_ui;
-    std::unique_ptr<CustomSqlTableModel> m_enginesModel;
-    std::unique_ptr<QDataWidgetMapper> m_mapper;
-    std::unique_ptr<ChangerMChType> m_mchTChanger;
+    // TODO: use the std::unique_ptr after debugging
+//    std::unique_ptr<Ui::FormDataInput> m_ui;
+//    std::unique_ptr<ProxySqlModel> m_proxyModel;
+//    std::unique_ptr<QDataWidgetMapper> m_mapper;
+//    std::unique_ptr<ChangerMChType> m_mchTChanger;
+    Ui::FormDataInput *m_ui;
+    ProxySqlModel *m_proxyModel;
+    QDataWidgetMapper *m_mapper;
+    ChangerMChType *m_mchTChanger;
 };
 
 #endif // FORM_DATA_INPUT_H

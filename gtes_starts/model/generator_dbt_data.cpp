@@ -124,6 +124,7 @@ GeneratorDBTData::GeneratorDBTData()
 
 GeneratorDBTData::~GeneratorDBTData()
 {
+    delete m_queryGen;
 }
 
 GeneratorDBTData::QueryGenerator::TypeQueryGenerator GeneratorDBTData::typeQueryGenerator() const
@@ -133,7 +134,8 @@ GeneratorDBTData::QueryGenerator::TypeQueryGenerator GeneratorDBTData::typeQuery
 
 void GeneratorDBTData::setQueryGenerator(QueryGenerator *gen)
 {
-    m_queryGen.reset(gen);
+//    m_queryGen.reset(gen); // use in release version
+    m_queryGen = gen;
 }
 
 void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)
@@ -147,6 +149,7 @@ void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)
 //    qDebug() << "generate() 1, field:" << foreignFieldInf.m_nameInDB;
     generate_Mask_QueryData( foreignFieldInf, fieldsCounter );
 //    qDebug() << "generate() 2";
+//    qDebug() << "MASK:" << m_strMask;
     generateResultData();
 //    qDebug() << "generate() 3";
 }
@@ -185,10 +188,9 @@ void GeneratorDBTData::generateResultData()
         // get the primary id value
         const QVariant &varId = query.value(0);
         CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(varId, idPrim), varId );
-
         strRes = m_strMask;
         for (int i = 1; i < m_queryGen->quantityResultData(); ++i)
-            strRes = strRes.arg( query.value(i).toString() ); // forming result data
+            strRes = strRes.arg( query.value(i).toString() ); // forming result data with using mask and QString::arg()
         m_resData.push_back( {idPrim, strRes} );
 //        qDebug() << "generate result data. id prim:" << idPrim << ", data:" << strRes;
     }

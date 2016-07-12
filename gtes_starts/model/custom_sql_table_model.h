@@ -15,7 +15,6 @@ class CustomSqlTableModel : public QSqlRelationalTableModel
 
 public:
     typedef QMap<int, QVariant> T_saveRestore;
-    enum { SELECT_ICON_COLUMN = 0 };
 
     explicit CustomSqlTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     ~CustomSqlTableModel();
@@ -23,32 +22,24 @@ public:
     void setTable(const QString &tableName);
     QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &idx, const QVariant &value, int role = Qt::EditRole);
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     QVariant primaryIdInRow(int row) const;
     bool findPrimaryIdRow(const QVariant &idPrim, int &rRowValue) const;
-    cmmn::T_id selectedId() const;
 
     void spike1_turnOn(bool bOn); // spike 1
 
-    void printDataDB(int role) const; // TODO: temporary function, delete later
-    void printDataModel(int role) const; // TODO: temporary function, delete later
-    QString printRecords() const; // TODO: temporary function, delete later
-    void printHeader(int role) const; // TODO: temporary function, delete later
+    void printDataDB(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
+    void printHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
 
 signals:
     void sigNewRecordInserted(int row, cmmn::T_id primaryId);
     void sigRecordDeleted(int row, cmmn::T_id primaryId);
     void sigModelRefreshed();
-    void sigNeedUpdateView(const QModelIndex &index);
 
 public slots:
     void slotRefreshTheModel();
     void slotInsertToTheModel();
     void slotDeleteFromTheModel(int row);
-    void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     enum { NOT_SETTED = -1 };
@@ -57,17 +48,19 @@ private:
     void setHeader();
     void fillTheStorage();
     cmmn::T_id insertNewRecord();
-    QVariant getDataFromStorage(const QModelIndex &baseIndex, int storageComplexIndex) const;
-    void updateDataInStorage(const QModelIndex &index, int storageComplexIndex);
+    QVariant getDataFromStorage(const QModelIndex &index, int storageComplexIndex) const;
+    void updateDataInStorage(const QModelIndex &frgnIndex, int storageComplexIndex);
     void flush();
-    void spike1_saveData(const QModelIndex &modelIndex, const QVariant &setData); // spike 1
-    void spike1_restoreData(const QModelIndex &modelIndex); // spike 1
+    void spike1_saveData(const QModelIndex &index, const QVariant &data); // spike 1
+    void spike1_restoreData(const QModelIndex &index); // spike 1
     void fillGeneratedData();
 
-    std::unique_ptr<GeneratorDBTData> m_dataGenerator;
-    std::unique_ptr<StorageGenData> m_genDataStorage;
-    int m_selectedRow;
-    QIcon m_selectIcon;
+    // TODO: use std::unique_ptr after debugging
+    //std::unique_ptr<GeneratorDBTData> m_dataGenerator;
+    //std::unique_ptr<StorageGenData> m_genDataStorage;
+    GeneratorDBTData *m_dataGenerator;
+    StorageGenData *m_genDataStorage;
+
     bool m_spike1_bNeedSave; // spike 1
     T_saveRestore m_spike1_saveRestore; /* spike 1 TODO: move this storage to the StorageGenData and provide in the StorageGenData
                                          * the interface for getting data from this storage */

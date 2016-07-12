@@ -8,23 +8,30 @@ StorageGenData::StorageGenData()
 void StorageGenData::addData(T_id idPrim, const StorageGenData::T_data &data)
 {
     /*
-     * Add data to the storage with the primary id "idPrim".
-     * If data with "idPrim" does not exist, operator[] create vector (with help of the vector<StorageGenData::T_data> default constructor)
-     * and assign the "data" value to it.
-     * If user does not pass "data" value as 2-th argument, it will be create with help of the StorageGenData::T_data default constructor.
-     * This behaviour is setted in definition of this method.
+     * Add data "data" to the storage with the primary id "idPrim".
+     * If data with "idPrim" does not exist, the map create item with key "idPrim" and operator[] create the empty vector instance
+     * (with help of the vector<StorageGenData::T_data> default constructor) as current map item value.
+     * After this the "data" value will push to the back of it.
+     *
+     * If user does not pass "data" value as 2-th argument, it will be created with help of the StorageGenData::T_data default constructor.
+     * This behaviour is setted in definition of this method as default argument value.
      */
     m_storage[idPrim].push_back(data);
 }
 
 bool StorageGenData::deleteData(StorageGenData::T_id idPrim)
 {
+    qDebug() << "delete data: idPrim = " << idPrim << ", data:";
+    for (auto val : m_storage[idPrim])
+        qDebug() << "  " << val;
     return m_storage.remove(idPrim);
 }
 
 void StorageGenData::updateData(T_id idPrim, int index, const StorageGenData::T_data &data)
 {
 //    qDebug() << "update generated data. id prim:" << idPrim << ", index:" << index << ", data:" << data;
+
+    // TODO: print all stored data - delete later
     QString str;
     for (auto itId = m_storage.begin(); itId != m_storage.end(); ++itId) {
         str += (QString::number(itId.key()) + ": ");
@@ -35,10 +42,11 @@ void StorageGenData::updateData(T_id idPrim, int index, const StorageGenData::T_
         str += "\n";
     }
     qDebug() << str;
+
     ASSERT_DBG( isIndexesOk(idPrim, index),
                 cmmn::MessageException::type_critical, QObject::tr("Data update error"),
-                QObject::tr("Cannot update data in the storage by the primary id = %1, index = %2. "
-                            "This id and/or index is invalid").arg(idPrim).arg(index),
+                QObject::tr("Cannot update data in the generated data storage by the primary id = %1, index = %2. "
+                            "Invalid id and/or index values").arg(idPrim).arg(index),
                 QString("StorageGenData::updateData()") );
     m_storage[idPrim][index] = data;
 }
@@ -72,6 +80,12 @@ void StorageGenData::flushFieldIndex()
     m_indexFIndexes = INIT_FINDEX;
 }
 
+void StorageGenData::clearForeignFields()
+{
+    m_fIndexes.clear();
+    flushFieldIndex();
+}
+
 bool StorageGenData::isForeignField(int fieldIndex, int &refStorageDataIndex) const
 {
     refStorageDataIndex = m_fIndexes.indexOf(fieldIndex);
@@ -83,7 +97,7 @@ bool StorageGenData::isEmpty() const
     return m_storage.empty();
 }
 
-bool StorageGenData::isNotSetted() const
+bool StorageGenData::isNotSettedForeignFields() const
 {
     return m_fIndexes.empty();
 }

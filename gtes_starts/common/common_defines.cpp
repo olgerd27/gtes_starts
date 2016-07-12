@@ -17,17 +17,17 @@ bool cmmn::safeQVariantToIdType(const QVariant &value, T_id &id)
     return bOk;
 }
 
-void cmmn::throwConversionIdErrorMsg(bool bConv, const QVariant &varId)
+void cmmn::throwConversionIdErrorMsg(bool isConv, const QVariant &varId)
 {
-    throwErrorMsg(bConv, cmmn::MessageException::type_critical, QObject::tr("Conversion error"),
+    throwErrorMsg(isConv, cmmn::MessageException::type_critical, QObject::tr("Conversion error"),
                   QObject::tr("Cannot convert the QVariant type value \"%1\" to the id values type.").arg(varId.toString()),
                   "cmmn::throwConversionIdErrorMsg");
 }
 
 
-void cmmn::throwErrorMsg(bool bSuccess, MessageException::MessageTypes msgType,
+void cmmn::throwErrorMsg(bool isSuccess, MessageException::MessageTypes msgType,
                          const QString &title, const QString &what, const QString &where)
 {
-    if (!bSuccess)
+    if (!isSuccess)
         throw cmmn::MessageException( msgType, title, what, where );
 }
