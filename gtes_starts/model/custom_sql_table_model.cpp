@@ -135,25 +135,25 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
     else if (role == Qt::EditRole && m_genDataStorage->isForeignField(idx.column(), storageDataIndex) ) {
         if (m_spike1_bNeedSave) spike1_saveData(idx, value); // Spike #1 - TODO: delete?
 
-        qDebug() << "setData(), before QSqlRelationalTableModel::setData()";
-        printDataDB(Qt::DisplayRole);
+//        qDebug() << "setData(), before QSqlRelationalTableModel::setData()";
+//        printDataDB(Qt::DisplayRole);
 
         bSetted = QSqlRelationalTableModel::setData(idx, value, role);
 
-        qDebug() << "After QSqlRelationalTableModel::setData()";
-        qDebug() << "[" << idx.row() << "," << idx.column() << "]," << "role:" << role
-                 << ", set data:" << value.toString() << ", bSetted:" << bSetted;
-        printDataDB(Qt::DisplayRole);
+//        qDebug() << "After QSqlRelationalTableModel::setData()";
+//        qDebug() << "[" << idx.row() << "," << idx.column() << "]," << "role:" << role
+//                 << ", set data:" << value.toString() << ", bSetted:" << bSetted;
+//        printDataDB(Qt::DisplayRole);
 
         if (m_spike1_bNeedSave) spike1_restoreData(idx); // Spike #1 - TODO: delete?
-        qDebug() << "setData(), after spike1_restoreData();";
-        printDataDB(Qt::DisplayRole);
+//        qDebug() << "setData(), after spike1_restoreData();";
+//        printDataDB(Qt::DisplayRole);
 
         try {
             updateDataInStorage(idx, storageDataIndex);
 
-            qDebug() << "setData(), after updateDataInStorage()";
-            printDataDB(Qt::DisplayRole);
+//            qDebug() << "setData(), after updateDataInStorage()";
+//            printDataDB(Qt::DisplayRole);
         }
         catch (const cmmn::MessageException &me) {
             // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
@@ -214,10 +214,15 @@ void CustomSqlTableModel::defineForeignFields()
 
 void CustomSqlTableModel::setHeader()
 {
+//    qDebug() << "setHeader() 1, columnCount =" << columnCount();
     for (int col = 0; col < columnCount(); ++col) {
+//        qDebug() << "setHeader() 2 -" << col;
         const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
+//        qDebug() << "setHeader() 3 -" << col << " field:" << fieldInf.m_nameInUI;
         setHeaderData(col, Qt::Horizontal, fieldInf.m_nameInUI, Qt::EditRole);
+//        qDebug() << "setHeader() 4 -" << col;
     }
+//    qDebug() << "setHeader() 5";
 }
 
 void CustomSqlTableModel::fillTheStorage()
@@ -285,7 +290,7 @@ QVariant CustomSqlTableModel::getDataFromStorage(const QModelIndex &index, int s
 void CustomSqlTableModel::updateDataInStorage(const QModelIndex &frgnIndex, int storageComplexIndex)
 {
 //    qDebug() << "updateDataInStorage() 1, [" << frgnIndex.row() << "," << frgnIndex.column() << "]";
-    printDataDB(Qt::DisplayRole);
+//    printDataDB(Qt::DisplayRole);
     // getting the primary and foreign id's values
     const QVariant &varIdPrim = QSqlRelationalTableModel::data( this->index(frgnIndex.row(), 0), Qt::DisplayRole );
     const QVariant &varIdFor = QSqlRelationalTableModel::data( frgnIndex, Qt::DisplayRole );
@@ -379,11 +384,11 @@ void CustomSqlTableModel::printDataDB(int role) const
     for(int row = 0; row < QSqlRelationalTableModel::rowCount(); ++row) {
         for(int col = 0; col < QSqlRelationalTableModel::columnCount(); ++col ) {
             const QModelIndex &index = QSqlRelationalTableModel::index(row, col);
-            strData += (QSqlRelationalTableModel::data(index, role).toString() + "  ");
+            strData += QString("|%1|  ").arg(QSqlRelationalTableModel::data(index, role).toString());
         }
         strData += "\n";
     }
-    qDebug() << "The base model data with role #" << role << ":" << strData;
+    qDebug() << "The source base model data with role #" << role << ":" << strData;
 }
 
 void CustomSqlTableModel::printHeader(int role) const
@@ -392,7 +397,7 @@ void CustomSqlTableModel::printHeader(int role) const
     for (int sect = 0; sect < QSqlRelationalTableModel::columnCount(); ++sect) {
         str += QString("|") += QSqlRelationalTableModel::headerData(sect, Qt::Horizontal, role).toString() += QString("| ");
     }
-    qDebug() << "horizontal header data, role =" << role << ", data:" << str;
+    qDebug() << "horizontal source header data, role =" << role << ", data:" << str;
 }
 
 void CustomSqlTableModel::slotRefreshTheModel()
@@ -423,6 +428,9 @@ void CustomSqlTableModel::slotRefreshTheModel()
         fillTheStorage(); // populate the storage
         m_genDataStorage->flushFieldIndex(); // reset field index
 //        printDataDB(Qt::EditRole); // TODO: delete later
+
+        printHeader(Qt::DisplayRole);
+        printDataDB(Qt::DisplayRole);
 
         emit sigModelRefreshed();
     }

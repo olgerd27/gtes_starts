@@ -173,7 +173,8 @@ void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, Q
 #include <QItemSelection>
 void FormDataInput::setDataOperating()
 {
-    m_proxyModel->customSourceModel()->setTable("engines");
+//    m_proxyModel->customSourceModel()->setTable("engines");
+    m_proxyModel->setSqlTable("engines");
 
     // ************************************************************************************
     // NOTE: for debugging. Delete later
@@ -181,8 +182,8 @@ void FormDataInput::setDataOperating()
     QTableView *tablePrx = new QTableView;
     tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
                               .arg(m_proxyModel->customSourceModel()->tableName()) );
-    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
     tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
     tablePrx->setModel(m_proxyModel); // use m_proxyModel.get()
     tablePrx->setAlternatingRowColors(true);
     tablePrx->resize(800, 500);
@@ -200,8 +201,8 @@ void FormDataInput::setDataOperating()
     QTableView *tableSrc = new QTableView;
     tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
                               .arg(m_proxyModel->customSourceModel()->tableName()) );
-    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
     tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
     tableSrc->setModel(m_proxyModel->customSourceModel());
     tableSrc->resize(800, 500);
     tableSrc->move(10, 10);

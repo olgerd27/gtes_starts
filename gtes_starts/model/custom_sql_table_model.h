@@ -20,6 +20,7 @@ public:
     ~CustomSqlTableModel();
 
     void setTable(const QString &tableName);
+    void setHeader();
     QVariant data(const QModelIndex &idx, int role) const;
     bool setData(const QModelIndex &idx, const QVariant &value, int role = Qt::EditRole);
 
@@ -45,7 +46,6 @@ private:
     enum { NOT_SETTED = -1 };
 
     void defineForeignFields();
-    void setHeader();
     void fillTheStorage();
     cmmn::T_id insertNewRecord();
     QVariant getDataFromStorage(const QModelIndex &index, int storageComplexIndex) const;
