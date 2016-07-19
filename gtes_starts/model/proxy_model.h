@@ -1,13 +1,13 @@
 #ifndef PROXY_MODEL_H
 #define PROXY_MODEL_H
 
-#include <QSortFilterProxyModel>
+#include <QAbstractProxyModel>
 #include <QIcon>
 #include "../common/common_defines.h"
 
 class CustomSqlTableModel;
 
-class ProxySqlModel : public QSortFilterProxyModel
+class ProxySqlModel : public QAbstractProxyModel
 {
     Q_OBJECT
 public:
@@ -22,19 +22,20 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-//    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-//    QModelIndex parent(const QModelIndex &child) const;
-//    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
-//    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
 
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;
 
-    void printBaseData(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
+//    void printBaseData(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
     void printData(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
-    void printBaseHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
+//    void printBaseHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
     void printHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
 
 signals:
