@@ -36,8 +36,10 @@ protected: // TODO: make private
     void setWindowName();
 
     dbi::DBTInfo *m_DBTInfo;
-    std::unique_ptr<Ui::DBTEditor> m_ui;
-    std::unique_ptr<ProxySqlModel> m_proxyModel;
+//    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode
+//    std::unique_ptr<ProxySqlModel> m_proxyModel; // use in the release mode
+      Ui::DBTEditor *m_ui;
+      ProxySqlModel *m_proxyModel;
 };
 
 #endif // DBT_EDITOR_H

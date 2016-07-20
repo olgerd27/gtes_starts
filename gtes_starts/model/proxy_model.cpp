@@ -50,8 +50,8 @@ QVariant ProxySqlModel::data(const QModelIndex &index, int role) const
     else if (index.column() > SELECT_ICON_COLUMN) {
         data = QAbstractProxyModel::data( this->index(index.row(), index.column() - 1), role );
 //        data = sourceModel()->data( mapToSource(index), role ); // using sourceModel::data() for getting data is like spike))) - use QAbstractProxyModel::data()
-        if (role == Qt::DisplayRole && index.column() >= 6)
-            qDebug() << "data(), NOT SELECT_ICON_COLUMN, [" << index.row() << "," << index.column() << "], role =" << role << ", data:" << data.toString();
+//        if (role == Qt::DisplayRole && index.column() >= 6)
+//            qDebug() << "data(), NOT SELECT_ICON_COLUMN, [" << index.row() << "," << index.column() << "], role =" << role << ", data:" << data.toString();
     }
     else {
         data = QAbstractProxyModel::data( this->index(index.row(), index.column() - COUNT_ADDED_COLUMNS), role);
@@ -66,11 +66,15 @@ bool ProxySqlModel::setData(const QModelIndex &index, const QVariant &value, int
     bool bSetted = false;
     if (role == Qt::DecorationRole && index.column() == SELECT_ICON_COLUMN) {
         m_selectedRow = index.row();
-        qDebug() << "setData(), decoration role, [" << index.row() << "," << index.column() << "], selected row =" << m_selectedRow;
+//        qDebug() << "setData(), decoration role, [" << index.row() << "," << index.column() << "], selected row =" << m_selectedRow;
     }
     else {
-        bSetted = QAbstractProxyModel::setData( this->index( index.row(), index.column() - COUNT_ADDED_COLUMNS ), value, role );
+//        bSetted = QAbstractProxyModel::setData( this->index( index.row(), index.column() - COUNT_ADDED_COLUMNS ), value, role );
+//        bSetted = sourceModel()->setData( mapToSource(index), value, role ); // !!! error here !!!
+
+        bSetted = customSourceModel()->setData( customSourceModel()->index(index.row(), index.column() - COUNT_ADDED_COLUMNS), value, role );
     }
+    if (bSetted) emit dataChanged(index, index);
     return bSetted;
 }
 
@@ -114,7 +118,7 @@ QVariant ProxySqlModel::headerData(int section, Qt::Orientation orientation, int
 QModelIndex ProxySqlModel::index(int row, int column, const QModelIndex &parent) const
 {
     // version 1
-    return (row < 0 || row > rowCount(parent) || column < 0 || column > columnCount(parent))
+    return (row < 0 || row >= rowCount(parent) || column < 0 || column >= columnCount(parent))
             ? QModelIndex() : createIndex( row, column );
 
     // version 2
@@ -137,23 +141,18 @@ QModelIndex ProxySqlModel::parent(const QModelIndex &/*child*/) const
 
 QModelIndex ProxySqlModel::mapToSource(const QModelIndex &proxyIndex) const
 {
-    if (!proxyIndex.isValid()) return QModelIndex();
-//    QModelIndex srcIndex = (proxyIndex.column() == SELECT_ICON_COLUMN
-//                            ? QModelIndex()
-//                            : sourceModel()->index( proxyIndex.row(), proxyIndex.column() - COUNT_ADDED_COLUMNS ) );
-//    qDebug() << "mapToSource: proxy: [" << proxyIndex.row() << "," << proxyIndex.column() << "] data:" << proxyIndex.data(Qt::DisplayRole)
-//             << ", source: [" << srcIndex.row() << "," << srcIndex.column() << "] data:" << srcIndex.data(Qt::DisplayRole);
+    // version 1 - work is not correct, header: |SELECT| |0| |Id| ...
+//    if (!proxyIndex.isValid() || proxyIndex.column() == SELECT_ICON_COLUMN) return QModelIndex();
 
-//    if (proxyIndex.column() >= 6)
-//        qDebug() << "mapToSource(), col =" << proxyIndex.column()
-//                 << ", columnCount base =" << QAbstractProxyModel::columnCount(proxyIndex.parent())
-//                 << " derived =" << columnCount(proxyIndex.parent());
+//    const QModelIndex &sourceIdx = sourceModel()->index(proxyIndex.row(), proxyIndex.column() - COUNT_ADDED_COLUMNS);
+//    qDebug() << "mapToSource(), proxy: [" << proxyIndex.row() << "," << proxyIndex.column() << "] data:" << proxyIndex.data(Qt::DisplayRole).toString()
+//             << "| source: [" << sourceIdx.row() << "," << sourceIdx.column() << "] data:" << sourceIdx.data(Qt::DisplayRole).toString();
+//    return sourceIdx;
 
-//    return proxyIndex.column() == SELECT_ICON_COLUMN
-//            ? QModelIndex()
-//            : sourceModel()->index( proxyIndex.row(), proxyIndex.column() ); // TODO: replace to sourceModel() method
-
-    return sourceModel()->index( proxyIndex.row(), proxyIndex.column() );
+    // version 2
+    if (!proxyIndex.isValid() /*|| proxyIndex.column() == SELECT_ICON_COLUMN*/) return QModelIndex();
+    return sourceModel()->index( proxyIndex.row(), proxyIndex.column() /*- COUNT_ADDED_COLUMNS*/ );
+//    return createIndex( proxyIndex.row(), proxyIndex.column() - COUNT_ADDED_COLUMNS, sourceIdx.internalId() );
 }
 
 QModelIndex ProxySqlModel::mapFromSource(const QModelIndex &sourceIndex) const

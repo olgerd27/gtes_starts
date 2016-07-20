@@ -110,7 +110,7 @@ void FormDataInput::setMainControls()
                 m_mchTChanger->updateModelChange( primId, MChTypeLabel::ctype_inserted );
             } );
     connect(m_proxyModel->customSourceModel(), SIGNAL(sigNewRecordInserted(int, cmmn::T_id)),
-            m_mapper, SLOT(setCurrentIndex(int))); // mapper go to the inserted record (row)  --- use m_mapper.get()
+            m_mapper, SLOT(setCurrentIndex(int))); // mapper go to the inserted record (row)  --- TODO: use m_mapper.get()
 
     // Delete data
     connect(this, SIGNAL(sigDeleteRow(int)),
@@ -137,7 +137,7 @@ void FormDataInput::setMainControls()
     // Save data
     connect(this, SIGNAL(sigSaveAll()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
     connect(this, &FormDataInput::sigChangesSubmitted, [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data saving
-    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int))); // use m_mapper.get()
+    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int))); // TODO: use m_mapper.get()
 
     // Refresh data
     connect(this, SIGNAL(sigRefreshAll()),
@@ -184,18 +184,18 @@ void FormDataInput::setDataOperating()
                               .arg(m_proxyModel->customSourceModel()->tableName()) );
     tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
     tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-    tablePrx->setModel(m_proxyModel); // use m_proxyModel.get()
+    tablePrx->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
     tablePrx->setAlternatingRowColors(true);
     tablePrx->resize(800, 500);
     tablePrx->move(30, 30);
     tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tablePrx->show();
-    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // use m_mapper.get()
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
     // selection setting - testing
     connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // use m_proxyModel.get()
-    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // use m_proxyModel.get()
+            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
+    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
 
     // The source model
     QTableView *tableSrc = new QTableView;
@@ -209,7 +209,7 @@ void FormDataInput::setDataOperating()
     tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tableSrc->show();
-//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // use m_mapper.get()
+//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
     // selection setting - testing
     connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
             [tableSrc](const QItemSelection &selected, const QItemSelection &)
@@ -265,7 +265,7 @@ void FormDataInput::setDataOperating()
     // set mapper
 //    m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this)); // NOTE: is this need?
     m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-    m_mapper->setModel(m_proxyModel); // use m_proxyModel.get()
+    m_mapper->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
     // indexes starts from 1, because in the 0-th section place the selection icon
     // TODO: insert new column
     m_mapper->addMapping(m_ui->m_leIdData, 1);
@@ -283,23 +283,23 @@ void FormDataInput::setDataNavigation()
     m_ui->m_leRecordId->setValidator(new QIntValidator(0, 1e6, m_ui->m_leRecordId)); /* set validator that control inputing only
                                                                                     integer values in range between 0 and 1e6 */
     // navigation set
-    connect(m_ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst())); // use m_mapper.get()
-    connect(m_ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(toLast())); // use m_mapper.get()
-    connect(m_ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper, SLOT(toPrevious())); // use m_mapper.get()
-    connect(m_ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper, SLOT(toNext())); // use m_mapper.get()
+    connect(m_ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst())); // TODO: use m_mapper.get()
+    connect(m_ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(toLast())); // TODO: use m_mapper.get()
+    connect(m_ui->m_tbRecordPrev, SIGNAL(clicked()), m_mapper, SLOT(toPrevious())); // TODO: use m_mapper.get()
+    connect(m_ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper, SLOT(toNext())); // TODO: use m_mapper.get()
 
     // set inputing of the "id" value in the line edit
     connect(m_ui->m_leRecordId, SIGNAL(sigReturnPressed(QString)),
             this, SLOT(slotNeedChangeMapperIndex(QString)));
     connect(this, SIGNAL(sigChangeMapperIndex(int)),
-            m_mapper, SLOT(setCurrentIndex(int))); // change mapper index by the id's line edit value --- // use m_mapper.get()
+            m_mapper, SLOT(setCurrentIndex(int))); // change mapper index by the id's line edit value --- // TODO: use m_mapper.get()
     connect(this, SIGNAL(sigWrongIdEntered()),
             m_ui->m_leRecordId, SLOT(clear())); // indicate that inputed value is wrong and there are need to input another
 //    connect(this, SIGNAL(sigWrongIdEntered()),
 //              m_mapper, SLOT(revert())); // perform a clearing of the mapped widgets - TODO: maybe delete?
 
     // enable & disable navigation buttons
-    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotRowIndexChanged(int))); // use m_mapper.get()
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotRowIndexChanged(int))); // TODO: use m_mapper.get()
     connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordFirst, SLOT(setDisabled(bool)));
     connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordPrev, SLOT(setDisabled(bool)));
     connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordLast, SLOT(setDisabled(bool)));
@@ -314,9 +314,9 @@ void FormDataInput::setModelChange()
             [this](int index)
     {
         m_mchTChanger->slotCheckModelChanges( m_proxyModel->customSourceModel()->primaryIdInRow(index) );
-    } );  // use m_mapper.get()
-    connect(m_mchTChanger, SIGNAL(sigChangeChangedType(bool)), m_ui->m_gboxEngineData, SLOT(setDisabled(bool))); // use m_mchTChanger.get()
-    connect(m_mchTChanger, SIGNAL(sigChangeChangedType(int)), m_ui->m_lblModelChangeType, SLOT(slotChangeType(int)));  // use m_mchTChanger.get()
+    } );  // TODO: use m_mapper.get()
+    connect(m_mchTChanger, SIGNAL(sigChangeChangedType(bool)), m_ui->m_gboxEngineData, SLOT(setDisabled(bool))); // TODO: use m_mchTChanger.get()
+    connect(m_mchTChanger, SIGNAL(sigChangeChangedType(int)), m_ui->m_lblModelChangeType, SLOT(slotChangeType(int)));  // TODO: use m_mchTChanger.get()
 }
 
 FormDataInput::~FormDataInput()

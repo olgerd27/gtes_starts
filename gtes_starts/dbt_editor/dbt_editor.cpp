@@ -108,7 +108,10 @@ DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
 }
 
 DBTEditor::~DBTEditor()
-{ }
+{
+    delete m_ui;
+    delete m_proxyModel;
+}
 
 cmmn::T_id DBTEditor::selectedId() const
 {
@@ -118,7 +121,7 @@ cmmn::T_id DBTEditor::selectedId() const
 void DBTEditor::setContentsUI()
 {
     QTableView *view = m_ui->m_tableContents;
-    view->setModel(m_proxyModel.get());
+    view->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
     view->setItemDelegate(new HighlightTableRowsDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -127,8 +130,8 @@ void DBTEditor::setContentsUI()
 
     // set selection
     connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            m_proxyModel.get(), SLOT(slotChooseRow(QItemSelection,QItemSelection)));
-    connect(m_proxyModel.get(), SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex)));
+            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
+    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
 }
 
 void DBTEditor::setEditingUI()
