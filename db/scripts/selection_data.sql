@@ -71,4 +71,8 @@ WHERE
    
 -- Retrieve the id values of the all related tables to the full_names_engines, when is known the engines.full_name_id value
 -- SELECT
-    
+
+-- The table description information
+DESC gtes_starts.engines_bypasses;
+DESCRIBE gtes_starts.engines_bypasses;
+SHOW COLUMNS FROM gtes_starts.engines_bypasses;
