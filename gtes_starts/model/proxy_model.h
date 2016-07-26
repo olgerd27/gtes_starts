@@ -12,7 +12,7 @@ class ProxySqlModel : public QAbstractProxyModel
     Q_OBJECT
 public:
     enum {
-        SELECT_ICON_COLUMN = 0,
+        SELECT_ICON_COLUMN = 0, // index of the inserted column
         COUNT_ADDED_COLUMNS // count of added columns
     };
 
@@ -27,8 +27,10 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &child) const;
-    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
     QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
+    QItemSelection mapSelectionFromSource(const QItemSelection &selection) const;
+    QItemSelection mapSelectionToSource(const QItemSelection &selection) const;
 
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;

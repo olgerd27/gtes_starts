@@ -25,7 +25,7 @@ public:
     bool setData(const QModelIndex &idx, const QVariant &value, int role = Qt::EditRole);
 
     QVariant primaryIdInRow(int row) const;
-    bool findPrimaryIdRow(const QVariant &idPrim, int &rRowValue) const;
+    bool findRowWithId(const QVariant &idPrim, int &rRowValue) const;
 
     void spike1_turnOn(bool bOn); // spike 1
 

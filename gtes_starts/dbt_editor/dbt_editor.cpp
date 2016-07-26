@@ -129,6 +129,24 @@ void DBTEditor::setContentsUI()
 //    view->setAlternatingRowColors(true);
 
     // set selection
+    connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
+            [](const QItemSelection &selected, const QItemSelection &deselected)
+    {
+        qDebug() << "LAMBDA start.";
+        auto selList = selected.indexes();
+        auto deselList = deselected.indexes();
+
+        qDebug() << "Selected list (" << selList.size() << "):";
+        foreach (auto item, selList) {
+            qDebug() << "- [" << item.row() << "," << item.column() << "]";
+        }
+        qDebug() << "DeSelected list (" << deselList.size() << "):";
+        foreach (auto item, deselList) {
+            qDebug() << "- [" << item.row() << "," << item.column() << "]";
+        }
+        qDebug() << "LAMBDA end.";
+    } );
+
     connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
     connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
@@ -141,7 +159,7 @@ void DBTEditor::setEditingUI()
 
 void DBTEditor::setModel()
 {
-    m_proxyModel->customSourceModel()->setTable(m_DBTInfo->m_nameInDB);
+    m_proxyModel->setSqlTable(m_DBTInfo->m_nameInDB);
 }
 
 void DBTEditor::setWindowName()
@@ -152,7 +170,7 @@ void DBTEditor::setWindowName()
 void DBTEditor::selectInitial(const QVariant &idPrim)
 {
     int selectedRow = -1;
-    ASSERT_DBG( m_proxyModel->customSourceModel()->findPrimaryIdRow(idPrim, selectedRow),
+    ASSERT_DBG( m_proxyModel->customSourceModel()->findRowWithId(idPrim, selectedRow),
                 cmmn::MessageException::type_warning, tr("Selection error"),
                 tr("Cannot select the row in the table \"%1\". Cannot find the item with id: %2")
                 .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),

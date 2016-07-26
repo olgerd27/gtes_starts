@@ -173,7 +173,6 @@ void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, Q
 #include <QItemSelection>
 void FormDataInput::setDataOperating()
 {
-//    m_proxyModel->customSourceModel()->setTable("engines");
     m_proxyModel->setSqlTable("engines");
 
     // ************************************************************************************
@@ -336,7 +335,7 @@ void FormDataInput::slotDeleteRow()
 void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
 {
     int row = -1;
-    if (m_proxyModel->customSourceModel()->findPrimaryIdRow(value, row))
+    if (m_proxyModel->customSourceModel()->findRowWithId(value, row))
         emit sigChangeMapperIndex(row);
     else {
         QMessageBox::warning(this, tr("Error engine ""id"" value"),

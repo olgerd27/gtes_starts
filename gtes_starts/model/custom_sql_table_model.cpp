@@ -121,6 +121,8 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
      * In this case the QSqlRelationalTableModel::setData() method return false. The setData() method successfully works only with Qt::EditRole.
      * Saving data with the Qt::UserRole (or UserRole + 1, +2, ...) can be achieved by means of data saving in a some custom storage.
      */
+    qDebug() << "Source model setData()";
+
     if (!idx.isValid()) return false;
     bool bSetted = false;
     int storageDataIndex = -1;
@@ -129,7 +131,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
         // fill the model's new row by the empty values.
         // The storages new rows filling performs earlier by calling the CustomSqlTableModel::slotInsertToTheModel()
         bSetted = QSqlRelationalTableModel::setData(idx, QVariant(), role);
-        qDebug() << "setData(), NOT_SETTED: [" << idx.row() << "," << idx.column() << "],"
+        qDebug() << "source setData(), NOT_SETTED: [" << idx.row() << "," << idx.column() << "],"
                  << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
     else if (role == Qt::EditRole && m_genDataStorage->isForeignField(idx.column(), storageDataIndex) ) {
@@ -152,7 +154,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
         try {
             updateDataInStorage(idx, storageDataIndex);
 
-//            qDebug() << "setData(), after updateDataInStorage()";
+            qDebug() << "source setData(), after updateDataInStorage()";
 //            printDataDB(Qt::DisplayRole);
         }
         catch (const cmmn::MessageException &me) {
@@ -170,7 +172,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
     }
     else {
         bSetted = QSqlRelationalTableModel::setData(idx, value, role);
-        qDebug() << "setData(), else: [" << idx.row() << "," << idx.column() << "],"
+        qDebug() << "source setData(), else: [" << idx.row() << "," << idx.column() << "],"
                  << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
 //    if (m_spike1_bNeedSave) spike1_restoreData(idx); // TODO: use only this???
@@ -183,7 +185,7 @@ QVariant CustomSqlTableModel::primaryIdInRow(int row) const
     return QSqlRelationalTableModel::data(index(row, 0), Qt::DisplayRole);
 }
 
-bool CustomSqlTableModel::findPrimaryIdRow(const QVariant &idPrim, int &rRowValue) const
+bool CustomSqlTableModel::findRowWithId(const QVariant &idPrim, int &rRowValue) const
 {
     for (int row = 0; row < rowCount(); ++row) {
         if (primaryIdInRow(row) == idPrim) {
