@@ -83,7 +83,7 @@ void ChangerMChType::slotCheckModelChanges(const QVariant &idPrimary)
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::FormDataInput)
-    , m_proxyModel(new ProxySqlModel(this))
+    , m_proxyModel(new ProxyChoiceDecorModel(this))
     , m_mapper(new QDataWidgetMapper(this))
     , m_mchTChanger(new ChangerMChType(this))
 {

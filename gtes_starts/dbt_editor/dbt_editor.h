@@ -8,7 +8,7 @@
 #include <QItemSelection>
 #include "../common/common_defines.h"
 
-class ProxySqlModel;
+class ProxyChoiceDecorModel;
 namespace Ui {
     class DBTEditor;
 }
@@ -37,9 +37,9 @@ protected: // TODO: make private
 
     dbi::DBTInfo *m_DBTInfo;
 //    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode
-//    std::unique_ptr<ProxySqlModel> m_proxyModel; // use in the release mode
+//    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel; // use in the release mode
       Ui::DBTEditor *m_ui;
-      ProxySqlModel *m_proxyModel;
+      ProxyChoiceDecorModel *m_proxyModel;
 };
 
 #endif // DBT_EDITOR_H

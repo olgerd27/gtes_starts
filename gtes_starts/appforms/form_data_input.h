@@ -12,7 +12,7 @@ namespace dbi {
 }
 class DBTEditor;
 class CustomSqlTableModel;
-class ProxySqlModel;
+class ProxyChoiceDecorModel;
 class QDataWidgetMapper;
 class PBtnForEditDBT;
 class ChangerMChTypeImpl;
@@ -84,11 +84,11 @@ private:
 
     // TODO: use the std::unique_ptr after debugging
 //    std::unique_ptr<Ui::FormDataInput> m_ui;
-//    std::unique_ptr<ProxySqlModel> m_proxyModel;
+//    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel;
 //    std::unique_ptr<QDataWidgetMapper> m_mapper;
 //    std::unique_ptr<ChangerMChType> m_mchTChanger;
     Ui::FormDataInput *m_ui;
-    ProxySqlModel *m_proxyModel;
+    ProxyChoiceDecorModel *m_proxyModel;
     QDataWidgetMapper *m_mapper;
     ChangerMChType *m_mchTChanger;
 };

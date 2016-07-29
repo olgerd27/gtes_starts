@@ -7,7 +7,10 @@
 
 class CustomSqlTableModel;
 
-class ProxySqlModel : public QAbstractProxyModel
+/*
+ * The proxy model that add the choice decoration (Ok icon) to the data model.
+ */
+class ProxyChoiceDecorModel : public QAbstractProxyModel
 {
     Q_OBJECT
 public:
@@ -16,7 +19,7 @@ public:
         COUNT_ADDED_COLUMNS // count of added columns
     };
 
-    explicit ProxySqlModel(QObject *parent = 0);
+    explicit ProxyChoiceDecorModel(QObject *parent = 0);
     void setSqlTable(const QString &tableName);
 
     QVariant data(const QModelIndex &index, int role) const;
@@ -29,15 +32,11 @@ public:
     QModelIndex parent(const QModelIndex &child) const;
     QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
     QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
-    QItemSelection mapSelectionFromSource(const QItemSelection &selection) const;
-    QItemSelection mapSelectionToSource(const QItemSelection &selection) const;
 
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;
 
-//    void printBaseData(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
     void printData(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
-//    void printBaseHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
     void printHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
 
 signals:
@@ -48,6 +47,8 @@ public slots:
 
 private:
     enum { NOT_SETTED = -1 };
+
+    void updatePrevDeselected(const QModelIndexList &deselectList);
 
     int m_selectedRow;
     QIcon m_selectIcon;

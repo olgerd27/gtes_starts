@@ -97,7 +97,7 @@ DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbTable)
     , m_ui(new Ui::DBTEditor)
-    , m_proxyModel(new ProxySqlModel(this))
+    , m_proxyModel(new ProxyChoiceDecorModel(this))
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
@@ -128,25 +128,11 @@ void DBTEditor::setContentsUI()
     view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    view->setAlternatingRowColors(true);
 
-    // set selection
-    connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
-            [](const QItemSelection &selected, const QItemSelection &deselected)
-    {
-        qDebug() << "LAMBDA start.";
-        auto selList = selected.indexes();
-        auto deselList = deselected.indexes();
-
-        qDebug() << "Selected list (" << selList.size() << "):";
-        foreach (auto item, selList) {
-            qDebug() << "- [" << item.row() << "," << item.column() << "]";
-        }
-        qDebug() << "DeSelected list (" << deselList.size() << "):";
-        foreach (auto item, deselList) {
-            qDebug() << "- [" << item.row() << "," << item.column() << "]";
-        }
-        qDebug() << "LAMBDA end.";
-    } );
-
+    /*
+     * Is is not properly to use the currentRowChanged signal for choose row, because in time of the
+     * currentRowChanged signal calling, items is still not selected. Selecting items performs after changing
+     * current row (or column). Because of this there are need to use only selectionChanged signal for choose some row.
+     */
     connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
     connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
