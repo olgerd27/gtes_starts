@@ -184,7 +184,7 @@
            </widget>
           </item>
           <item row="6" column="2" rowspan="2" colspan="4">
-           <widget class="QPlainTextEdit" name="m_pteComments"/>
+           <widget class="FocusLostDataSetPTE" name="m_pteComments"/>
           </item>
           <item row="3" column="5">
            <widget class="PBtnForEditDBT" name="m_pbEditChambers">
@@ -513,6 +513,11 @@
   <customwidget>
    <class>DataSendLineEdit</class>
    <extends>QLineEdit</extends>
+   <header>common/reimplemented_widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusLostDataSetPTE</class>
+   <extends>QPlainTextEdit</extends>
    <header>common/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>

@@ -21,8 +21,8 @@ ProxyChoiceDecorModel::ProxyChoiceDecorModel(QObject *parent)
 void ProxyChoiceDecorModel::setSqlTable(const QString &tableName)
 {
     customSourceModel()->setTable(tableName);
-    printHeader();
-    printData();
+//    printHeader();
+//    printData();
 }
 
 QVariant ProxyChoiceDecorModel::data(const QModelIndex &index, int role) const

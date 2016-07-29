@@ -178,45 +178,45 @@ void FormDataInput::setDataOperating()
     // ************************************************************************************
     // NOTE: for debugging. Delete later
     // The proxy model
-    QTableView *tablePrx = new QTableView;
-    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
-                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-    tablePrx->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
-    tablePrx->setAlternatingRowColors(true);
-    tablePrx->resize(800, 500);
-    tablePrx->move(30, 30);
-    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tablePrx->show();
-    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
-    // selection setting - testing
-    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
-    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
+//    QTableView *tablePrx = new QTableView;
+//    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
+//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+//    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
+//    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
+//    tablePrx->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
+//    tablePrx->setAlternatingRowColors(true);
+//    tablePrx->resize(800, 500);
+//    tablePrx->move(30, 30);
+//    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    tablePrx->show();
+//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+//    // selection setting - testing
+//    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+//            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
+//    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
 
-    // The source model
-    QTableView *tableSrc = new QTableView;
-    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
-                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
-    tableSrc->setModel(m_proxyModel->customSourceModel());
-    tableSrc->resize(800, 500);
-    tableSrc->move(10, 10);
-    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tableSrc->show();
-//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
-    // selection setting - testing
-    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
-            [tableSrc](const QItemSelection &selected, const QItemSelection &)
-    {
-        const QModelIndexList &selectedList = selected.indexes();
-        if (selectedList.size() > 0)
-            tableSrc->selectRow(selectedList.at(0).row());
-    } );
+//    // The source model
+//    QTableView *tableSrc = new QTableView;
+//    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
+//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+//    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
+//    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
+//    tableSrc->setModel(m_proxyModel->customSourceModel());
+//    tableSrc->resize(800, 500);
+//    tableSrc->move(10, 10);
+//    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    tableSrc->show();
+////    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+//    // selection setting - testing
+//    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
+//            [tableSrc](const QItemSelection &selected, const QItemSelection &)
+//    {
+//        const QModelIndexList &selectedList = selected.indexes();
+//        if (selectedList.size() > 0)
+//            tableSrc->selectRow(selectedList.at(0).row());
+//    } );
     // ************************************************************************************
 
     //*************************************************************************************
@@ -263,10 +263,9 @@ void FormDataInput::setDataOperating()
 
     // set mapper
 //    m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this)); // NOTE: is this need?
-    m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     m_mapper->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
     // indexes starts from 1, because in the 0-th section place the selection icon
-    // TODO: insert new column
     m_mapper->addMapping(m_ui->m_leIdData, 1);
     m_mapper->addMapping(m_ui->m_leFullNameData, 2);
     m_mapper->addMapping(m_ui->m_leFuel, 3);
@@ -275,6 +274,19 @@ void FormDataInput::setDataOperating()
     m_mapper->addMapping(m_ui->m_sboxStartDevicesQntyData, 6);
     m_mapper->addMapping(m_ui->m_pteComments, 7);
     m_mapper->toFirst();
+
+    /*
+     * This connection is a spike. It must work when the mapper submit police was setted to the ManualSubmit.
+     * The purpose of this spike is set data to the model when focus leaves the widget.
+     * In the widget must be reimplemented the focusOutEvent() virtual method, and it must to emit the signal sigFocusOut().
+     * Current functionality must be implemented for every widget, that is mapped with DB table field that is not foreign.
+     */
+    connect(m_ui->m_pteComments, &FocusLostDataSetPTE::sigFocusOut,
+            [this](const QString &data)
+    {
+        const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(m_ui->m_pteComments) );
+        m_proxyModel->setData(currIndex, data, Qt::EditRole);
+    } );
 }
 
 void FormDataInput::setDataNavigation()

@@ -89,7 +89,13 @@ QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
     int storageDataIndex = -1;
     if ( (role == Qt::EditRole || role == Qt::DisplayRole) && m_genDataStorage->isForeignField(idx.column(), storageDataIndex) ) {
         try {
+            qDebug() << "source model, data(), is foreign, BEFORE getDataFromStorage(), index: [" << idx.row() << "," << idx.column() << "]";
+
             data = getDataFromStorage(idx, storageDataIndex);
+
+            qDebug() << "source model, data(), is foreign, AFTER getDataFromStorage(), index: [" << idx.row() << "," << idx.column() << "]"
+                     << ",  data:" << data.toString();
+
 //            qDebug() << "data(), foreign field,  [" << idx.row() << "," << idx.column() << "], role =" << role
 //                     << ", storageDataIndex =" << storageDataIndex << ", data:" << data;
         }
@@ -107,7 +113,7 @@ QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
     }
     else if (role == Qt::UserRole) {
         data = QSqlRelationalTableModel::data(idx, Qt::DisplayRole); // take data from the display role and neightbor's cell (provides by the baseIdx index)
-//        qDebug() << "data() UserRole, [" << item.row() << "," << item.column() << "], role:" << role << ", data:" << data.toString();
+        qDebug() << "source model, data(), UserRole, [" << idx.row() << "," << idx.column() << "], role:" << role << ", data:" << data.toString();
     }
     else
         data = QSqlRelationalTableModel::data(idx, role);
@@ -121,7 +127,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
      * In this case the QSqlRelationalTableModel::setData() method return false. The setData() method successfully works only with Qt::EditRole.
      * Saving data with the Qt::UserRole (or UserRole + 1, +2, ...) can be achieved by means of data saving in a some custom storage.
      */
-    qDebug() << "Source model setData()";
+    qDebug() << "Source model setData(), [" << idx.row() << "," << idx.column() << "],  data:" << value.toString();
 
     if (!idx.isValid()) return false;
     bool bSetted = false;
@@ -135,6 +141,8 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
                  << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
     else if (role == Qt::EditRole && m_genDataStorage->isForeignField(idx.column(), storageDataIndex) ) {
+        qDebug() << "source model, setData(), is foreign, START, index: [" << idx.row() << "," << idx.column() << "],  data:" << value.toString();
+
         if (m_spike1_bNeedSave) spike1_saveData(idx, value); // Spike #1 - TODO: delete?
 
 //        qDebug() << "setData(), before QSqlRelationalTableModel::setData()";
@@ -152,6 +160,8 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
 //        printDataDB(Qt::DisplayRole);
 
         try {
+            qDebug() << "source setData(), before updateDataInStorage()";
+
             updateDataInStorage(idx, storageDataIndex);
 
             qDebug() << "source setData(), after updateDataInStorage()";
@@ -172,8 +182,8 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
     }
     else {
         bSetted = QSqlRelationalTableModel::setData(idx, value, role);
-        qDebug() << "source setData(), else: [" << idx.row() << "," << idx.column() << "],"
-                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
+//        qDebug() << "source setData(), else: [" << idx.row() << "," << idx.column() << "],"
+//                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
 //    if (m_spike1_bNeedSave) spike1_restoreData(idx); // TODO: use only this???
 //    qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
@@ -431,8 +441,8 @@ void CustomSqlTableModel::slotRefreshTheModel()
         m_genDataStorage->flushFieldIndex(); // reset field index
 //        printDataDB(Qt::EditRole); // TODO: delete later
 
-        printHeader(Qt::DisplayRole);
-        printDataDB(Qt::DisplayRole);
+//        printHeader(Qt::DisplayRole);
+//        printDataDB(Qt::DisplayRole);
 
         emit sigModelRefreshed();
     }

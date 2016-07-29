@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->setupUi(this);
     m_ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(m_ui->m_listChoice));
     setWindowIcon(QIcon(":/images/window_icon.png")); // TODO: use another icon
+    setWindowTitle( tr("Control application") );
 
     // TODO: delete later
     m_ui->dockWidget->hide();
@@ -115,14 +116,14 @@ void MainWindow::slotAboutApp()
     // TODO: figure out how to use QObject::tr() function and QString::arg() for inserting some data in a string dynamically.
     QString winTitle = windowTitle();
     // TODO: write correct "About application" text
-    QString text = QString("The <b>") + winTitle + "</b> application.<br>"
-                   "The application helps to study any language words and its translations.<br><br>"
+    QString text = QString("The <b>") + winTitle + "</b> "
+                   "performs inputs, deletes, updates and queries data, that store in the GTE's starts database.<br><br>"
                    "<b>Version 1.0</b> (freeware).<br><br>"
                    "The programm is provided \"AS IS\" with no warranty of any kind, "
                    "including the warranty of design, merchantability and "
                    "fitness for a particular purpose.<br><br>"
                    "Developed by the group of GTE's starts characteristics, dep.19.<br>"
                    "Developer: Matiyuk O.I., olmati@zorya.com.<br><br>"
-                   "Mykolaiv, Ukraine - 2014-2016.";
-    QMessageBox::about(this, tr("About") + winTitle, tr(text.toUtf8()));
+                   "Nikolaev, Ukraine - 2014-2016.";
+    QMessageBox::about(this, tr("About") + " " + winTitle, tr(text.toUtf8()));
 }
