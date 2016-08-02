@@ -13,6 +13,7 @@
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
 #include "../common/db_info.h"
+#include "../common/focus_lost_ds_wgt.h"
 
 /*
  * HighlightTableRowsDelegate
@@ -157,7 +158,8 @@ void DBTEditor::setSelectUI()
 void DBTEditor::setEditingUI()
 {
     // TODO: code here
-
+    QGridLayout *layout = new QGridLayout(m_ui->m_gboxEditingData);
+    layout->addWidget( createFieldWidget(m_DBTInfo->fieldByIndex(0).m_widgetType), 0, 0 );
 }
 
 void DBTEditor::selectInitial(const QVariant &idPrim)

@@ -83,6 +83,6 @@ protected:
 /*
  * Factory method for creation the DB table widget
  */
-QWidget * createFieldWidget(int type, QWidget *parent);
+QWidget * createFieldWidget(int wgtType, QWidget *parent = 0);
 
 #endif // FOCUSLOST_DS_WGT_H

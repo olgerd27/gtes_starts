@@ -73,10 +73,10 @@ void FL_PlainTextEdit::focusOutEvent(QFocusEvent *fe)
 }
 
 
-QWidget *createFieldWidget(int type, QWidget *parent)
+QWidget *createFieldWidget(int wgtType, QWidget *parent)
 {
     QWidget *wgt = 0;
-    switch (type) {
+    switch (wgtType) {
     case dbi::DBTFieldInfo::wtype_lineEdit:
         wgt = new FL_LineEdit(parent);
         break;

@@ -90,7 +90,7 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "names_engines", trans("Engine name"), DBTInfo::ttype_simple,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
             {
@@ -102,8 +102,8 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "names_modifications_engines", trans("Engine name and modification"), DBTInfo::ttype_complex,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
-                , {"name_id", trans("Name"), DBTFieldInfo::wtype_comboBox, "names_engines"}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name_id", trans("Name"), DBTFieldInfo::wtype_lineEdit, "names_engines"}
                 , {"modification", trans("Modification"), DBTFieldInfo::wtype_lineEdit, ""}
             },
             {
@@ -115,8 +115,8 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "full_names_engines", trans("Full name"), DBTInfo::ttype_complex,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
-                , {"name_modif_id", trans("Name and modification"), DBTFieldInfo::wtype_comboBox, "names_modifications_engines"}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name_modif_id", trans("Name and modification"), DBTFieldInfo::wtype_lineEdit, "names_modifications_engines"}
                 , {"number", trans("Number"), DBTFieldInfo::wtype_spinBoxInt, ""}
             },
             {
@@ -128,7 +128,7 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "fuels_types", trans("Fuel type"), DBTInfo::ttype_simple,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
             {
@@ -140,7 +140,7 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "start_devices_types", trans("Start device type"), DBTInfo::ttype_simple,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
             {
@@ -152,8 +152,8 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "start_devices", trans("Start device"), DBTInfo::ttype_complex,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
-                , {"device_type_id", trans("Type"), DBTFieldInfo::wtype_comboBox, "start_devices_types"}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"device_type_id", trans("Type"), DBTFieldInfo::wtype_lineEdit, "start_devices_types"}
                 , {"model", trans("Model"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"Nnom", trans("Nnom"), DBTFieldInfo::wtype_spinBoxDouble, ""}
                 , {"n_nom", trans("n_nom"), DBTFieldInfo::wtype_spinBoxDouble, ""}
@@ -171,7 +171,7 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "injectors_types", trans("Injector types"), DBTInfo::ttype_simple,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
             {
@@ -183,10 +183,10 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "combustion_chambers", trans("Combustion chamber"), DBTInfo::ttype_complex,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"draft_number", trans("Draft number"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"flue_tubes_quantity", trans("Flue tubes quantity"), DBTFieldInfo::wtype_lineEdit, ""}
-                , {"injectors_type_id", trans("Injector type"), DBTFieldInfo::wtype_comboBox, "injectors_types"}
+                , {"injectors_type_id", trans("Injector type"), DBTFieldInfo::wtype_lineEdit, "injectors_types"}
                 , {"igniters_quantity", trans("Igniters quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
@@ -201,9 +201,9 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "engines", trans("Engine"), DBTInfo::ttype_composite,
             {
-                  {"id", trans("Id"), DBTFieldInfo::wtype_spinBoxInt, ""}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"full_name_id", trans("Identification"), DBTFieldInfo::wtype_lineEdit, "full_names_engines"}
-                , {"fuel_type_id", trans("Fuel type"), DBTFieldInfo::wtype_comboBox, "fuels_types"}
+                , {"fuel_type_id", trans("Fuel type"), DBTFieldInfo::wtype_lineEdit, "fuels_types"}
                 , {"combustion_chamber_id", trans("Combustion chamber"), DBTFieldInfo::wtype_lineEdit, "combustion_chambers"}
                 , {"start_device_id", trans("Start device"), DBTFieldInfo::wtype_lineEdit, "start_devices"}
                 , {"start_devices_quantity", trans("Start device quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
