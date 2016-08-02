@@ -23,23 +23,24 @@ class DBTEditor : public QDialog
 {
     Q_OBJECT
 public:
-    explicit DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent = 0);
-    virtual ~DBTEditor();
+    explicit DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent = 0);
+    ~DBTEditor();
 
     void selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
-protected: // TODO: make private
-    void setContentsUI();
-    void setEditingUI();
-    void setModel();
+private:
     void setWindowName();
+    void setWindowSize();
+    void setModel();
+    void setSelectUI();
+    void setEditingUI();
 
-    dbi::DBTInfo *m_DBTInfo;
+    const dbi::DBTInfo *m_DBTInfo;
 //    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode
 //    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel; // use in the release mode
-      Ui::DBTEditor *m_ui;
-      ProxyChoiceDecorModel *m_proxyModel;
+    Ui::DBTEditor *m_ui;
+    ProxyChoiceDecorModel *m_proxyModel;
 };
 
 #endif // DBT_EDITOR_H

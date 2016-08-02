@@ -72,7 +72,8 @@ private slots:
     void slotNeedChangeMapperIndex(const QString &value);
     void slotRowIndexChanged(int row);
     void slotSubmit();
-    void slotEditDBT();
+    void slotEditChildDBT();
+    void slotFocusLost_DataSet(const QString &data);
 
 private:
     void setMainControls();

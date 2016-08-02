@@ -93,16 +93,3 @@ DataSendLineEdit::DataSendLineEdit(QWidget *parent)
     connect(this, &DataSendLineEdit::returnPressed, [this]{ emit sigReturnPressed(text()); } );
 }
 
-/*
- * FocusLostDataSetPTE
- */
-FocusLostDataSetPTE::FocusLostDataSetPTE(QWidget *parent)
-    : QPlainTextEdit(parent)
-{
-}
-
-void FocusLostDataSetPTE::focusOutEvent(QFocusEvent *fe)
-{
-    emit sigFocusOut(toPlainText());
-    QPlainTextEdit::focusOutEvent(fe);
-}

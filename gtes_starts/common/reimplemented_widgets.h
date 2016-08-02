@@ -5,7 +5,6 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
-#include <QPlainTextEdit>
 
 /*
  * The custom QListWidget class, that resize itself for making all content data visible.
@@ -69,20 +68,6 @@ public:
 
 signals:
     void sigReturnPressed(const QString &value);
-};
-
-class FocusLostDataSetPTE : public QPlainTextEdit
-{
-    Q_OBJECT
-
-public:
-    explicit FocusLostDataSetPTE(QWidget *parent = 0);
-
-signals:
-    void sigFocusOut(const QString &text);
-
-protected:
-    void focusOutEvent(QFocusEvent *fe);
 };
 
 #endif // REIMPLEMENTED_WIDGETS_H

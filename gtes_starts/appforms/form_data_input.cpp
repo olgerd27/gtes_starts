@@ -12,6 +12,7 @@
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
 #include "../common/db_info.h"
+#include "../common/focus_lost_ds_wgt.h"
 
 /*
  * ChangerMChTypeImpl - private section of the ChangerMChType class
@@ -167,7 +168,7 @@ void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, Q
 {
     pb->setDBTableName(pbname);
     pb->setIdentDataWidget(identWidget);
-    connect(pb, SIGNAL(clicked()), this, SLOT(slotEditDBT()));
+    connect(pb, SIGNAL(clicked()), this, SLOT(slotEditChildDBT()));
 }
 
 #include <QItemSelection>
@@ -276,17 +277,13 @@ void FormDataInput::setDataOperating()
     m_mapper->toFirst();
 
     /*
-     * This connection is a spike. It must work when the mapper submit police was setted to the ManualSubmit.
+     * This connections is a spike. It must work when the mapper submit police was setted to the ManualSubmit.
      * The purpose of this spike is set data to the model when focus leaves the widget.
      * In the widget must be reimplemented the focusOutEvent() virtual method, and it must to emit the signal sigFocusOut().
      * Current functionality must be implemented for every widget, that is mapped with DB table field that is not foreign.
      */
-    connect(m_ui->m_pteComments, &FocusLostDataSetPTE::sigFocusOut,
-            [this](const QString &data)
-    {
-        const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(m_ui->m_pteComments) );
-        m_proxyModel->setData(currIndex, data, Qt::EditRole);
-    } );
+    connect(m_ui->m_pteComments, SIGNAL(sigFocusOut(QString)), this, SLOT(slotFocusLost_DataSet(QString)));
+    connect(m_ui->m_sboxStartDevicesQntyData, SIGNAL(sigFocusOut(QString)), this, SLOT(slotFocusLost_DataSet(QString)));
 }
 
 void FormDataInput::setDataNavigation()
@@ -392,7 +389,7 @@ void FormDataInput::slotSubmit()
 //    qDebug() << "slotSubmit(), end";
 }
 
-void FormDataInput::slotEditDBT()
+void FormDataInput::slotEditChildDBT()
 {
     // TODO: use try-catch
     PBtnForEditDBT *pbEditDBT = qobject_cast<PBtnForEditDBT *>(sender());
@@ -435,7 +432,16 @@ void FormDataInput::slotEditDBT()
         ASSERT_DBG( m_proxyModel->setData( currIndex, editor.selectedId(), Qt::EditRole ),
                     cmmn::MessageException::type_critical, tr("Error data setting"),
                     tr("Cannot set data: \"%1\" to the model").arg(editor.selectedId()),
-                    QString("FormDataInput::slotEditDBT()") );
+                    QString("FormDataInput::slotEditChildDBT()") );
         qDebug() << "The id value: \"" << editor.selectedId() << "\" was successfully setted to the model";
     }
+}
+
+void FormDataInput::slotFocusLost_DataSet(const QString &data)
+{
+    QWidget *wgt = qobject_cast<QWidget*>(sender());
+    ASSERT_DBG( wgt, cmmn::MessageException::type_warning, tr("Error getting a widget"),
+                tr("Cannot get the widget from sender"), QString("FormDataInput::slotFocusLost_DataSet()") );
+    const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(wgt) );
+    m_proxyModel->setData(currIndex, data, Qt::EditRole);
 }

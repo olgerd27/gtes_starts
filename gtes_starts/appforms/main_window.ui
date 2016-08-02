@@ -150,9 +150,6 @@ input</string>
     </rect>
    </property>
    <widget class="QMenu" name="m_menuHelp">
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the &lt;span style=&quot; font-weight:600;&quot;&gt;Help&lt;/span&gt; menu&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
     <property name="title">
      <string>Help</string>
     </property>
@@ -160,9 +157,6 @@ input</string>
     <addaction name="m_actAboutQt"/>
    </widget>
    <widget class="QMenu" name="m_menuLanguage">
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the &lt;span style=&quot; font-weight:600;&quot;&gt;Language&lt;/span&gt; menu&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
     <property name="title">
      <string>Language</string>
     </property>
@@ -171,9 +165,6 @@ input</string>
     <addaction name="m_actRussian"/>
    </widget>
    <widget class="QMenu" name="m_menuDatabase">
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the &lt;span style=&quot; font-weight:600;&quot;&gt;Database&lt;/span&gt; menu&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
     <property name="locale">
      <locale language="Russian" country="Ukraine"/>
     </property>
@@ -184,9 +175,6 @@ input</string>
     <addaction name="m_actDisconnectFromDB"/>
    </widget>
    <widget class="QMenu" name="menuOperations">
-    <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the &lt;span style=&quot; font-weight:600;&quot;&gt;Operations&lt;/span&gt; menu&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
     <property name="locale">
      <locale language="Russian" country="Ukraine"/>
     </property>

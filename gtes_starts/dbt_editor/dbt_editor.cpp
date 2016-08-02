@@ -93,7 +93,7 @@ private:
  * DBTEditor
  * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
  */
-DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
+DBTEditor::DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbTable)
     , m_ui(new Ui::DBTEditor)
@@ -101,9 +101,10 @@ DBTEditor::DBTEditor(dbi::DBTInfo *dbTable, QWidget *parent)
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
-    setModel();
     setWindowName();
-    setContentsUI();
+    setWindowSize();
+    setModel();
+    setSelectUI();
     setEditingUI();
 }
 
@@ -113,12 +114,27 @@ DBTEditor::~DBTEditor()
     delete m_proxyModel;
 }
 
+void DBTEditor::setWindowName()
+{
+    setWindowTitle( tr("Editing the table:") + " " + m_DBTInfo->m_nameInUI );
+}
+
+void DBTEditor::setWindowSize()
+{
+    // TODO: set window size depending on the DB table size
+}
+
+void DBTEditor::setModel()
+{
+    m_proxyModel->setSqlTable(m_DBTInfo->m_nameInDB);
+}
+
 cmmn::T_id DBTEditor::selectedId() const
 {
     return m_proxyModel->selectedId();
 }
 
-void DBTEditor::setContentsUI()
+void DBTEditor::setSelectUI()
 {
     QTableView *view = m_ui->m_tableContents;
     view->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
@@ -129,7 +145,7 @@ void DBTEditor::setContentsUI()
 //    view->setAlternatingRowColors(true);
 
     /*
-     * Is is not properly to use the currentRowChanged signal for choose row, because in time of the
+     * It is not properly to use the currentRowChanged signal for choose row, because in time of the
      * currentRowChanged signal calling, items is still not selected. Selecting items performs after changing
      * current row (or column). Because of this there are need to use only selectionChanged signal for choose some row.
      */
@@ -141,16 +157,7 @@ void DBTEditor::setContentsUI()
 void DBTEditor::setEditingUI()
 {
     // TODO: code here
-}
 
-void DBTEditor::setModel()
-{
-    m_proxyModel->setSqlTable(m_DBTInfo->m_nameInDB);
-}
-
-void DBTEditor::setWindowName()
-{
-    setWindowTitle( tr("Editing the table:") + " " + m_DBTInfo->m_nameInUI );
 }
 
 void DBTEditor::selectInitial(const QVariant &idPrim)
@@ -160,6 +167,6 @@ void DBTEditor::selectInitial(const QVariant &idPrim)
                 cmmn::MessageException::type_warning, tr("Selection error"),
                 tr("Cannot select the row in the table \"%1\". Cannot find the item with id: %2")
                 .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),
-                QString("FormDataInput::slotEditDBT()") );
+                QString("FormDataInput::slotEditChildDBT()") );
     m_ui->m_tableContents->selectRow(selectedRow);
 }

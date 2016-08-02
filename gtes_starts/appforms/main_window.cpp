@@ -117,7 +117,7 @@ void MainWindow::slotAboutApp()
     QString winTitle = windowTitle();
     // TODO: write correct "About application" text
     QString text = QString("The <b>") + winTitle + "</b> "
-                   "performs inputs, deletes, updates and queries data, that store in the GTE's starts database.<br><br>"
+                   "performs input, delete, update and query data, that stores in the GTE's starts database.<br><br>"
                    "<b>Version 1.0</b> (freeware).<br><br>"
                    "The programm is provided \"AS IS\" with no warranty of any kind, "
                    "including the warranty of design, merchantability and "

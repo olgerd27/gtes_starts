@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     model/custom_sql_table_model.cpp \
     model/generator_dbt_data.cpp \
     model/storage_gen_data.cpp \
-    model/proxy_model.cpp
+    model/proxy_model.cpp \
+    common/focus_lost_ds_wgt.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -35,7 +36,8 @@ HEADERS  += \
     model/custom_sql_table_model.h \
     model/generator_dbt_data.h \
     model/storage_gen_data.h \
-    model/proxy_model.h
+    model/proxy_model.h \
+    common/focus_lost_ds_wgt.h
 
 FORMS    += \
     appforms/main_window.ui \
