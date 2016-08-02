@@ -7,13 +7,14 @@
 #include <QHeaderView>
 #include <QItemSelection>
 #include <QMessageBox>
+#include <QLabel>
 #include <QDebug>
 #include "dbt_editor.h"
 #include "ui_dbt_editor.h"
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
 #include "../common/db_info.h"
-#include "../common/focus_lost_ds_wgt.h"
+#include "../common/fl_widgets.h"
 
 /*
  * HighlightTableRowsDelegate
@@ -157,9 +158,37 @@ void DBTEditor::setSelectUI()
 
 void DBTEditor::setEditingUI()
 {
-    // TODO: code here
+    // TODO: maybe move this to the external builder class. This class can use the FormDataInput class too.
+    QWidget *wgt = 0;
+    QLabel *lbl = 0;
+    QPushButton *cmd = 0;
     QGridLayout *layout = new QGridLayout(m_ui->m_gboxEditingData);
-    layout->addWidget( createFieldWidget(m_DBTInfo->fieldByIndex(0).m_widgetType), 0, 0 );
+    for (int i = 0; i < m_DBTInfo->tableDegree(); ++i) {
+        auto dbtField = m_DBTInfo->fieldByIndex(i);
+        lbl = createInfoLabel(dbtField.m_nameInUI);
+        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isForeign() || dbtField.isPrimary() ); // set read only status if it is key
+
+        layout->addWidget(lbl, i, 0);
+        layout->addWidget(wgt, i, 1);
+        if (dbtField.isForeign()) {
+            cmd = createSelEdPButton();
+            layout->addWidget(cmd, i, 3);
+        }
+    }
+    layout->setRowStretch(m_DBTInfo->tableDegree(), 0);
+}
+
+QLabel * DBTEditor::createInfoLabel(const QString &text) const
+{
+    return new QLabel(text + ":");
+}
+
+QPushButton *DBTEditor::createSelEdPButton() const
+{
+    // create select/edit push button
+    QPushButton *cmd = new QPushButton(QIcon(":/images/edit.png"), tr("Select/Edit"));
+    cmd->setStyleSheet("text-align: left");
+    return cmd;
 }
 
 void DBTEditor::selectInitial(const QVariant &idPrim)

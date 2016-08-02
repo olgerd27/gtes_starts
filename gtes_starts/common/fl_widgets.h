@@ -15,21 +15,7 @@ class FL_LineEdit : public QLineEdit
     Q_OBJECT
 
 public:
-    explicit FL_LineEdit(QWidget *parent = 0);
-
-signals:
-    void sigFocusOut(const QString &text);
-
-protected:
-    void focusOutEvent(QFocusEvent *fe);
-};
-
-class FL_ComboBox : public QComboBox
-{
-    Q_OBJECT
-
-public:
-    explicit FL_ComboBox(QWidget *parent = 0);
+    explicit FL_LineEdit(bool isReadOnly = false, QWidget *parent = 0);
 
 signals:
     void sigFocusOut(const QString &text);
@@ -43,7 +29,7 @@ class FL_SpinBox : public QSpinBox
     Q_OBJECT
 
 public:
-    explicit FL_SpinBox(QWidget *parent = 0);
+    explicit FL_SpinBox(bool isReadOnly = false, QWidget *parent = 0);
 
 signals:
     void sigFocusOut(const QString &text);
@@ -57,7 +43,7 @@ class FL_DoubleSpinBox : public QDoubleSpinBox
     Q_OBJECT
 
 public:
-    explicit FL_DoubleSpinBox(QWidget *parent = 0);
+    explicit FL_DoubleSpinBox(bool isReadOnly = false, QWidget *parent = 0);
 
 signals:
     void sigFocusOut(const QString &text);
@@ -71,7 +57,7 @@ class FL_PlainTextEdit : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    explicit FL_PlainTextEdit(QWidget *parent = 0);
+    explicit FL_PlainTextEdit(bool isReadOnly = false, QWidget *parent = 0);
 
 signals:
     void sigFocusOut(const QString &text);
@@ -83,6 +69,6 @@ protected:
 /*
  * Factory method for creation the DB table widget
  */
-QWidget * createFieldWidget(int wgtType, QWidget *parent = 0);
+QWidget * createFieldWidget(int wgtType, bool isReadOnly, QWidget *parent = 0);
 
 #endif // FOCUSLOST_DS_WGT_H

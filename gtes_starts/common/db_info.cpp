@@ -12,6 +12,11 @@ bool dbi::DBTFieldInfo::isValid() const
     return !m_nameInDB.isEmpty() && !m_nameInUI.isEmpty();
 }
 
+bool dbi::DBTFieldInfo::isPrimary() const
+{
+    return m_nameInDB == "id";
+}
+
 bool dbi::DBTFieldInfo::isForeign() const
 {
     return isValid() && !m_relationDBTable.isEmpty();

@@ -6,6 +6,7 @@
 #include <QIcon>
 #include <QDialog>
 #include <QItemSelection>
+#include <QLabel> // TODO: delete is not need
 #include "../common/common_defines.h"
 
 class ProxyChoiceDecorModel;
@@ -35,6 +36,8 @@ private:
     void setModel();
     void setSelectUI();
     void setEditingUI();
+    QLabel *createInfoLabel(const QString &text) const;
+    QPushButton * createSelEdPButton() const;
 
     const dbi::DBTInfo *m_DBTInfo;
 //    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode

@@ -89,12 +89,12 @@ QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
     int storageDataIndex = -1;
     if ( (role == Qt::EditRole || role == Qt::DisplayRole) && m_genDataStorage->isForeignField(idx.column(), storageDataIndex) ) {
         try {
-            qDebug() << "source model, data(), is foreign, BEFORE getDataFromStorage(), index: [" << idx.row() << "," << idx.column() << "]";
+//            qDebug() << "source model, data(), is foreign, BEFORE getDataFromStorage(), index: [" << idx.row() << "," << idx.column() << "]";
 
             data = getDataFromStorage(idx, storageDataIndex);
 
-            qDebug() << "source model, data(), is foreign, AFTER getDataFromStorage(), index: [" << idx.row() << "," << idx.column() << "]"
-                     << ",  data:" << data.toString();
+//            qDebug() << "source model, data(), is foreign, AFTER getDataFromStorage(), index: [" << idx.row() << "," << idx.column() << "]"
+//                     << ",  data:" << data.toString();
 
 //            qDebug() << "data(), foreign field,  [" << idx.row() << "," << idx.column() << "], role =" << role
 //                     << ", storageDataIndex =" << storageDataIndex << ", data:" << data;
@@ -113,7 +113,7 @@ QVariant CustomSqlTableModel::data(const QModelIndex &idx, int role) const
     }
     else if (role == Qt::UserRole) {
         data = QSqlRelationalTableModel::data(idx, Qt::DisplayRole); // take data from the display role and neightbor's cell (provides by the baseIdx index)
-        qDebug() << "source model, data(), UserRole, [" << idx.row() << "," << idx.column() << "], role:" << role << ", data:" << data.toString();
+//        qDebug() << "source model, data(), UserRole, [" << idx.row() << "," << idx.column() << "], role:" << role << ", data:" << data.toString();
     }
     else
         data = QSqlRelationalTableModel::data(idx, role);
@@ -137,8 +137,8 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
         // fill the model's new row by the empty values.
         // The storages new rows filling performs earlier by calling the CustomSqlTableModel::slotInsertToTheModel()
         bSetted = QSqlRelationalTableModel::setData(idx, QVariant(), role);
-        qDebug() << "source setData(), NOT_SETTED: [" << idx.row() << "," << idx.column() << "],"
-                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
+//        qDebug() << "source setData(), NOT_SETTED: [" << idx.row() << "," << idx.column() << "],"
+//                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
     else if (role == Qt::EditRole && m_genDataStorage->isForeignField(idx.column(), storageDataIndex) ) {
         qDebug() << "source model, setData(), is foreign, START, index: [" << idx.row() << "," << idx.column() << "],  data:" << value.toString();
@@ -150,9 +150,9 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
 
         bSetted = QSqlRelationalTableModel::setData(idx, value, role);
 
-//        qDebug() << "After QSqlRelationalTableModel::setData()";
-//        qDebug() << "[" << idx.row() << "," << idx.column() << "]," << "role:" << role
-//                 << ", set data:" << value.toString() << ", bSetted:" << bSetted;
+        qDebug() << "After QSqlRelationalTableModel::setData()";
+        qDebug() << "[" << idx.row() << "," << idx.column() << "]," << "role:" << role
+                 << ", set data:" << value.toString() << ", bSetted:" << bSetted;
 //        printDataDB(Qt::DisplayRole);
 
         if (m_spike1_bNeedSave) spike1_restoreData(idx); // Spike #1 - TODO: delete?
@@ -160,11 +160,11 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
 //        printDataDB(Qt::DisplayRole);
 
         try {
-            qDebug() << "source setData(), before updateDataInStorage()";
+//            qDebug() << "source setData(), before updateDataInStorage()";
 
             updateDataInStorage(idx, storageDataIndex);
 
-            qDebug() << "source setData(), after updateDataInStorage()";
+//            qDebug() << "source setData(), after updateDataInStorage()";
 //            printDataDB(Qt::DisplayRole);
         }
         catch (const cmmn::MessageException &me) {

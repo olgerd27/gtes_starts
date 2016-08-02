@@ -12,7 +12,7 @@
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
 #include "../common/db_info.h"
-#include "../common/focus_lost_ds_wgt.h"
+#include "../common/fl_widgets.h"
 
 /*
  * ChangerMChTypeImpl - private section of the ChangerMChType class

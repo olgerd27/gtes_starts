@@ -22,7 +22,7 @@ SOURCES += main.cpp\
     model/generator_dbt_data.cpp \
     model/storage_gen_data.cpp \
     model/proxy_model.cpp \
-    common/focus_lost_ds_wgt.cpp
+    common/fl_widgets.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -37,7 +37,7 @@ HEADERS  += \
     model/generator_dbt_data.h \
     model/storage_gen_data.h \
     model/proxy_model.h \
-    common/focus_lost_ds_wgt.h
+    common/fl_widgets.h
 
 FORMS    += \
     appforms/main_window.ui \

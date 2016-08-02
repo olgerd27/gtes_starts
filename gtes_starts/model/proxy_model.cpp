@@ -44,10 +44,8 @@ QVariant ProxyChoiceDecorModel::data(const QModelIndex &index, int role) const
 bool ProxyChoiceDecorModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     bool bSetted = false;
-    if (role == Qt::DecorationRole && index.column() == SELECT_ICON_COLUMN) {
+    if (role == Qt::DecorationRole && index.column() == SELECT_ICON_COLUMN)
         m_selectedRow = index.row();
-        qDebug() << "proxy setData(), decoration role, [" << index.row() << "," << index.column() << "], selected row =" << m_selectedRow;
-    }
     else
         bSetted = sourceModel()->setData( mapToSource(index), value, role );
     if (bSetted) emit dataChanged(index, index);

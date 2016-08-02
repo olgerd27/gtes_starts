@@ -18,13 +18,13 @@ namespace dbi {
               wtype_not_show
             , wtype_label
             , wtype_lineEdit
-            , wtype_comboBox
             , wtype_spinBoxInt
             , wtype_spinBoxDouble
             , wtype_plainTextEdit
         };
 
         bool isValid() const;
+        bool isPrimary() const;
         bool isForeign() const;
         int relationDBTtype() const; /* return DBTInfo::TableTypes value. Returned value has the int type,
                                       * because the DBTInfo::TableTypes type is not known here */
