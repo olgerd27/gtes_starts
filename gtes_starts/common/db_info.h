@@ -26,6 +26,7 @@ namespace dbi {
         bool isValid() const;
         bool isPrimary() const;
         bool isForeign() const;
+        bool isKey() const;
         int relationDBTtype() const; /* return DBTInfo::TableTypes value. Returned value has the int type,
                                       * because the DBTInfo::TableTypes type is not known here */
 

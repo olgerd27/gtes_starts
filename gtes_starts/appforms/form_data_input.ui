@@ -184,7 +184,7 @@
            </widget>
           </item>
           <item row="6" column="2" rowspan="2" colspan="4">
-           <widget class="FL_PlainTextEdit" name="m_pteComments"/>
+           <widget class="QPlainTextEdit" name="m_pteComments"/>
           </item>
           <item row="3" column="5">
            <widget class="PBtnForEditDBT" name="m_pbEditChambers">
@@ -214,7 +214,7 @@
            </widget>
           </item>
           <item row="5" column="2">
-           <widget class="FL_SpinBox" name="m_sboxStartDevicesQntyData">
+           <widget class="QSpinBox" name="m_sboxStartDevicesQntyData">
             <property name="maximumSize">
              <size>
               <width>65</width>
@@ -514,16 +514,6 @@
    <class>DataSendLineEdit</class>
    <extends>QLineEdit</extends>
    <header>common/reimplemented_widgets.h</header>
-  </customwidget>
-  <customwidget>
-   <class>FL_PlainTextEdit</class>
-   <extends>QPlainTextEdit</extends>
-   <header>common/focus_lost_ds_wgt.h</header>
-  </customwidget>
-  <customwidget>
-   <class>FL_SpinBox</class>
-   <extends>QSpinBox</extends>
-   <header>common/focus_lost_ds_wgt.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -102,7 +102,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
 {
     m_ui->setupUi(this);
-    setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowName();
     setWindowSize();
     setModel();
@@ -142,9 +142,9 @@ void DBTEditor::setSelectUI()
     view->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
     view->setItemDelegate(new HighlightTableRowsDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
-    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    view->setAlternatingRowColors(true);
+    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    view->setMinimumWidth(view->horizontalHeader()->length() + 20);
 
     /*
      * It is not properly to use the currentRowChanged signal for choose row, because in time of the
@@ -159,34 +159,37 @@ void DBTEditor::setSelectUI()
 void DBTEditor::setEditingUI()
 {
     // TODO: maybe move this to the external builder class. This class can use the FormDataInput class too.
+    int rowWgtSpan = 1;
     QWidget *wgt = 0;
-    QLabel *lbl = 0;
-    QPushButton *cmd = 0;
     QGridLayout *layout = new QGridLayout(m_ui->m_gboxEditingData);
     for (int i = 0; i < m_DBTInfo->tableDegree(); ++i) {
-        auto dbtField = m_DBTInfo->fieldByIndex(i);
-        lbl = createInfoLabel(dbtField.m_nameInUI);
-        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isForeign() || dbtField.isPrimary() ); // set read only status if it is key
+        const auto &dbtField = m_DBTInfo->fieldByIndex(i);
 
-        layout->addWidget(lbl, i, 0);
-        layout->addWidget(wgt, i, 1);
+        if (dbtField.m_widgetType == dbi::DBTFieldInfo::wtype_plainTextEdit) {
+            rowWgtSpan = 2;
+            layout->addItem(new QSpacerItem(10, 70), i + 1, 0);
+        }
+        else rowWgtSpan = 1;
+
+        layout->addWidget( createFieldDescLabel(dbtField.m_nameInUI), i, 0 );
+        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey() );
+        layout->addWidget( wgt, i, 1, rowWgtSpan, 1 ); // set read only status if it is a key
         if (dbtField.isForeign()) {
-            cmd = createSelEdPButton();
-            layout->addWidget(cmd, i, 3);
+            layout->addWidget(createSelEdPButton(), i, 3);
         }
     }
-    layout->setRowStretch(m_DBTInfo->tableDegree(), 0);
 }
 
-QLabel * DBTEditor::createInfoLabel(const QString &text) const
+QLabel * DBTEditor::createFieldDescLabel(const QString &text) const
 {
-    return new QLabel(text + ":");
+    // create field description label
+    return new QLabel(text + ":"); // TODO: use smart pointer
 }
 
 QPushButton *DBTEditor::createSelEdPButton() const
 {
     // create select/edit push button
-    QPushButton *cmd = new QPushButton(QIcon(":/images/edit.png"), tr("Select/Edit"));
+    QPushButton *cmd = new QPushButton(QIcon(":/images/edit.png"), tr("Select/Edit")); // TODO: use smart pointer
     cmd->setStyleSheet("text-align: left");
     return cmd;
 }

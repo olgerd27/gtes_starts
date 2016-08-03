@@ -36,7 +36,7 @@ private:
     void setModel();
     void setSelectUI();
     void setEditingUI();
-    QLabel *createInfoLabel(const QString &text) const;
+    QLabel *createFieldDescLabel(const QString &text) const;
     QPushButton * createSelEdPButton() const;
 
     const dbi::DBTInfo *m_DBTInfo;

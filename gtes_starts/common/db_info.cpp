@@ -22,6 +22,11 @@ bool dbi::DBTFieldInfo::isForeign() const
     return isValid() && !m_relationDBTable.isEmpty();
 }
 
+bool dbi::DBTFieldInfo::isKey() const
+{
+    return isPrimary() || isForeign();
+}
+
 int dbi::DBTFieldInfo::relationDBTtype() const
 {
     return isForeign() ? DBINFO.tableByName(m_relationDBTable)->m_type : DBTInfo::ttype_simple;
