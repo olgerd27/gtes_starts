@@ -100,20 +100,24 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent)
     , m_DBTInfo(dbTable)
     , m_ui(new Ui::DBTEditor)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
+    , m_mapper(new QDataWidgetMapper(this))
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowName();
     setWindowSize();
     setModel();
+    setMapper();
     setSelectUI();
     setEditingUI();
+    setDataNavigation();
 }
 
 DBTEditor::~DBTEditor()
 {
     delete m_ui;
     delete m_proxyModel;
+    delete m_mapper;
 }
 
 void DBTEditor::setWindowName()
@@ -129,6 +133,12 @@ void DBTEditor::setWindowSize()
 void DBTEditor::setModel()
 {
     m_proxyModel->setSqlTable(m_DBTInfo->m_nameInDB);
+}
+
+void DBTEditor::setMapper()
+{
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    m_mapper->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
 }
 
 cmmn::T_id DBTEditor::selectedId() const
@@ -173,6 +183,7 @@ void DBTEditor::setEditingUI()
 
         layout->addWidget( createFieldDescLabel(dbtField.m_nameInUI), i, 0 );
         wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey() );
+        m_mapper->addMapping(wgt, i + 1);
         layout->addWidget( wgt, i, 1, rowWgtSpan, 1 ); // set read only status if it is a key
         if (dbtField.isForeign()) {
             layout->addWidget(createSelEdPButton(), i, 3);
@@ -194,6 +205,12 @@ QPushButton *DBTEditor::createSelEdPButton() const
     return cmd;
 }
 
+void DBTEditor::setDataNavigation()
+{
+    connect(m_ui->m_tableContents->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            m_mapper, SLOT(setCurrentModelIndex(QModelIndex)));
+}
+
 void DBTEditor::selectInitial(const QVariant &idPrim)
 {
     int selectedRow = -1;
@@ -203,4 +220,5 @@ void DBTEditor::selectInitial(const QVariant &idPrim)
                 .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),
                 QString("FormDataInput::slotEditChildDBT()") );
     m_ui->m_tableContents->selectRow(selectedRow);
+    m_mapper->setCurrentIndex(selectedRow);
 }

@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <limits>
 #include "fl_widgets.h"
 #include "db_info.h"
 
@@ -9,7 +10,6 @@ FL_LineEdit::FL_LineEdit(bool isReadOnly, QWidget *parent)
     : QLineEdit(parent)
 {
     setReadOnly(isReadOnly);
-    setText("2");
 }
 
 void FL_LineEdit::focusOutEvent(QFocusEvent *fe)
@@ -25,6 +25,7 @@ FL_SpinBox::FL_SpinBox(bool isReadOnly, QWidget *parent)
     : QSpinBox(parent)
 {
     setReadOnly(isReadOnly);
+    setMaximum(INT_MAX);
 }
 
 void FL_SpinBox::focusOutEvent(QFocusEvent *fe)
@@ -40,6 +41,7 @@ FL_DoubleSpinBox::FL_DoubleSpinBox(bool isReadOnly, QWidget *parent)
     : QDoubleSpinBox(parent)
 {
     setReadOnly(isReadOnly);
+    setMaximum((double)INT_MAX);
 }
 
 void FL_DoubleSpinBox::focusOutEvent(QFocusEvent *fe)
