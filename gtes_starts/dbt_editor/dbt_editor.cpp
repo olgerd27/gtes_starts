@@ -181,9 +181,11 @@ void DBTEditor::setEditingUI()
         }
         else rowWgtSpan = 1;
 
-        layout->addWidget( createFieldDescLabel(dbtField.m_nameInUI), i, 0 );
-        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey() );
+        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), this, SLOT(slotFocusLost_DataSet(QString)) );
         m_mapper->addMapping(wgt, i + 1);
+
+        // put widgets to the layout
+        layout->addWidget( createFieldDescLabel(dbtField.m_nameInUI), i, 0 );
         layout->addWidget( wgt, i, 1, rowWgtSpan, 1 ); // set read only status if it is a key
         if (dbtField.isForeign()) {
             layout->addWidget(createSelEdPButton(), i, 3);
@@ -221,4 +223,13 @@ void DBTEditor::selectInitial(const QVariant &idPrim)
                 QString("FormDataInput::slotEditChildDBT()") );
     m_ui->m_tableContents->selectRow(selectedRow);
     m_mapper->setCurrentIndex(selectedRow);
+}
+
+void DBTEditor::slotFocusLost_DataSet(const QString &data)
+{
+    QWidget *wgt = qobject_cast<QWidget*>(sender());
+    ASSERT_DBG( wgt, cmmn::MessageException::type_warning, tr("Error getting a widget"),
+                tr("Cannot get the widget from sender"), QString("FormDataInput::slotFocusLost_DataSet()") );
+    const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(wgt) );
+    m_proxyModel->setData(currIndex, data, Qt::EditRole);
 }

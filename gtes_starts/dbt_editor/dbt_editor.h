@@ -31,6 +31,9 @@ public:
     void selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
+private slots:
+    void slotFocusLost_DataSet(const QString &data);
+
 private:
     void setWindowName();
     void setWindowSize();
