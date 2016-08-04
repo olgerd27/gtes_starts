@@ -33,7 +33,7 @@
       <string>Data selection</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" rowspan="3">
+      <item row="0" column="0" rowspan="6">
        <widget class="QTableView" name="m_tableContents">
         <property name="minimumSize">
          <size>
@@ -114,6 +114,50 @@
        </widget>
       </item>
       <item row="2" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>10</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="1">
+       <widget class="QPushButton" name="m_pbSave">
+        <property name="toolTip">
+         <string>Save data in the database</string>
+        </property>
+        <property name="text">
+         <string>&amp;Save</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../images_resources.qrc">
+          <normaloff>:/images/save2.png</normaloff>:/images/save2.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QPushButton" name="m_pbRefresh">
+        <property name="toolTip">
+         <string>Refresh data in the table</string>
+        </property>
+        <property name="text">
+         <string>Refresh</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../images_resources.qrc">
+          <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -134,6 +178,7 @@
      <property name="title">
       <string>Data editing</string>
      </property>
+     <zorder>m_gboxSelectData</zorder>
     </widget>
    </item>
    <item>
@@ -159,8 +204,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>240</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -175,8 +220,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>240</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
