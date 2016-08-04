@@ -141,20 +141,20 @@ void DBTEditor::setMapper()
     m_mapper->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
 }
 
-cmmn::T_id DBTEditor::selectedId() const
-{
-    return m_proxyModel->selectedId();
-}
-
 void DBTEditor::setSelectUI()
 {
     QTableView *view = m_ui->m_tableContents;
     view->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
     view->setItemDelegate(new HighlightTableRowsDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
-    view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    view->setMinimumWidth(view->horizontalHeader()->length() + 20);
+    // set headers - make select view of big data in the last column
+    auto vHeader = view->verticalHeader();
+    vHeader->setDefaultSectionSize( vHeader->defaultSectionSize() * 0.75 ); // reduce rows high - need for the QHeaderView::Fixed resize mode
+    vHeader->setSectionResizeMode(QHeaderView::Fixed);
+    auto hHeader = view->horizontalHeader();
+    hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+    hHeader->setStretchLastSection(true);
+    view->setMinimumWidth(hHeader->length() + 30); // increase view width, that vertical scroll widget do not cover data in the last table column
 
     /*
      * It is not properly to use the currentRowChanged signal for choose row, because in time of the
@@ -223,6 +223,11 @@ void DBTEditor::selectInitial(const QVariant &idPrim)
                 QString("FormDataInput::slotEditChildDBT()") );
     m_ui->m_tableContents->selectRow(selectedRow);
     m_mapper->setCurrentIndex(selectedRow);
+}
+
+cmmn::T_id DBTEditor::selectedId() const
+{
+    return m_proxyModel->selectedId();
 }
 
 void DBTEditor::slotFocusLost_DataSet(const QString &data)
