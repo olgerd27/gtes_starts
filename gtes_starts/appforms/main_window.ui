@@ -335,7 +335,7 @@ input</string>
     <string>Save</string>
    </property>
    <property name="toolTip">
-    <string>Save inputed data in the database</string>
+    <string>Save data in the database</string>
    </property>
   </action>
   <action name="m_actRefresh">
@@ -434,7 +434,7 @@ input</string>
     <string>Delete engine</string>
    </property>
    <property name="toolTip">
-    <string>Delete the current engine. This action is enabled only if it was choosed &quot;Engines&quot; tab panel</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete the current engine.&lt;/p&gt;&lt;p&gt;This action is enabled only if it was choosed Engines tab panel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
  </widget>

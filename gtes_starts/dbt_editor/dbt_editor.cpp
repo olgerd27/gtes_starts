@@ -100,20 +100,24 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent)
     , m_DBTInfo(dbTable)
     , m_ui(new Ui::DBTEditor)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
+    , m_mapper(new QDataWidgetMapper(this))
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowName();
     setWindowSize();
     setModel();
+    setMapper();
     setSelectUI();
     setEditingUI();
+    setDataNavigation();
 }
 
 DBTEditor::~DBTEditor()
 {
     delete m_ui;
     delete m_proxyModel;
+    delete m_mapper;
 }
 
 void DBTEditor::setWindowName()
@@ -131,9 +135,10 @@ void DBTEditor::setModel()
     m_proxyModel->setSqlTable(m_DBTInfo->m_nameInDB);
 }
 
-cmmn::T_id DBTEditor::selectedId() const
+void DBTEditor::setMapper()
 {
-    return m_proxyModel->selectedId();
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    m_mapper->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
 }
 
 void DBTEditor::setSelectUI()
@@ -142,9 +147,14 @@ void DBTEditor::setSelectUI()
     view->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
     view->setItemDelegate(new HighlightTableRowsDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
-    view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    view->setMinimumWidth(view->horizontalHeader()->length() + 20);
+    // set headers - make select view of big data in the last column
+    auto vHeader = view->verticalHeader();
+    vHeader->setDefaultSectionSize( vHeader->defaultSectionSize() * 0.75 ); // reduce rows high - need for the QHeaderView::Fixed resize mode
+    vHeader->setSectionResizeMode(QHeaderView::Fixed);
+    auto hHeader = view->horizontalHeader();
+    hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+    hHeader->setStretchLastSection(true);
+    view->setMinimumWidth(hHeader->length() + 30); // increase view width, that vertical scroll widget do not cover data in the last table column
 
     /*
      * It is not properly to use the currentRowChanged signal for choose row, because in time of the
@@ -171,8 +181,11 @@ void DBTEditor::setEditingUI()
         }
         else rowWgtSpan = 1;
 
+        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), this, SLOT(slotFocusLost_DataSet(QString)) );
+        m_mapper->addMapping(wgt, i + 1);
+
+        // put widgets to the layout
         layout->addWidget( createFieldDescLabel(dbtField.m_nameInUI), i, 0 );
-        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey() );
         layout->addWidget( wgt, i, 1, rowWgtSpan, 1 ); // set read only status if it is a key
         if (dbtField.isForeign()) {
             layout->addWidget(createSelEdPButton(), i, 3);
@@ -194,6 +207,12 @@ QPushButton *DBTEditor::createSelEdPButton() const
     return cmd;
 }
 
+void DBTEditor::setDataNavigation()
+{
+    connect(m_ui->m_tableContents->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            m_mapper, SLOT(setCurrentModelIndex(QModelIndex)));
+}
+
 void DBTEditor::selectInitial(const QVariant &idPrim)
 {
     int selectedRow = -1;
@@ -203,4 +222,19 @@ void DBTEditor::selectInitial(const QVariant &idPrim)
                 .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),
                 QString("FormDataInput::slotEditChildDBT()") );
     m_ui->m_tableContents->selectRow(selectedRow);
+    m_mapper->setCurrentIndex(selectedRow);
+}
+
+cmmn::T_id DBTEditor::selectedId() const
+{
+    return m_proxyModel->selectedId();
+}
+
+void DBTEditor::slotFocusLost_DataSet(const QString &data)
+{
+    QWidget *wgt = qobject_cast<QWidget*>(sender());
+    ASSERT_DBG( wgt, cmmn::MessageException::type_warning, tr("Error getting a widget"),
+                tr("Cannot get the widget from sender"), QString("FormDataInput::slotFocusLost_DataSet()") );
+    const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(wgt) );
+    m_proxyModel->setData(currIndex, data, Qt::EditRole);
 }

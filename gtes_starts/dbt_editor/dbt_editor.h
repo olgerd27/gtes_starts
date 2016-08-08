@@ -6,6 +6,7 @@
 #include <QIcon>
 #include <QDialog>
 #include <QItemSelection>
+#include <QDataWidgetMapper>
 #include <QLabel> // TODO: delete is not need
 #include "../common/common_defines.h"
 
@@ -30,20 +31,26 @@ public:
     void selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
+private slots:
+    void slotFocusLost_DataSet(const QString &data);
+
 private:
     void setWindowName();
     void setWindowSize();
     void setModel();
+    void setMapper();
     void setSelectUI();
     void setEditingUI();
     QLabel *createFieldDescLabel(const QString &text) const;
     QPushButton * createSelEdPButton() const;
+    void setDataNavigation();
 
     const dbi::DBTInfo *m_DBTInfo;
 //    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode
 //    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel; // use in the release mode
     Ui::DBTEditor *m_ui;
     ProxyChoiceDecorModel *m_proxyModel;
+    QDataWidgetMapper *m_mapper;
 };
 
 #endif // DBT_EDITOR_H

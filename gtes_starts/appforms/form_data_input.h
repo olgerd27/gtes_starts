@@ -73,7 +73,6 @@ private slots:
     void slotRowIndexChanged(int row);
     void slotSubmit();
     void slotEditChildDBT();
-    void slotFocusLost_DataSet(const QString &data);
 
 private:
     void setMainControls();
