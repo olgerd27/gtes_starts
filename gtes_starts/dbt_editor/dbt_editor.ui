@@ -178,7 +178,6 @@
      <property name="title">
       <string>Data editing</string>
      </property>
-     <zorder>m_gboxSelectData</zorder>
     </widget>
    </item>
    <item>
