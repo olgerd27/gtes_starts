@@ -75,7 +75,7 @@ void FL_PlainTextEdit::focusOutEvent(QFocusEvent *fe)
     QPlainTextEdit::focusOutEvent(fe);
 }
 
-QWidget *createFieldWidget(int wgtType, bool isReadOnly, QObject *sigReceiver, const char *slotMember)
+QWidget *createFieldWidget(int wgtType, bool isReadOnly, QObject *sigReceiver = 0, const char *slotMember = 0)
 {
     QWidget *wgt = 0;
     switch (wgtType) {

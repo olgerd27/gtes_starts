@@ -88,19 +88,9 @@
            </widget>
           </item>
           <item row="4" column="5">
-           <widget class="PBtnForEditDBT" name="m_pbEditStartDevices">
-            <property name="styleSheet">
-             <string notr="true">text-align: left</string>
-            </property>
+           <widget class="SelectEditPB" name="m_pbEditStartDevices">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Select/Edit</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../images_resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
             </property>
            </widget>
           </item>
@@ -167,19 +157,9 @@
            </spacer>
           </item>
           <item row="2" column="5">
-           <widget class="PBtnForEditDBT" name="m_pbEditFuels">
-            <property name="styleSheet">
-             <string notr="true">text-align: left</string>
-            </property>
+           <widget class="SelectEditPB" name="m_pbEditFuels">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Select/Edit</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../images_resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
             </property>
            </widget>
           </item>
@@ -187,19 +167,9 @@
            <widget class="QPlainTextEdit" name="m_pteComments"/>
           </item>
           <item row="3" column="5">
-           <widget class="PBtnForEditDBT" name="m_pbEditChambers">
-            <property name="styleSheet">
-             <string notr="true">text-align: left</string>
-            </property>
+           <widget class="SelectEditPB" name="m_pbEditChambers">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Select/Edit</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../images_resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
             </property>
            </widget>
           </item>
@@ -250,19 +220,9 @@
            </widget>
           </item>
           <item row="1" column="5">
-           <widget class="PBtnForEditDBT" name="m_pbEditFullName">
-            <property name="styleSheet">
-             <string notr="true">text-align: left</string>
-            </property>
+           <widget class="SelectEditPB" name="m_pbEditFullName">
             <property name="locale">
              <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Select/Edit</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../images_resources.qrc">
-              <normaloff>:/images/edit.png</normaloff>:/images/edit.png</iconset>
             </property>
            </widget>
           </item>
@@ -501,11 +461,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PBtnForEditDBT</class>
-   <extends>QPushButton</extends>
-   <header>common/reimplemented_widgets.h</header>
-  </customwidget>
-  <customwidget>
    <class>MChTypeLabel</class>
    <extends>QLabel</extends>
    <header>common/reimplemented_widgets.h</header>
@@ -513,6 +468,11 @@
   <customwidget>
    <class>DataSendLineEdit</class>
    <extends>QLineEdit</extends>
+   <header>common/reimplemented_widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SelectEditPB</class>
+   <extends>QPushButton</extends>
    <header>common/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>

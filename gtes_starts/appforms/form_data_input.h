@@ -14,7 +14,7 @@ class DBTEditor;
 class CustomSqlTableModel;
 class ProxyChoiceDecorModel;
 class QDataWidgetMapper;
-class PBtnForEditDBT;
+class SelectEditPB;
 class ChangerMChTypeImpl;
 
 /*
@@ -77,7 +77,7 @@ private slots:
 private:
     void setMainControls();
     void setEditDBTPushButtons();
-    void setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, QWidget *identWidget);
+    void setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget);
     void setDataOperating();
     void setDataNavigation();
     void setModelChange();

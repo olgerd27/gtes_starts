@@ -22,28 +22,29 @@ QSize ResizableWidgetList::sizeHint() const
 /*
  * PBtnForEditDBT
  */
-PBtnForEditDBT::PBtnForEditDBT(QWidget *parent)
-    : QPushButton(parent)
+SelectEditPB::SelectEditPB(QWidget *parent)
+    : QPushButton(QIcon(":/images/edit.png"), tr("Select/Edit"), parent)
     , m_identWgt(0)
 {
+    setStyleSheet("text-align: left");
 }
 
-void PBtnForEditDBT::setDBTableName(const QString &name)
+void SelectEditPB::setDBTableName(const QString &name)
 {
     m_DBTableName = name;
 }
 
-QString PBtnForEditDBT::DBTableName() const
+QString SelectEditPB::DBTableName() const
 {
     return m_DBTableName;
 }
 
-void PBtnForEditDBT::setIdentDataWidget(QWidget *wgt)
+void SelectEditPB::setIdentDataWidget(QWidget *wgt)
 {
     m_identWgt = wgt;
 }
 
-QWidget *PBtnForEditDBT::identWidget() const
+QWidget *SelectEditPB::identWidget() const
 {
     return m_identWgt;
 }

@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     model/generator_dbt_data.cpp \
     model/storage_gen_data.cpp \
     model/proxy_model.cpp \
-    common/fl_widgets.cpp
+    common/fl_widgets.cpp \
+    dbt_editor/edit_ui_creator.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -37,7 +38,8 @@ HEADERS  += \
     model/generator_dbt_data.h \
     model/storage_gen_data.h \
     model/proxy_model.h \
-    common/fl_widgets.h
+    common/fl_widgets.h \
+    dbt_editor/edit_ui_creator.h
 
 FORMS    += \
     appforms/main_window.ui \

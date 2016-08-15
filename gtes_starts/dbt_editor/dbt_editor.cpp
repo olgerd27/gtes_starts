@@ -13,6 +13,7 @@
 #include "ui_dbt_editor.h"
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
+#include "edit_ui_creator.h"
 #include "../common/db_info.h"
 #include "../common/fl_widgets.h"
 
@@ -105,11 +106,11 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent)
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowName();
-    setWindowSize();
     setModel();
     setMapper();
     setSelectUI();
     setEditingUI();
+    setControl();
     setDataNavigation();
 }
 
@@ -123,11 +124,6 @@ DBTEditor::~DBTEditor()
 void DBTEditor::setWindowName()
 {
     setWindowTitle( tr("Editing the table:") + " " + m_DBTInfo->m_nameInUI );
-}
-
-void DBTEditor::setWindowSize()
-{
-    // TODO: set window size depending on the DB table size
 }
 
 void DBTEditor::setModel()
@@ -168,51 +164,15 @@ void DBTEditor::setSelectUI()
 
 void DBTEditor::setEditingUI()
 {
-    // TODO: maybe move this to the external builder class. This class can be also used by the FormDataInput class.
-    int rowWgtSpan = 1;
-    QWidget *wgt = 0;
-    QGridLayout *layout = new QGridLayout(m_ui->m_gboxEditingData);
-    for (int i = 0; i < m_DBTInfo->tableDegree(); ++i) {
-        const auto &dbtField = m_DBTInfo->fieldByIndex(i);
-        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), this, SLOT(slotFocusLost_DataSet(QString)) );
-        m_mapper->addMapping(wgt, i + 1);
-
-        // put widgets to the layout
-        layout->addWidget( createFieldDescLabel(dbtField.m_nameInUI), i, 0 );
-        if (dbtField.m_widgetType == dbi::DBTFieldInfo::wtype_plainTextEdit) {
-            rowWgtSpan = 2;
-            /*
-             * u can use QSizePolicy::Minimum or QSizePolicy::Maximum for the QSpacerItem vertical size policy
-             * for expand widget in the vertical direction. If use QSizePolicy::Fixed, the heights of
-             * current spacer item and neighbour plain text edit will be set as fixed to the value, passed
-             * to the QSpacerItem constructor.
-             * If there are no any view in the whole window, it is need to use only the QSizePolicy::Minimum,
-             * that allow in time of the window resizing expand current spacer item and neighbour plain text edit.
-             */
-            layout->addItem(new QSpacerItem(10, 70, QSizePolicy::Minimum, QSizePolicy::Minimum), i + 1, 0);
-        }
-        else rowWgtSpan = 1;
-        layout->addWidget( wgt, i, 1, rowWgtSpan, 1 ); // set read only status if it is a key
-        if (dbtField.isForeign()) {
-            layout->addWidget(createSelEdPButton(), i, 3);
-        }
-    }
+    EditUICreator uiCreator(m_DBTInfo, m_mapper, this, SLOT(slotFocusLost_DataSet(QString)));
+    uiCreator.createUI(m_ui->m_gboxEditingData);
 }
 
-QLabel * DBTEditor::createFieldDescLabel(const QString &text) const
+void DBTEditor::setControl()
 {
-    // create field description label
-    QLabel *lbl = new QLabel(text + ":"); // TODO: use smart pointer
-    lbl->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    return lbl;
-}
-
-QPushButton *DBTEditor::createSelEdPButton() const
-{
-    // create select/edit push button
-    QPushButton *cmd = new QPushButton(QIcon(":/images/edit.png"), tr("Select/Edit")); // TODO: use smart pointer
-    cmd->setStyleSheet("text-align: left");
-    return cmd;
+    // insert new record
+    connect(m_ui->m_pbAdd, SIGNAL(clicked()), m_proxyModel->customSourceModel(), SLOT(slotInsertToTheModel()));
+    connect(m_proxyModel->customSourceModel(), SIGNAL(sigNewRecordInserted(int,cmmn::T_id)), m_mapper, SLOT(setCurrentIndex(int)));
 }
 
 void DBTEditor::setDataNavigation()

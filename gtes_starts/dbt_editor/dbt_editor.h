@@ -36,13 +36,11 @@ private slots:
 
 private:
     void setWindowName();
-    void setWindowSize();
     void setModel();
     void setMapper();
     void setSelectUI();
     void setEditingUI();
-    QLabel *createFieldDescLabel(const QString &text) const;
-    QPushButton * createSelEdPButton() const;
+    void setControl();
     void setDataNavigation();
 
     const dbi::DBTInfo *m_DBTInfo;

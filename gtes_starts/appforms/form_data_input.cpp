@@ -164,7 +164,7 @@ void FormDataInput::setEditDBTPushButtons()
     setEditDBTOnePB( m_ui->m_pbEditStartDevices, "start_devices", m_ui->m_leStartDeviceData );
 }
 
-void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, QWidget *identWidget)
+void FormDataInput::setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget)
 {
     pb->setDBTableName(pbname);
     pb->setIdentDataWidget(identWidget);
@@ -383,8 +383,8 @@ void FormDataInput::slotSubmit()
 void FormDataInput::slotEditChildDBT()
 {
     // TODO: use try-catch
-    PBtnForEditDBT *pbEditDBT = qobject_cast<PBtnForEditDBT *>(sender());
-    if ( !pbEditDBT ) {
+    SelectEditPB *pbSEDBT = qobject_cast<SelectEditPB *>(sender());
+    if ( !pbSEDBT ) {
         /*
          * TODO: wrong error message text. There are need to say some like "cannot edit database table" and
          * not "cannot open the dialog", or maybe there are need rename this slot.
@@ -398,7 +398,7 @@ void FormDataInput::slotEditChildDBT()
         return;
     }
 
-    dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbEditDBT->DBTableName());
+    dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbSEDBT->DBTableName());
     if ( !tableInfo ) {
         QMessageBox::critical(this, tr("Invalid push button"),
                               tr("Error of editing database table\n"
@@ -409,7 +409,7 @@ void FormDataInput::slotEditChildDBT()
     }
 
     DBTEditor editor(tableInfo, this);
-    const QModelIndex &currIndex = m_proxyModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbEditDBT->identWidget()));
+    const QModelIndex &currIndex = m_proxyModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbSEDBT->identWidget()));
     qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
              << ", dataD =" << m_proxyModel->data( currIndex, Qt::DisplayRole).toString()
              << ", dataE =" << m_proxyModel->data( currIndex, Qt::EditRole).toString()

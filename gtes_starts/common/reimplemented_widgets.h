@@ -19,11 +19,11 @@ public:
 /*
  * The custom QPushButton class, that store name of the database table, this button related with.
  */
-class PBtnForEditDBT : public QPushButton
+class SelectEditPB : public QPushButton
 {
     Q_OBJECT
 public:
-    explicit PBtnForEditDBT(QWidget *parent = 0);
+    explicit SelectEditPB(QWidget *parent = 0);
 
     void setDBTableName(const QString &name);
     QString DBTableName() const;
