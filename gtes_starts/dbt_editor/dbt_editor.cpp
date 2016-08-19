@@ -102,6 +102,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent)
     , m_ui(new Ui::DBTEditor)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
     , m_mapper(new QDataWidgetMapper(this))
+    , m_transmitter(new WidgetDataSender(this))
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -164,7 +165,8 @@ void DBTEditor::setSelectUI()
 
 void DBTEditor::setEditingUI()
 {
-    EditUICreator uiCreator(m_DBTInfo, m_mapper, this, SLOT(slotFocusLost_DataSet(QString)));
+    connect(m_transmitter.get(), SIGNAL(sigTransmit(QWidget*,QString)), this, SLOT(slotFocusLost_DataSet(QWidget*,QString)));
+    EditUICreator uiCreator(m_DBTInfo, m_mapper, m_transmitter.get());
     uiCreator.createUI(m_ui->m_gboxEditingData);
 }
 
@@ -198,11 +200,8 @@ cmmn::T_id DBTEditor::selectedId() const
     return m_proxyModel->selectedId();
 }
 
-void DBTEditor::slotFocusLost_DataSet(const QString &data)
+void DBTEditor::slotFocusLost_DataSet(QWidget *w, const QString &data)
 {
-    QWidget *wgt = qobject_cast<QWidget*>(sender());
-    ASSERT_DBG( wgt, cmmn::MessageException::type_warning, tr("Error getting a widget"),
-                tr("Cannot get the widget from sender"), QString("FormDataInput::slotFocusLost_DataSet()") );
-    const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(wgt) );
+    const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(w) );
     m_proxyModel->setData(currIndex, data, Qt::EditRole);
 }

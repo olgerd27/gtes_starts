@@ -91,11 +91,12 @@ public:
 };
 
 // The "edit" UI creator
+class WidgetDataSender;
 class EditUICreator : public AbstractUICreator
 {
 public:
     EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper,
-                  QObject *sigReceiver = 0, const char *slotMember = 0);
+                  const WidgetDataSender *transmitter = 0);
     virtual ~EditUICreator();
     virtual void createUI(QWidget *parent);
 
@@ -108,6 +109,7 @@ private:
     std::unique_ptr<AbstractLabelCreator> m_lblCreator;
     QObject *m_sigReceiver;
     const char *m_slotMember;
+    const WidgetDataSender *m_transmitter;
 };
 
 #endif // EDIT_UI_CREATOR_H

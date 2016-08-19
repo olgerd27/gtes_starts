@@ -8,15 +8,27 @@
 #include <QPlainTextEdit>
 
 /*
- * The widgets that emit signal with current data in time of lost the focus
+ * Sender QString widget data
+ */
+class WidgetDataSender : public QObject
+{
+    Q_OBJECT
+public:
+    WidgetDataSender(QObject *parent) : QObject(parent) { }
+signals:
+    void sigTransmit(QWidget *wgt, const QString &text);
+};
+
+/*
+ * The widgets that emit signal with current data in time of lost the focus (FL - focus lost)
  */
 class FL_LineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit FL_LineEdit(QObject *sigReceiver, const char *slotMember, bool isReadOnly = false, QWidget *parent = 0);
+    explicit FL_LineEdit(const WidgetDataSender *trans = 0, bool isReadOnly = false, QWidget *parent = 0);
 signals:
-    void sigFocusOut(const QString &text);
+    void sigFocusOut(QWidget *w, const QString &text);
 protected:
     void focusOutEvent(QFocusEvent *fe);
 };
@@ -25,9 +37,9 @@ class FL_SpinBox : public QSpinBox
 {
     Q_OBJECT
 public:
-    explicit FL_SpinBox(QObject *sigReceiver, const char *slotMember, bool isReadOnly = false, QWidget *parent = 0);
+    explicit FL_SpinBox(const WidgetDataSender *trans = 0, bool isReadOnly = false, QWidget *parent = 0);
 signals:
-    void sigFocusOut(const QString &text);
+    void sigFocusOut(QWidget *w, const QString &text);
 protected:
     void focusOutEvent(QFocusEvent *fe);
 };
@@ -36,9 +48,9 @@ class FL_DoubleSpinBox : public QDoubleSpinBox
 {
     Q_OBJECT
 public:
-    explicit FL_DoubleSpinBox(QObject *sigReceiver, const char *slotMember, bool isReadOnly = false, QWidget *parent = 0);
+    explicit FL_DoubleSpinBox(const WidgetDataSender *trans = 0, bool isReadOnly = false, QWidget *parent = 0);
 signals:
-    void sigFocusOut(const QString &text);
+    void sigFocusOut(QWidget *w, const QString &text);
 protected:
     void focusOutEvent(QFocusEvent *fe);
 };
@@ -47,9 +59,9 @@ class FL_PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 public:
-    explicit FL_PlainTextEdit(QObject *sigReceiver, const char *slotMember, bool isReadOnly = false, QWidget *parent = 0);
+    explicit FL_PlainTextEdit(const WidgetDataSender *trans = 0, bool isReadOnly = false, QWidget *parent = 0);
 signals:
-    void sigFocusOut(const QString &text);
+    void sigFocusOut(QWidget *w, const QString &text);
 protected:
     void focusOutEvent(QFocusEvent *fe);
 };
@@ -57,6 +69,6 @@ protected:
 /*
  * Factory method for creation the DB table widget
  */
-QWidget * createFieldWidget(int wgtType, bool isReadOnly, QObject *sigReceiver, const char *slotMember);
+QWidget * createFieldWidget(int wgtType, bool isReadOnly, const WidgetDataSender *transmitter);
 
 #endif // FOCUSLOST_DS_WGT_H

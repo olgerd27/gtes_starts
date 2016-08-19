@@ -21,6 +21,7 @@ namespace dbi {
 /*
  * The base class for editing database tables (DBT)
  */
+class WidgetDataSender;
 class DBTEditor : public QDialog
 {
     Q_OBJECT
@@ -32,7 +33,7 @@ public:
     cmmn::T_id selectedId() const;
 
 private slots:
-    void slotFocusLost_DataSet(const QString &data);
+    void slotFocusLost_DataSet(QWidget *w, const QString &data);
 
 private:
     void setWindowName();
@@ -49,6 +50,7 @@ private:
     Ui::DBTEditor *m_ui;
     ProxyChoiceDecorModel *m_proxyModel;
     QDataWidgetMapper *m_mapper;
+    std::unique_ptr<WidgetDataSender> m_transmitter;
 };
 
 #endif // DBT_EDITOR_H

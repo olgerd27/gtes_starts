@@ -104,12 +104,11 @@ AbstractUICreator::~AbstractUICreator()
 { }
 
 // EditUICreator
-EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper, QObject *sigReceiver, const char *slotMember)
+EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper, const WidgetDataSender *transmitter)
     : m_tableInfo(tblInfo)
     , m_mapper(mapper)
     , m_lblCreator( createLabelCreator(AbstractLabelCreator::ctype_descriptive) ) // get descriptive label creator
-    , m_sigReceiver(sigReceiver)
-    , m_slotMember(slotMember)
+    , m_transmitter(transmitter)
 { }
 
 EditUICreator::~EditUICreator()
@@ -128,7 +127,7 @@ void EditUICreator::createUI(QWidget *parent)
         cmmnPlacer->placeWidget(field, 0, m_lblCreator->create(dbtField.m_nameInUI));
 
         // create field widget and place to the layout
-        fWgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), m_sigReceiver, m_slotMember );
+        fWgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), m_transmitter );
         m_mapper->addMapping(fWgt, field + 1); // +1 - because the proxy model add decoration icon as first column in DB table
         fwPlacer = createWidgetPlacer(dbtField, layout, fwPlacer);
         fwPlacer->placeWidget(field, 1, fWgt);
