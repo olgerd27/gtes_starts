@@ -66,14 +66,4 @@ private:
                                          * the interface for getting data from this storage */
 };
 
-class CustomSqlRelationalDelegate : public QSqlRelationalDelegate
-{
-public:
-    explicit CustomSqlRelationalDelegate(QObject *parent);
-    ~CustomSqlRelationalDelegate();
-    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
-private:
-    void setDataToSimpleDBT(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
-};
-
 #endif // CUSTOM_SQL_TABLE_MODEL_H

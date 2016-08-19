@@ -14,11 +14,11 @@ QLabel * DLabelCreator::create(const QString &text) const
     return lbl;
 }
 
-LabelCreator *createLabelCreator(LabelCreator::CreatorsTypes type)
+AbstractLabelCreator *createLabelCreator(AbstractLabelCreator::CreatorsTypes type)
 {
-    LabelCreator *creator = 0;
+    AbstractLabelCreator *creator = 0;
     switch (type) {
-    case LabelCreator::ctype_descriptive:
+    case AbstractLabelCreator::ctype_descriptive:
         creator = new DLabelCreator;
         break;
     default:
@@ -28,6 +28,72 @@ LabelCreator *createLabelCreator(LabelCreator::CreatorsTypes type)
         return 0;
     }
     return creator;
+}
+
+/*
+ * Widget Placer
+ */
+// AbstractWidgetPlacer
+AbstractWidgetPlacer::AbstractWidgetPlacer(QGridLayout *layout, PlacerTypes type)
+    : m_layout(layout)
+    , m_ptype(type)
+{ }
+
+AbstractWidgetPlacer::PlacerTypes AbstractWidgetPlacer::placerType() const
+{
+    return m_ptype;
+}
+
+AbstractWidgetPlacer::~AbstractWidgetPlacer()
+{ }
+
+// CommonWidgetPlacer
+CommonWidgetPlacer::CommonWidgetPlacer(QGridLayout *layout)
+    : AbstractWidgetPlacer(layout, ptype_common)
+{ }
+
+CommonWidgetPlacer::~CommonWidgetPlacer()
+{ }
+
+void CommonWidgetPlacer::placeWidget(int row, int column, QWidget *wgt)
+{
+    if (wgt) m_layout->addWidget(wgt, row, column, 1, 1);
+}
+
+// WithSpacerWidgetPlacer
+WithSpacerWidgetPlacer::WithSpacerWidgetPlacer(QGridLayout *layout)
+    : AbstractWidgetPlacer(layout, ptype_withSpacer)
+{ }
+
+WithSpacerWidgetPlacer::~WithSpacerWidgetPlacer()
+{ }
+
+void WithSpacerWidgetPlacer::placeWidget(int row, int column, QWidget *wgt)
+{
+    /*
+     * U can use QSizePolicy::Minimum or QSizePolicy::Maximum for the QSpacerItem vertical size policy
+     * for expand widget in the vertical direction. If use QSizePolicy::Fixed, the heights of
+     * current spacer item and neighbour plain text edit will be set as fixed to the value, passed
+     * to the QSpacerItem constructor.
+     * If there are no any view in the whole window, it is need to use only the QSizePolicy::Minimum,
+     * that allow in time of the window resizing expand current spacer item and neighbour plain text edit.
+     */
+    m_layout->addItem( new QSpacerItem(10, 70, QSizePolicy::Minimum, QSizePolicy::Minimum), row + 1, column - 1 );
+    m_layout->addWidget( wgt, row, column, 2, 1 );
+}
+
+std::shared_ptr<AbstractWidgetPlacer> & createWidgetPlacer(const dbi::DBTFieldInfo &fieldInfo,
+                                                           QGridLayout *layout,
+                                                           std::shared_ptr<AbstractWidgetPlacer> &currentPlacer)
+{
+    bool isPlainTextEdit = fieldInfo.m_widgetType == dbi::DBTFieldInfo::wtype_plainTextEdit;
+    if ( isPlainTextEdit && ( currentPlacer == 0 ||
+                              currentPlacer->placerType() != AbstractWidgetPlacer::ptype_withSpacer ) )
+        currentPlacer.reset( new WithSpacerWidgetPlacer(layout) );
+    else if ( !isPlainTextEdit && ( currentPlacer == 0 ||
+                                    currentPlacer->placerType() != AbstractWidgetPlacer::ptype_common ) )
+        currentPlacer.reset( new CommonWidgetPlacer(layout) );
+    return currentPlacer;
 }
 
 /*
@@ -41,7 +107,7 @@ AbstractUICreator::~AbstractUICreator()
 EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper, QObject *sigReceiver, const char *slotMember)
     : m_tableInfo(tblInfo)
     , m_mapper(mapper)
-    , m_lblCreator( createLabelCreator(LabelCreator::ctype_descriptive) ) // get descriptive label creator
+    , m_lblCreator( createLabelCreator(AbstractLabelCreator::ctype_descriptive) ) // get descriptive label creator
     , m_sigReceiver(sigReceiver)
     , m_slotMember(slotMember)
 { }
@@ -51,46 +117,35 @@ EditUICreator::~EditUICreator()
 
 void EditUICreator::createUI(QWidget *parent)
 {
-    /*
-     * The Fabric Method pattern uses only for create the description label.
-     * Creating of an others widgets performs by calling simplies methods,
-     * bacause they have too many features, that is hard to implement with help of OOP.
-     */
     QGridLayout *layout = new QGridLayout(parent);
-    int rowfWgtSpan = 1;
     QWidget *fWgt = 0;
-    QWidget *pbWgt = 0;
+    std::shared_ptr<AbstractWidgetPlacer> fwPlacer;
+    std::shared_ptr<AbstractWidgetPlacer> cmmnPlacer(new CommonWidgetPlacer(layout)); // description label and push button placer
     for (int field = 0; field < m_tableInfo->tableDegree(); ++field) {
         const auto &dbtField = m_tableInfo->fieldByIndex(field);
 
-        // create label and put to the layout
-        layout->addWidget(m_lblCreator->create(dbtField.m_nameInUI), field, 0);
+        // create label and place to the layout
+        cmmnPlacer->placeWidget(field, 0, m_lblCreator->create(dbtField.m_nameInUI));
 
-        // create field widget and put to the layout
+        // create field widget and place to the layout
         fWgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), m_sigReceiver, m_slotMember );
         m_mapper->addMapping(fWgt, field + 1); // +1 - because the proxy model add decoration icon as first column in DB table
-        if (dbtField.m_widgetType == dbi::DBTFieldInfo::wtype_plainTextEdit) {
-            rowfWgtSpan = 2;
-            /*
-             * U can use QSizePolicy::Minimum or QSizePolicy::Maximum for the QSpacerItem vertical size policy
-             * for expand widget in the vertical direction. If use QSizePolicy::Fixed, the heights of
-             * current spacer item and neighbour plain text edit will be set as fixed to the value, passed
-             * to the QSpacerItem constructor.
-             * If there are no any view in the whole window, it is need to use only the QSizePolicy::Minimum,
-             * that allow in time of the window resizing expand current spacer item and neighbour plain text edit.
-             */
-            layout->addItem( new QSpacerItem(10, 70, QSizePolicy::Minimum, QSizePolicy::Minimum), field + 1, 0 );
-        }
-        else { rowfWgtSpan = 1; }
-        layout->addWidget(fWgt, field, 1, rowfWgtSpan, 1);
+        fwPlacer = createWidgetPlacer(dbtField, layout, fwPlacer);
+        fwPlacer->placeWidget(field, 1, fWgt);
 
-        // create push button and put it to the layout
-        pbWgt = createSEPB(dbtField.isForeign());
-        if (pbWgt) layout->addWidget(pbWgt, field, 2);
+        // create select/edit push button and place it to the layout
+        cmmnPlacer->placeWidget(field, 2, createSEPB(dbtField.isForeign()));
     }
 }
 
 QPushButton *EditUICreator::createSEPB(bool isForeign)
 {
     return isForeign ? new SelectEditPB : 0;
+}
+
+void EditUICreator::setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget)
+{
+    pb->setDBTableName(pbname);
+    pb->setIdentDataWidget(identWidget);
+//    connect(pb, SIGNAL(clicked()), this, SLOT(slotEditChildDBT()));
 }

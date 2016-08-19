@@ -13,13 +13,10 @@
 class FL_LineEdit : public QLineEdit
 {
     Q_OBJECT
-
 public:
     explicit FL_LineEdit(QObject *sigReceiver, const char *slotMember, bool isReadOnly = false, QWidget *parent = 0);
-
 signals:
     void sigFocusOut(const QString &text);
-
 protected:
     void focusOutEvent(QFocusEvent *fe);
 };
@@ -27,13 +24,10 @@ protected:
 class FL_SpinBox : public QSpinBox
 {
     Q_OBJECT
-
 public:
     explicit FL_SpinBox(QObject *sigReceiver, const char *slotMember, bool isReadOnly = false, QWidget *parent = 0);
-
 signals:
     void sigFocusOut(const QString &text);
-
 protected:
     void focusOutEvent(QFocusEvent *fe);
 };
@@ -41,13 +35,10 @@ protected:
 class FL_DoubleSpinBox : public QDoubleSpinBox
 {
     Q_OBJECT
-
 public:
     explicit FL_DoubleSpinBox(QObject *sigReceiver, const char *slotMember, bool isReadOnly = false, QWidget *parent = 0);
-
 signals:
     void sigFocusOut(const QString &text);
-
 protected:
     void focusOutEvent(QFocusEvent *fe);
 };
@@ -55,13 +46,10 @@ protected:
 class FL_PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
-
 public:
     explicit FL_PlainTextEdit(QObject *sigReceiver, const char *slotMember, bool isReadOnly = false, QWidget *parent = 0);
-
 signals:
     void sigFocusOut(const QString &text);
-
 protected:
     void focusOutEvent(QFocusEvent *fe);
 };

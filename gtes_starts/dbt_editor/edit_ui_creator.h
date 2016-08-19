@@ -11,11 +11,11 @@ namespace dbi {
     class DBTInfo;
     class DBTFieldInfo;
 }
+class SelectEditPB;
 
-// --- Create descriptive label ---
-// Descriptive label - a label that store description of data, stored in the neighbour widget.
-// The abstract descriptive label creator
-class LabelCreator
+// === Create label ===
+// The abstract label creator
+class AbstractLabelCreator
 {
 public:
     enum CreatorsTypes {
@@ -25,17 +25,63 @@ public:
     virtual QLabel * create(const QString &text) const = 0;
 };
 
-// Default descriptive label creator
-class DLabelCreator : public LabelCreator
+// Descriptive label creator. Descriptive label - a label that store description of data, stored in the neighbour widget.
+class DLabelCreator : public AbstractLabelCreator
 {
 public:
     virtual QLabel *create(const QString &text) const;
 };
 
 // Fabric method - return specific dlabel creator by the dlabel creator type
-LabelCreator * createLabelCreator(LabelCreator::CreatorsTypes type);
+AbstractLabelCreator * createLabelCreator(AbstractLabelCreator::CreatorsTypes type);
 
-// --- Create UI ---
+// === Widget Placer ===
+// The abstract widget placer
+class AbstractWidgetPlacer
+{
+public:
+    enum PlacerTypes {
+          ptype_common
+        , ptype_withSpacer
+    };
+
+    AbstractWidgetPlacer(QGridLayout *layout, PlacerTypes type);
+    virtual ~AbstractWidgetPlacer() = 0;
+    virtual void placeWidget(int row, int column, QWidget *wgt) = 0;
+    AbstractWidgetPlacer::PlacerTypes placerType() const;
+
+protected:
+    QGridLayout *m_layout;
+    PlacerTypes m_ptype;
+};
+
+// Place widget in usually (common) way - to current [row, column] layout placing
+class CommonWidgetPlacer : public AbstractWidgetPlacer
+{
+public:
+    CommonWidgetPlacer(QGridLayout *layout);
+    virtual ~CommonWidgetPlacer();
+    virtual void placeWidget(int row, int column, QWidget *wgt);
+};
+
+// Place widget with adding the QSpacerItem on left side from widget
+class WithSpacerWidgetPlacer : public AbstractWidgetPlacer
+{
+public:
+    WithSpacerWidgetPlacer(QGridLayout *layout);
+    virtual ~WithSpacerWidgetPlacer();
+    virtual void placeWidget(int row, int column, QWidget *wgt);
+};
+
+/*
+ * Create a some widget placer if current placer is not setted or current placer type is different from required.
+ * The required placer type defines inside this function.
+ */
+std::shared_ptr<AbstractWidgetPlacer> &createWidgetPlacer(const dbi::DBTFieldInfo &fieldInfo,
+                                                          QGridLayout *layout,
+                                                          std::shared_ptr<AbstractWidgetPlacer> &currentPlacer);
+
+// === Create UI ===
 // Abstract UI creator
 class AbstractUICreator
 {
@@ -55,10 +101,11 @@ public:
 
 private:
     QPushButton * createSEPB(bool isForeign);
+    void setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget);
 
     const dbi::DBTInfo *m_tableInfo;
     QDataWidgetMapper *m_mapper;
-    std::unique_ptr<LabelCreator> m_lblCreator;
+    std::unique_ptr<AbstractLabelCreator> m_lblCreator;
     QObject *m_sigReceiver;
     const char *m_slotMember;
 };
