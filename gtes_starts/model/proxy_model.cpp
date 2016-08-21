@@ -120,6 +120,12 @@ cmmn::T_id ProxyChoiceDecorModel::selectedId() const
     return id;
 }
 
+QSize ProxyChoiceDecorModel::decorationSize() const
+{
+    auto sizes = m_selectIcon.availableSizes(QIcon::Normal, QIcon::Off);
+    return sizes.empty() ? QSize() : sizes.first();
+}
+
 void ProxyChoiceDecorModel::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
 {
     QItemSelectionModel *selectModel = qobject_cast<QItemSelectionModel *>(sender());

@@ -35,6 +35,7 @@ public:
 
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;
+    QSize decorationSize() const;
 
     void printData(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
     void printHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later

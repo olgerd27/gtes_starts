@@ -151,9 +151,21 @@ void DBTEditor::setSelectUI()
     auto vHeader = view->verticalHeader();
     vHeader->setDefaultSectionSize( vHeader->defaultSectionSize() * 0.75 ); // reduce rows high - need for the QHeaderView::Fixed resize mode
     vHeader->setSectionResizeMode(QHeaderView::Fixed);
+
     auto hHeader = view->horizontalHeader();
-    hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
     hHeader->setStretchLastSection(true);
+#ifdef _WIN32
+    hHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+#elif __linux__
+    // resize decoration field to fit size
+    for (int i = 0; i < hHeader->count(); ++i) {
+        if (i == 0) {
+            hHeader->setSectionResizeMode(i, QHeaderView::Fixed);
+            hHeader->resizeSection(i, m_proxyModel->decorationSize().width());
+        }
+        else hHeader->setSectionResizeMode(i, QHeaderView::ResizeToContents);
+    }
+#endif
     view->setMinimumWidth(hHeader->length() + 30); // increase view width, that vertical scroll widget do not cover data in the last table column
 
     /*
