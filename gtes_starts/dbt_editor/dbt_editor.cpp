@@ -107,6 +107,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowPosition();
     setWindowName();
     setModel();
     setMapper();
@@ -121,6 +122,11 @@ DBTEditor::~DBTEditor()
     delete m_ui;
     delete m_proxyModel;
     delete m_mapper;
+}
+
+void DBTEditor::setWindowPosition()
+{
+    this->move( parentWidget()->pos() + QPoint(shiftCEByX, shiftCEByY) );
 }
 
 void DBTEditor::setWindowName()
@@ -203,9 +209,9 @@ cmmn::T_id DBTEditor::selectedId() const
 
 void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
 {
-    DBTEditor childEditor(dbtInfo, this);
     const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), fieldNo + ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS );
     const QVariant &forId = m_proxyModel->data(currIndex, Qt::UserRole);
+    DBTEditor childEditor(dbtInfo, this);
     if ( !forId.isNull() ) // if data is NULL -> don't select any row in the editor view
         childEditor.selectInitial(forId);
     if ( childEditor.exec() == QDialog::Accepted ) {

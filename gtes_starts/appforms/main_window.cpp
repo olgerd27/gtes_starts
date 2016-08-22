@@ -33,6 +33,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(m_ui->m_listChoice));
+    /*
+     * TODO: in time of the first running app on particular computer, move window to the center of the desktop with help of:  \
+     * widget.move(QApplication::desktop()->screen()->rect().center() - widget.rect().center());
+     * In time of MainWindow closing it will need save current geometry in settings file and restore it by next app running.
+     */
     setWindowIcon(QIcon(":/images/window_icon.png")); // TODO: use another icon
     setWindowTitle( tr("Control application") );
 

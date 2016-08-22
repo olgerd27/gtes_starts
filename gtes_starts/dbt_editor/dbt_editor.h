@@ -39,6 +39,12 @@ private slots:
     void slotFocusLost_DataSet(QWidget *w, const QString &data);
 
 private:
+    enum SETTINGS {
+          shiftCEByX = 50 // shift appearance position of a created child editor by X
+        , shiftCEByY = 50 // shift appearance position of a created child editor by Y
+    };
+
+    void setWindowPosition();
     void setWindowName();
     void setModel();
     void setMapper();
