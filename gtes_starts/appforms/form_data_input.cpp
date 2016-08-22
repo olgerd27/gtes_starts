@@ -171,7 +171,6 @@ void FormDataInput::setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWi
     connect(pb, SIGNAL(clicked()), this, SLOT(slotEditChildDBT()));
 }
 
-#include <QItemSelection>
 void FormDataInput::setDataOperating()
 {
     m_proxyModel->setSqlTable("engines");
@@ -322,6 +321,7 @@ void FormDataInput::slotEditChildDBT()
     }
 
     DBTEditor editor(tableInfo, this);
+    // TODO: about next line: in the EditUICreator use pbSEDBT->fieldNo() instead of the m_mapper->mappedSection(pbSEDBT->identWidget())
     const QModelIndex &currIndex = m_proxyModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbSEDBT->identWidget()));
     qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
              << ", dataD =" << m_proxyModel->data( currIndex, Qt::DisplayRole).toString()

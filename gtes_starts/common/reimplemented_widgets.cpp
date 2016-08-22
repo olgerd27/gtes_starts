@@ -25,6 +25,7 @@ QSize ResizableWidgetList::sizeHint() const
 SelectEditPB::SelectEditPB(QWidget *parent)
     : QPushButton(QIcon(":/images/edit.png"), tr("Select/Edit"), parent)
     , m_identWgt(0)
+    , m_fieldNo(-1)
 {
     setStyleSheet("text-align: left");
 }
@@ -47,6 +48,16 @@ void SelectEditPB::setIdentDataWidget(QWidget *wgt)
 QWidget *SelectEditPB::identWidget() const
 {
     return m_identWgt;
+}
+
+void SelectEditPB::setFieldNumber(int fn)
+{
+    m_fieldNo = fn;
+}
+
+int SelectEditPB::fieldNo() const
+{
+    return m_fieldNo;
 }
 
 

@@ -86,23 +86,31 @@ std::shared_ptr<AbstractWidgetPlacer> &createWidgetPlacer(const dbi::DBTFieldInf
 class AbstractUICreator
 {
 public:
-    virtual void createUI(QWidget *parent) = 0;
     virtual ~AbstractUICreator() = 0;
+    virtual void createUI(QWidget *parent) = 0;
 };
 
 // The "edit" UI creator
 class WidgetDataSender;
-class EditUICreator : public AbstractUICreator
+class EditUICreator : public QObject, public AbstractUICreator
 {
+    Q_OBJECT
+
 public:
     EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper,
-                  const WidgetDataSender *transmitter = 0);
+                  const WidgetDataSender *transmitter = 0, QObject *parent = 0);
     virtual ~EditUICreator();
     virtual void createUI(QWidget *parent);
 
+signals:
+    void sigSEPBClicked(const dbi::DBTInfo *dbtInfo, int fieldNo);
+
+private slots:
+    void slotTransmitSEPBInfo();
+
 private:
-    QPushButton * createSEPB(bool isForeign);
-    void setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget);
+    SelectEditPB * createSEPB(bool canCreate);
+    void setEditChildPB(SelectEditPB *pb, const QString &childTableName, int fieldNo);
 
     const dbi::DBTInfo *m_tableInfo;
     QDataWidgetMapper *m_mapper;

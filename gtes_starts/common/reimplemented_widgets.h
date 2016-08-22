@@ -17,7 +17,7 @@ public:
 };
 
 /*
- * The custom QPushButton class, that store name of the database table, this button related with.
+ * The custom Select/Edit QPushButton, that store name of the database table, this button related with.
  */
 class SelectEditPB : public QPushButton
 {
@@ -31,9 +31,13 @@ public:
     void setIdentDataWidget(QWidget *wgt);
     QWidget * identWidget() const;
 
+    void setFieldNumber(int fn);
+    int fieldNo() const;
+
 private:
     QString m_DBTableName;
     QWidget *m_identWgt;
+    int m_fieldNo;
 };
 
 /*

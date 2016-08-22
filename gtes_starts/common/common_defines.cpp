@@ -28,6 +28,10 @@ void cmmn::throwConversionIdErrorMsg(bool isConv, const QVariant &varId)
 void cmmn::throwErrorMsg(bool isSuccess, MessageException::MessageTypes msgType,
                          const QString &title, const QString &what, const QString &where)
 {
+    /*
+     * TODO: if the msgType is type_critical or type_fatal, add to the end of message body the next phrase:
+     * "\n\nPlease consult with the application developer for fixing this problem."
+     */
     if (!isSuccess)
         throw cmmn::MessageException( msgType, title, what, where );
 }

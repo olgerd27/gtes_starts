@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "edit_ui_creator.h"
 #include "../common/db_info.h"
 #include "../common/common_defines.h"
@@ -78,8 +80,10 @@ void WithSpacerWidgetPlacer::placeWidget(int row, int column, QWidget *wgt)
      * If there are no any view in the whole window, it is need to use only the QSizePolicy::Minimum,
      * that allow in time of the window resizing expand current spacer item and neighbour plain text edit.
      */
-    m_layout->addItem( new QSpacerItem(10, 70, QSizePolicy::Minimum, QSizePolicy::Minimum), row + 1, column - 1 );
-    m_layout->addWidget( wgt, row, column, 2, 1 );
+    if (wgt) {
+        m_layout->addItem( new QSpacerItem(10, 70, QSizePolicy::Minimum, QSizePolicy::Minimum), row + 1, column - 1 );
+        m_layout->addWidget( wgt, row, column, 2, 1 );
+    }
 }
 
 std::shared_ptr<AbstractWidgetPlacer> & createWidgetPlacer(const dbi::DBTFieldInfo &fieldInfo,
@@ -104,8 +108,10 @@ AbstractUICreator::~AbstractUICreator()
 { }
 
 // EditUICreator
-EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper, const WidgetDataSender *transmitter)
-    : m_tableInfo(tblInfo)
+EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper,
+                             const WidgetDataSender *transmitter, QObject *parent)
+    : QObject(parent)
+    , m_tableInfo(tblInfo)
     , m_mapper(mapper)
     , m_lblCreator( createLabelCreator(AbstractLabelCreator::ctype_descriptive) ) // get descriptive label creator
     , m_transmitter(transmitter)
@@ -118,6 +124,7 @@ void EditUICreator::createUI(QWidget *parent)
 {
     QGridLayout *layout = new QGridLayout(parent);
     QWidget *fWgt = 0;
+    SelectEditPB *pbse = 0;
     std::shared_ptr<AbstractWidgetPlacer> fwPlacer;
     std::shared_ptr<AbstractWidgetPlacer> cmmnPlacer(new CommonWidgetPlacer(layout)); // description label and push button placer
     for (int field = 0; field < m_tableInfo->tableDegree(); ++field) {
@@ -133,18 +140,36 @@ void EditUICreator::createUI(QWidget *parent)
         fwPlacer->placeWidget(field, 1, fWgt);
 
         // create select/edit push button and place it to the layout
-        cmmnPlacer->placeWidget(field, 2, createSEPB(dbtField.isForeign()));
+        pbse = createSEPB(dbtField.isForeign());
+        cmmnPlacer->placeWidget(field, 2, pbse);
+        setEditChildPB(pbse, dbtField.m_relationDBTable, field);
     }
 }
 
-QPushButton *EditUICreator::createSEPB(bool isForeign)
+SelectEditPB *EditUICreator::createSEPB(bool canCreate)
 {
-    return isForeign ? new SelectEditPB : 0;
+    return canCreate ? new SelectEditPB : 0;
 }
 
-void EditUICreator::setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget)
+void EditUICreator::setEditChildPB(SelectEditPB *pb, const QString &childTableName, int fieldNo)
 {
-    pb->setDBTableName(pbname);
-    pb->setIdentDataWidget(identWidget);
-//    connect(pb, SIGNAL(clicked()), this, SLOT(slotEditChildDBT()));
+    if (!pb) return;
+    pb->setDBTableName(childTableName);
+    pb->setFieldNumber(fieldNo);
+    connect(pb, &SelectEditPB::clicked, this, &EditUICreator::slotTransmitSEPBInfo);
+}
+
+void EditUICreator::slotTransmitSEPBInfo()
+{
+    SelectEditPB *pbSEDBT = qobject_cast<SelectEditPB *>(sender());
+    ASSERT_DBG( pbSEDBT, cmmn::MessageException::type_critical, tr("Invalid push button"),
+                tr("Cannot define the clicked push button."),
+                QString("EditUICreator::setEditDBTOnePB => [alfa]") );
+
+    const dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbSEDBT->DBTableName());
+    ASSERT_DBG( tableInfo, cmmn::MessageException::type_critical, tr("Invalid push button"),
+                tr("Cannot define the clicked push button. Cannot obtain the database table info."),
+                QString("EditUICreator::setEditDBTOnePB => [alfa]") );
+
+    emit sigSEPBClicked(tableInfo, pbSEDBT->fieldNo());
 }
