@@ -13,6 +13,7 @@
 #include "ui_dbt_editor.h"
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
+#include "edit_ui_creator.h"
 #include "../common/db_info.h"
 #include "../common/fl_widgets.h"
 
@@ -95,21 +96,24 @@ private:
  * DBTEditor
  * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
  */
-DBTEditor::DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent)
+DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     : QDialog(parent)
-    , m_DBTInfo(dbTable)
+    , m_DBTInfo(dbtInfo)
     , m_ui(new Ui::DBTEditor)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
     , m_mapper(new QDataWidgetMapper(this))
+    , m_transmitter(new WidgetDataSender(this))
+    , m_editUICreator(new EditUICreator(m_DBTInfo, m_mapper, m_transmitter.get(), this))
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowPosition();
     setWindowName();
-    setWindowSize();
     setModel();
     setMapper();
     setSelectUI();
     setEditingUI();
+    setControl();
     setDataNavigation();
 }
 
@@ -120,14 +124,14 @@ DBTEditor::~DBTEditor()
     delete m_mapper;
 }
 
+void DBTEditor::setWindowPosition()
+{
+    this->move( parentWidget()->pos() + QPoint(shiftCEByX, shiftCEByY) );
+}
+
 void DBTEditor::setWindowName()
 {
     setWindowTitle( tr("Editing the table:") + " " + m_DBTInfo->m_nameInUI );
-}
-
-void DBTEditor::setWindowSize()
-{
-    // TODO: set window size depending on the DB table size
 }
 
 void DBTEditor::setModel()
@@ -169,7 +173,7 @@ void DBTEditor::setSelectUI()
     view->setMinimumWidth(hHeader->length() + 30); // increase view width, that vertical scroll widget do not cover data in the last table column
 
     /*
-     * It is not properly to use the currentRowChanged signal for choose row, because in time of the
+     * NOTE: It is not properly to use the currentRowChanged signal for choose row, because in time of the
      * currentRowChanged signal calling, items is still not selected. Selecting items performs after changing
      * current row (or column). Because of this there are need to use only selectionChanged signal for choose some row.
      */
@@ -180,43 +184,16 @@ void DBTEditor::setSelectUI()
 
 void DBTEditor::setEditingUI()
 {
-    // TODO: maybe move this to the external builder class. This class can use the FormDataInput class too.
-    int rowWgtSpan = 1;
-    QWidget *wgt = 0;
-    QGridLayout *layout = new QGridLayout(m_ui->m_gboxEditingData);
-    for (int i = 0; i < m_DBTInfo->tableDegree(); ++i) {
-        const auto &dbtField = m_DBTInfo->fieldByIndex(i);
-
-        if (dbtField.m_widgetType == dbi::DBTFieldInfo::wtype_plainTextEdit) {
-            rowWgtSpan = 2;
-            layout->addItem(new QSpacerItem(10, 70), i + 1, 0);
-        }
-        else rowWgtSpan = 1;
-
-        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), this, SLOT(slotFocusLost_DataSet(QString)) );
-        m_mapper->addMapping(wgt, i + 1);
-
-        // put widgets to the layout
-        layout->addWidget( createFieldDescLabel(dbtField.m_nameInUI), i, 0 );
-        layout->addWidget( wgt, i, 1, rowWgtSpan, 1 ); // set read only status if it is a key
-        if (dbtField.isForeign()) {
-            layout->addWidget(createSelEdPButton(), i, 3);
-        }
-    }
+    connect(m_transmitter.get(), SIGNAL(sigTransmit(QWidget*,QString)), this, SLOT(slotFocusLost_DataSet(QWidget*,QString)));
+    m_editUICreator->createUI(m_ui->m_gboxEditingData);
+    connect(m_editUICreator.get(), SIGNAL(sigSEPBClicked(const dbi::DBTInfo*,int)), this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog
 }
 
-QLabel * DBTEditor::createFieldDescLabel(const QString &text) const
+void DBTEditor::setControl()
 {
-    // create field description label
-    return new QLabel(text + ":"); // TODO: use smart pointer
-}
-
-QPushButton *DBTEditor::createSelEdPButton() const
-{
-    // create select/edit push button
-    QPushButton *cmd = new QPushButton(QIcon(":/images/edit.png"), tr("Select/Edit")); // TODO: use smart pointer
-    cmd->setStyleSheet("text-align: left");
-    return cmd;
+    // insert new record
+    connect(m_ui->m_pbAdd, SIGNAL(clicked()), m_proxyModel->customSourceModel(), SLOT(slotInsertToTheModel()));
+    connect(m_proxyModel->customSourceModel(), SIGNAL(sigNewRecordInserted(int,cmmn::T_id)), m_mapper, SLOT(setCurrentIndex(int)));
 }
 
 void DBTEditor::setDataNavigation()
@@ -242,11 +219,25 @@ cmmn::T_id DBTEditor::selectedId() const
     return m_proxyModel->selectedId();
 }
 
-void DBTEditor::slotFocusLost_DataSet(const QString &data)
+void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
 {
-    QWidget *wgt = qobject_cast<QWidget*>(sender());
-    ASSERT_DBG( wgt, cmmn::MessageException::type_warning, tr("Error getting a widget"),
-                tr("Cannot get the widget from sender"), QString("FormDataInput::slotFocusLost_DataSet()") );
-    const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(wgt) );
+    const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), fieldNo + ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS );
+    const QVariant &forId = m_proxyModel->data(currIndex, Qt::UserRole);
+    DBTEditor childEditor(dbtInfo, this);
+    if ( !forId.isNull() ) // if data is NULL -> don't select any row in the editor view
+        childEditor.selectInitial(forId);
+    if ( childEditor.exec() == QDialog::Accepted ) {
+        m_proxyModel->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */
+        ASSERT_DBG( m_proxyModel->setData( currIndex, childEditor.selectedId(), Qt::EditRole ),
+                    cmmn::MessageException::type_critical, tr("Error data setting"),
+                    tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),
+                    QString("DBTEditor::slotEditChildDBT()") );
+        qDebug() << "The id value: \"" << childEditor.selectedId() << "\" was successfully setted to the model";
+    }
+}
+
+void DBTEditor::slotFocusLost_DataSet(QWidget *w, const QString &data)
+{
+    const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), m_mapper->mappedSection(w) );
     m_proxyModel->setData(currIndex, data, Qt::EditRole);
 }

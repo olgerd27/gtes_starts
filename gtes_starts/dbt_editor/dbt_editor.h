@@ -7,7 +7,6 @@
 #include <QDialog>
 #include <QItemSelection>
 #include <QDataWidgetMapper>
-#include <QLabel> // TODO: delete is not need
 #include "../common/common_defines.h"
 
 class ProxyChoiceDecorModel;
@@ -21,28 +20,37 @@ namespace dbi {
 /*
  * The base class for editing database tables (DBT)
  */
+class EditUICreator;
+class WidgetDataSender;
 class DBTEditor : public QDialog
 {
     Q_OBJECT
 public:
-    explicit DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent = 0);
+    explicit DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent = 0);
     ~DBTEditor();
 
     void selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
+public slots:
+    void slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo);
+
 private slots:
-    void slotFocusLost_DataSet(const QString &data);
+    void slotFocusLost_DataSet(QWidget *w, const QString &data);
 
 private:
+    enum SETTINGS {
+          shiftCEByX = 50 // shift appearance position of a created child editor by X
+        , shiftCEByY = 50 // shift appearance position of a created child editor by Y
+    };
+
+    void setWindowPosition();
     void setWindowName();
-    void setWindowSize();
     void setModel();
     void setMapper();
     void setSelectUI();
     void setEditingUI();
-    QLabel *createFieldDescLabel(const QString &text) const;
-    QPushButton * createSelEdPButton() const;
+    void setControl();
     void setDataNavigation();
 
     const dbi::DBTInfo *m_DBTInfo;
@@ -51,6 +59,8 @@ private:
     Ui::DBTEditor *m_ui;
     ProxyChoiceDecorModel *m_proxyModel;
     QDataWidgetMapper *m_mapper;
+    std::unique_ptr<WidgetDataSender> m_transmitter;
+    std::unique_ptr<EditUICreator> m_editUICreator;
 };
 
 #endif // DBT_EDITOR_H

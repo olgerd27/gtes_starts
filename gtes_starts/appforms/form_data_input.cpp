@@ -164,106 +164,18 @@ void FormDataInput::setEditDBTPushButtons()
     setEditDBTOnePB( m_ui->m_pbEditStartDevices, "start_devices", m_ui->m_leStartDeviceData );
 }
 
-void FormDataInput::setEditDBTOnePB(PBtnForEditDBT *pb, const QString &pbname, QWidget *identWidget)
+void FormDataInput::setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget)
 {
     pb->setDBTableName(pbname);
     pb->setIdentDataWidget(identWidget);
     connect(pb, SIGNAL(clicked()), this, SLOT(slotEditChildDBT()));
 }
 
-#include <QItemSelection>
 void FormDataInput::setDataOperating()
 {
     m_proxyModel->setSqlTable("engines");
 
-    // ************************************************************************************
-    // NOTE: for debugging. Delete later
-    // The proxy model
-//    QTableView *tablePrx = new QTableView;
-//    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-//    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
-//    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tablePrx->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
-//    tablePrx->setAlternatingRowColors(true);
-//    tablePrx->resize(800, 500);
-//    tablePrx->move(30, 30);
-//    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tablePrx->show();
-//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
-//    // selection setting - testing
-//    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-//            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
-//    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
-
-//    // The source model
-//    QTableView *tableSrc = new QTableView;
-//    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-//    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
-//    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tableSrc->setModel(m_proxyModel->customSourceModel());
-//    tableSrc->resize(800, 500);
-//    tableSrc->move(10, 10);
-//    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tableSrc->show();
-////    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
-//    // selection setting - testing
-//    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
-//            [tableSrc](const QItemSelection &selected, const QItemSelection &)
-//    {
-//        const QModelIndexList &selectedList = selected.indexes();
-//        if (selectedList.size() > 0)
-//            tableSrc->selectRow(selectedList.at(0).row());
-//    } );
-    // ************************************************************************************
-
-    //*************************************************************************************
-    // Test the table view header renaming after setting the relation with other table
-//    QSqlRelationalTableModel *model = new QSqlRelationalTableModel(this);
-//    model->setTable("engines");
-//    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-//    model->setRelation(2, QSqlRelation("fuels_types", "id", "name"));
-//    model->select();
-//    QTableView *tview = new QTableView;
-//    tview->setModel(model);
-//    tview->setItemDelegate(new QSqlRelationalDelegate(tview));
-//    tview->setWindowTitle( QString("Test the \"%1\" table view header after setting relation with other DB table").arg(model->tableName()) );
-//    tview->resize(800, 500);
-//    tview->move(30, 30);
-//    tview->show();
-    //*************************************************************************************
-
-    //*************************************************************************************
-    // Test using of the proxy model
-//    QSqlTableModel *model = new QSqlTableModel(this);
-//    model->setTable("engines");
-//    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-//    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-//    proxyModel->setSourceModel(model);
-
-//    QTableView *tview = new QTableView;
-//    tview->setModel(proxyModel);
-//    tview->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tview->setSelectionBehavior(QAbstractItemView::SelectRows);
-//    tview->setWindowTitle( QString("Test proxy model. Use the \"%1\" DB table").arg(model->tableName()) );
-//    tview->resize(800, 500);
-//    tview->move(50, 50);
-//    tview->show();
-
-//    model->select();
-
-//    qDebug() << "!!! before insertion, source model count:" << model->columnCount()
-//             << ", proxy model count:" << proxyModel->columnCount();
-//    bool bIns = proxyModel->insertColumn(0);
-//    qDebug() << "!!! after insertion, success:" << bIns << ", source model count:" << model->columnCount()
-//             << ", proxy model count:" << proxyModel->columnCount();
-    //*************************************************************************************
-
     // set mapper
-//    m_mapper->setItemDelegate(new CustomSqlRelationalDelegate(this)); // NOTE: is this need?
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     m_mapper->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
     // indexes starts from 1, because in the 0-th section place the selection icon
@@ -383,8 +295,8 @@ void FormDataInput::slotSubmit()
 void FormDataInput::slotEditChildDBT()
 {
     // TODO: use try-catch
-    PBtnForEditDBT *pbEditDBT = qobject_cast<PBtnForEditDBT *>(sender());
-    if ( !pbEditDBT ) {
+    SelectEditPB *pbSEDBT = qobject_cast<SelectEditPB *>(sender());
+    if ( !pbSEDBT ) {
         /*
          * TODO: wrong error message text. There are need to say some like "cannot edit database table" and
          * not "cannot open the dialog", or maybe there are need rename this slot.
@@ -398,7 +310,7 @@ void FormDataInput::slotEditChildDBT()
         return;
     }
 
-    dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbEditDBT->DBTableName());
+    dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbSEDBT->DBTableName());
     if ( !tableInfo ) {
         QMessageBox::critical(this, tr("Invalid push button"),
                               tr("Error of editing database table\n"
@@ -409,7 +321,8 @@ void FormDataInput::slotEditChildDBT()
     }
 
     DBTEditor editor(tableInfo, this);
-    const QModelIndex &currIndex = m_proxyModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbEditDBT->identWidget()));
+    // TODO: about next line: in the EditUICreator use pbSEDBT->fieldNo() instead of the m_mapper->mappedSection(pbSEDBT->identWidget())
+    const QModelIndex &currIndex = m_proxyModel->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbSEDBT->identWidget()));
     qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
              << ", dataD =" << m_proxyModel->data( currIndex, Qt::DisplayRole).toString()
              << ", dataE =" << m_proxyModel->data( currIndex, Qt::EditRole).toString()

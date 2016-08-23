@@ -12,84 +12,84 @@
 /*
  * FL_LineEdit
  */
-FL_LineEdit::FL_LineEdit(QObject *sigReceiver, const char *slotMember, bool isReadOnly, QWidget *parent)
+FL_LineEdit::FL_LineEdit(const WidgetDataSender *trans, bool isReadOnly, QWidget *parent)
     : QLineEdit(parent)
 {
     setReadOnly(isReadOnly);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QString)), sigReceiver, slotMember);
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), trans, SIGNAL(sigTransmit(QWidget*,QString)));
 }
 
 void FL_LineEdit::focusOutEvent(QFocusEvent *fe)
 {
-    emit sigFocusOut(this->text());
+    emit sigFocusOut(this, this->text());
     QLineEdit::focusOutEvent(fe);
 }
 
 /*
  * FL_SpinBox
  */
-FL_SpinBox::FL_SpinBox(QObject *sigReceiver, const char *slotMember, bool isReadOnly, QWidget *parent)
+FL_SpinBox::FL_SpinBox(const WidgetDataSender *trans, bool isReadOnly, QWidget *parent)
     : QSpinBox(parent)
 {
     setReadOnly(isReadOnly);
     setMaximum(INT_MAX);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QString)), sigReceiver, slotMember);
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), trans, SIGNAL(sigTransmit(QWidget*,QString)));
 }
 
 void FL_SpinBox::focusOutEvent(QFocusEvent *fe)
 {
-    emit sigFocusOut(this->text());
+    emit sigFocusOut(this, this->text());
     QSpinBox::focusOutEvent(fe);
 }
 
 /*
  * FL_DoubleSpinBox
  */
-FL_DoubleSpinBox::FL_DoubleSpinBox(QObject *sigReceiver, const char *slotMember, bool isReadOnly, QWidget *parent)
+FL_DoubleSpinBox::FL_DoubleSpinBox(const WidgetDataSender *trans, bool isReadOnly, QWidget *parent)
     : QDoubleSpinBox(parent)
 {
     setReadOnly(isReadOnly);
     setMaximum((double)INT_MAX);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QString)), sigReceiver, slotMember);
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), trans, SIGNAL(sigTransmit(QWidget*,QString)));
 }
 
 void FL_DoubleSpinBox::focusOutEvent(QFocusEvent *fe)
 {
-    emit sigFocusOut(this->text());
+    emit sigFocusOut(this, this->text());
     QDoubleSpinBox::focusOutEvent(fe);
 }
 
 /*
  * FL_PlainTextEdit
  */
-FL_PlainTextEdit::FL_PlainTextEdit(QObject *sigReceiver, const char *slotMember, bool isReadOnly, QWidget *parent)
+FL_PlainTextEdit::FL_PlainTextEdit(const WidgetDataSender *trans, bool isReadOnly, QWidget *parent)
     : QPlainTextEdit(parent)
 {
     setReadOnly(isReadOnly);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QString)), sigReceiver, slotMember);
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), trans, SIGNAL(sigTransmit(QWidget*,QString)));
 }
 
 void FL_PlainTextEdit::focusOutEvent(QFocusEvent *fe)
 {
-    emit sigFocusOut(this->toPlainText());
+    emit sigFocusOut(this, this->toPlainText());
     QPlainTextEdit::focusOutEvent(fe);
 }
 
-QWidget *createFieldWidget(int wgtType, bool isReadOnly, QObject *sigReceiver, const char *slotMember)
+QWidget *createFieldWidget(int wgtType, bool isReadOnly, const WidgetDataSender *transmitter)
 {
     QWidget *wgt = 0;
     switch (wgtType) {
     case dbi::DBTFieldInfo::wtype_lineEdit:
-        wgt = new FL_LineEdit(sigReceiver, slotMember, isReadOnly, 0);
+        wgt = new FL_LineEdit(transmitter, isReadOnly, 0);
         break;
     case dbi::DBTFieldInfo::wtype_spinBoxInt:
-        wgt = new FL_SpinBox(sigReceiver, slotMember, isReadOnly, 0);
+        wgt = new FL_SpinBox(transmitter, isReadOnly, 0);
         break;
     case dbi::DBTFieldInfo::wtype_spinBoxDouble:
-        wgt = new FL_DoubleSpinBox(sigReceiver, slotMember, isReadOnly, 0);
+        wgt = new FL_DoubleSpinBox(transmitter, isReadOnly, 0);
         break;
     case dbi::DBTFieldInfo::wtype_plainTextEdit:
-        wgt = new FL_PlainTextEdit(sigReceiver, slotMember, isReadOnly, 0);
+        wgt = new FL_PlainTextEdit(transmitter, isReadOnly, 0);
         break;
     case dbi::DBTFieldInfo::wtype_not_show:
         wgt = 0;
