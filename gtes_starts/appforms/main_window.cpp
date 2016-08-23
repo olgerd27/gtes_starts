@@ -3,8 +3,9 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QDebug>
 #include <QScrollBar>
+#include <QDesktopWidget>
+#include <QDebug>
 
 #include "main_window.h"
 #include "ui_main_window.h"
@@ -35,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(m_ui->m_listChoice));
     setWindowIcon(QIcon(":/images/window_icon.png")); // TODO: use another icon
     setWindowTitle( tr("Control application") );
+    setPosition();
 
     // TODO: delete later
     m_ui->dockWidget->hide();
@@ -80,10 +82,10 @@ MainWindow::MainWindow(QWidget *parent)
 //    qDebug() << "Last error:" << db.lastError().text();
 
     QStackedWidget *sw = m_ui->m_stackForms;
-    FormDataInput *formDInput = new FormDataInput(sw);
+    FormDataInput *formDInput = new FormDataInput(this);
     sw->insertWidget(index_data_input, formDInput);
-    sw->insertWidget(index_queries, new FormQueries(sw));
-    sw->insertWidget(index_options, new FormOptions(sw));
+    sw->insertWidget(index_queries, new FormQueries(this));
+    sw->insertWidget(index_options, new FormOptions(this));
 
     // actions connections
     connect(m_ui->m_actCreateEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigInsertNew()));
@@ -97,6 +99,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     // another signals & slots connections
     connect(m_ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));
+}
+
+void MainWindow::setPosition()
+{
+    this->move( QApplication::desktop()->screenGeometry().center() - this->rect().center() );
 }
 
 MainWindow::~MainWindow()
