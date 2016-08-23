@@ -126,7 +126,9 @@ DBTEditor::~DBTEditor()
 
 void DBTEditor::setWindowPosition()
 {
-    this->move( parentWidget()->pos() + QPoint(shiftCEByX, shiftCEByY) );
+    // if parent widget is not dialog, this dialog appears in the center of parent widget by default
+    if (parentWidget()->windowFlags() & Qt::Dialog)
+        this->move( parentWidget()->pos() + QPoint(shiftCEByX, shiftCEByY) );
 }
 
 void DBTEditor::setWindowName()

@@ -108,7 +108,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::setPosition()
 {
-    this->move( QApplication::desktop()->screenGeometry().center() - this->rect().center() );
+    // The main window appears in the center of desktop by default
+//    this->move( QApplication::desktop()->screenGeometry().center() - this->rect().center() );
 }
 
 MainWindow::~MainWindow()
