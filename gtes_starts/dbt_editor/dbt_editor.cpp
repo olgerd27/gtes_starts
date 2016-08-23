@@ -102,8 +102,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     , m_ui(new Ui::DBTEditor)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
     , m_mapper(new QDataWidgetMapper(this))
-    , m_transmitter(new WidgetDataSender(this))
-    , m_editUICreator(new EditUICreator(m_DBTInfo, m_mapper, m_transmitter.get(), this))
+    , m_editUICreator(new EditUICreator(m_DBTInfo, m_mapper, this))
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -186,9 +185,11 @@ void DBTEditor::setSelectUI()
 
 void DBTEditor::setEditingUI()
 {
-    connect(m_transmitter.get(), SIGNAL(sigTransmit(QWidget*,QString)), this, SLOT(slotFocusLost_DataSet(QWidget*,QString)));
     m_editUICreator->createUI(m_ui->m_gboxEditingData);
-    connect(m_editUICreator.get(), SIGNAL(sigSEPBClicked(const dbi::DBTInfo*,int)), this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog
+    connect(m_editUICreator.get(), SIGNAL(sigWidgetFocusLost(QWidget*,QString)),
+            this, SLOT(slotFocusLost_DataSet(QWidget*,QString))); // set data to the model when widget lose the focus
+    connect(m_editUICreator.get(), SIGNAL(sigSEPBClicked(const dbi::DBTInfo*,int)),
+            this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog
 }
 
 void DBTEditor::setControl()

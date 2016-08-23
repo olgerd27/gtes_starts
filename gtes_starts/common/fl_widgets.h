@@ -16,7 +16,7 @@ class WidgetDataSender : public QObject
 public:
     WidgetDataSender(QObject *parent) : QObject(parent) { }
 signals:
-    void sigTransmit(QWidget *wgt, const QString &text);
+    void sigSendLostFocusWidgetData(QWidget *wgt, const QString &text);
 };
 
 /*
@@ -26,7 +26,7 @@ class FL_LineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    explicit FL_LineEdit(const WidgetDataSender *trans = 0, bool isReadOnly = false, QWidget *parent = 0);
+    explicit FL_LineEdit(const WidgetDataSender *wdsender = 0, bool isReadOnly = false, QWidget *parent = 0);
 signals:
     void sigFocusOut(QWidget *w, const QString &text);
 protected:
@@ -37,7 +37,7 @@ class FL_SpinBox : public QSpinBox
 {
     Q_OBJECT
 public:
-    explicit FL_SpinBox(const WidgetDataSender *trans = 0, bool isReadOnly = false, QWidget *parent = 0);
+    explicit FL_SpinBox(const WidgetDataSender *wdsender = 0, bool isReadOnly = false, QWidget *parent = 0);
 signals:
     void sigFocusOut(QWidget *w, const QString &text);
 protected:
@@ -48,7 +48,7 @@ class FL_DoubleSpinBox : public QDoubleSpinBox
 {
     Q_OBJECT
 public:
-    explicit FL_DoubleSpinBox(const WidgetDataSender *trans = 0, bool isReadOnly = false, QWidget *parent = 0);
+    explicit FL_DoubleSpinBox(const WidgetDataSender *wdsender = 0, bool isReadOnly = false, QWidget *parent = 0);
 signals:
     void sigFocusOut(QWidget *w, const QString &text);
 protected:
@@ -59,7 +59,7 @@ class FL_PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 public:
-    explicit FL_PlainTextEdit(const WidgetDataSender *trans = 0, bool isReadOnly = false, QWidget *parent = 0);
+    explicit FL_PlainTextEdit(const WidgetDataSender *wdsender = 0, bool isReadOnly = false, QWidget *parent = 0);
 signals:
     void sigFocusOut(QWidget *w, const QString &text);
 protected:

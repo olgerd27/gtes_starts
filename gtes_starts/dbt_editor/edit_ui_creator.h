@@ -97,12 +97,12 @@ class EditUICreator : public QObject, public AbstractUICreator
     Q_OBJECT
 
 public:
-    EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper,
-                  const WidgetDataSender *transmitter = 0, QObject *parent = 0);
+    EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper, QObject *parent = 0);
     virtual ~EditUICreator();
     virtual void createUI(QWidget *parent);
 
 signals:
+    void sigWidgetFocusLost(QWidget *, const QString &);
     void sigSEPBClicked(const dbi::DBTInfo *dbtInfo, int fieldNo);
 
 private slots:
@@ -117,7 +117,7 @@ private:
     std::unique_ptr<AbstractLabelCreator> m_lblCreator;
     QObject *m_sigReceiver;
     const char *m_slotMember;
-    const WidgetDataSender *m_transmitter;
+    std::unique_ptr<WidgetDataSender> m_dataSender;
 };
 
 #endif // EDIT_UI_CREATOR_H

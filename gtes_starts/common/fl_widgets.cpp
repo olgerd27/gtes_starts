@@ -12,11 +12,11 @@
 /*
  * FL_LineEdit
  */
-FL_LineEdit::FL_LineEdit(const WidgetDataSender *trans, bool isReadOnly, QWidget *parent)
+FL_LineEdit::FL_LineEdit(const WidgetDataSender *wdsender, bool isReadOnly, QWidget *parent)
     : QLineEdit(parent)
 {
     setReadOnly(isReadOnly);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), trans, SIGNAL(sigTransmit(QWidget*,QString)));
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)));
 }
 
 void FL_LineEdit::focusOutEvent(QFocusEvent *fe)
@@ -28,12 +28,12 @@ void FL_LineEdit::focusOutEvent(QFocusEvent *fe)
 /*
  * FL_SpinBox
  */
-FL_SpinBox::FL_SpinBox(const WidgetDataSender *trans, bool isReadOnly, QWidget *parent)
+FL_SpinBox::FL_SpinBox(const WidgetDataSender *wdsender, bool isReadOnly, QWidget *parent)
     : QSpinBox(parent)
 {
     setReadOnly(isReadOnly);
     setMaximum(INT_MAX);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), trans, SIGNAL(sigTransmit(QWidget*,QString)));
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)));
 }
 
 void FL_SpinBox::focusOutEvent(QFocusEvent *fe)
@@ -45,12 +45,12 @@ void FL_SpinBox::focusOutEvent(QFocusEvent *fe)
 /*
  * FL_DoubleSpinBox
  */
-FL_DoubleSpinBox::FL_DoubleSpinBox(const WidgetDataSender *trans, bool isReadOnly, QWidget *parent)
+FL_DoubleSpinBox::FL_DoubleSpinBox(const WidgetDataSender *wdsender, bool isReadOnly, QWidget *parent)
     : QDoubleSpinBox(parent)
 {
     setReadOnly(isReadOnly);
     setMaximum((double)INT_MAX);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), trans, SIGNAL(sigTransmit(QWidget*,QString)));
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)));
 }
 
 void FL_DoubleSpinBox::focusOutEvent(QFocusEvent *fe)
@@ -62,11 +62,11 @@ void FL_DoubleSpinBox::focusOutEvent(QFocusEvent *fe)
 /*
  * FL_PlainTextEdit
  */
-FL_PlainTextEdit::FL_PlainTextEdit(const WidgetDataSender *trans, bool isReadOnly, QWidget *parent)
+FL_PlainTextEdit::FL_PlainTextEdit(const WidgetDataSender *wdsender, bool isReadOnly, QWidget *parent)
     : QPlainTextEdit(parent)
 {
     setReadOnly(isReadOnly);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), trans, SIGNAL(sigTransmit(QWidget*,QString)));
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)));
 }
 
 void FL_PlainTextEdit::focusOutEvent(QFocusEvent *fe)

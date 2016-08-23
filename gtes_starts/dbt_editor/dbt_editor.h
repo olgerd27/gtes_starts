@@ -21,7 +21,6 @@ namespace dbi {
  * The base class for editing database tables (DBT)
  */
 class EditUICreator;
-class WidgetDataSender;
 class DBTEditor : public QDialog
 {
     Q_OBJECT
@@ -59,7 +58,6 @@ private:
     Ui::DBTEditor *m_ui;
     ProxyChoiceDecorModel *m_proxyModel;
     QDataWidgetMapper *m_mapper;
-    std::unique_ptr<WidgetDataSender> m_transmitter;
     std::unique_ptr<EditUICreator> m_editUICreator;
 };
 

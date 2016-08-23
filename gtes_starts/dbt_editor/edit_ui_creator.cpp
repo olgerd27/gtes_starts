@@ -108,14 +108,16 @@ AbstractUICreator::~AbstractUICreator()
 { }
 
 // EditUICreator
-EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper,
-                             const WidgetDataSender *transmitter, QObject *parent)
+EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper, QObject *parent)
     : QObject(parent)
     , m_tableInfo(tblInfo)
     , m_mapper(mapper)
     , m_lblCreator( createLabelCreator(AbstractLabelCreator::ctype_descriptive) ) // get descriptive label creator
-    , m_transmitter(transmitter)
-{ }
+    , m_dataSender(new WidgetDataSender(this))
+{
+    connect(m_dataSender.get(), SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)),
+            this, SIGNAL(sigWidgetFocusLost(QWidget*,QString))); // transmit widget and its data when this widget lose the focus
+}
 
 EditUICreator::~EditUICreator()
 { }
@@ -134,7 +136,7 @@ void EditUICreator::createUI(QWidget *parent)
         cmmnPlacer->placeWidget(field, 0, m_lblCreator->create(dbtField.m_nameInUI));
 
         // create field widget and place to the layout
-        fWgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), m_transmitter );
+        fWgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), m_dataSender.get() );
         m_mapper->addMapping(fWgt, field + 1); // +1 - because the proxy model add decoration icon as first column in DB table
         fwPlacer = createWidgetPlacer(dbtField, layout, fwPlacer);
         fwPlacer->placeWidget(field, 1, fWgt);
