@@ -21,7 +21,7 @@ void StorageGenData::addData(T_id idPrim, const StorageGenData::T_data &data)
 
 bool StorageGenData::deleteData(StorageGenData::T_id idPrim)
 {
-    qDebug() << "delete data: idPrim = " << idPrim << ", data:";
+    qDebug() << "delete foreign field data: idPrim = " << idPrim << ", data:";
     for (auto val : m_storage[idPrim])
         qDebug() << "  " << val;
     return m_storage.remove(idPrim);

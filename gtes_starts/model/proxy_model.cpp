@@ -106,7 +106,7 @@ CustomSqlTableModel *ProxyChoiceDecorModel::customSourceModel() const
 {
     CustomSqlTableModel *srcModel = qobject_cast<CustomSqlTableModel *>(sourceModel());
     ASSERT_DBG( srcModel,
-                cmmn::MessageException::type_critical, QObject::tr("The error with getting the custom source model"),
+                cmmn::MessageException::type_critical, QObject::tr("Error get the custom source model"),
                 QObject::tr("Unknow source model was setted to the proxy model"),
                 QString("ProxyChoiceDecorModel::customSourceModel()") );
     return srcModel;
@@ -169,10 +169,15 @@ void ProxyChoiceDecorModel::printHeader(int role) const
 
 void ProxyChoiceDecorModel::slotAddRow()
 {
-    int colCount = this->columnCount();
-    beginInsertRows(QModelIndex(), colCount, colCount);
+    int rowInsert = this->columnCount();
+    beginInsertRows(QModelIndex(), rowInsert, rowInsert);
     this->customSourceModel()->slotInsertToTheModel();
     endInsertRows();
+}
+
+void ProxyChoiceDecorModel::slotDeleteRow()
+{
+    this->customSourceModel()->slotDeleteFromTheModel(m_selectedRow);
 }
 
 void ProxyChoiceDecorModel::printData(int role) const

@@ -85,6 +85,7 @@ namespace cmmn {
 #endif
 
 // Macro's definition for error generating in the two modes: release (QT_NOT_DEBUG) and debug (else)
+// The arguments qstrTitle, qstrWhat, qstrWhere must be passed in the QString type.
 #ifdef QT_NO_DEBUG
 #define ASSERT_DBG(bAssert, msgType, qstrTitle, qstrWhat, qstrWhere) \
     cmmn::throwErrorMsg(bAssert, msgType, qstrTitle, qstrWhat, qstrWhere);

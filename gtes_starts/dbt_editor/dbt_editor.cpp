@@ -6,6 +6,7 @@
 #include <QItemSelection>
 #include <QMessageBox>
 #include <QLabel>
+#include <QSplitter> // TODO: temp, delete later
 #include <QDebug>
 #include "dbt_editor.h"
 #include "ui_dbt_editor.h"
@@ -113,6 +114,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     setControl();
     setDataNavigation();
 
+    // --- The test vizualization of the model data ---
     // The proxy model
     QTableView *tablePrx = new QTableView;
     tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
@@ -120,11 +122,8 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
     tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
     tablePrx->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
-    tablePrx->resize(800, 500);
-    tablePrx->move(30, 30);
     tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tablePrx->show();
     connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
     // selection setting - testing
     connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -132,26 +131,29 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
 
     // The source model
-//    QTableView *tableSrc = new QTableView;
-//    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-//    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
-//    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tableSrc->setModel(m_proxyModel->customSourceModel());
-//    tableSrc->resize(800, 500);
-//    tableSrc->move(10, 10);
-//    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tableSrc->show();
-//    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
-//    // selection setting - testing
-//    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
-//            [tableSrc](const QItemSelection &selected, const QItemSelection &)
-//    {
-//        const QModelIndexList &selectedList = selected.indexes();
-//        if (selectedList.size() > 0)
-//            tableSrc->selectRow(selectedList.at(0).row());
-//    } );
+    QTableView *tableSrc = new QTableView;
+    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
+                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableSrc->setModel(m_proxyModel->customSourceModel());
+    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+    // selection setting - testing
+    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
+            [tableSrc](const QItemSelection &selected, const QItemSelection &)
+    {
+        const QModelIndexList &selectedList = selected.indexes();
+        if (selectedList.size() > 0)
+            tableSrc->selectRow(selectedList.at(0).row());
+    } );
+
+    QSplitter *sp = new QSplitter;
+    sp->addWidget(tableSrc);
+    sp->addWidget(tablePrx);
+    sp->move(10, 10);
+    sp->show();
 }
 
 DBTEditor::~DBTEditor()
@@ -237,15 +239,19 @@ void DBTEditor::setEditingUI()
 
 void DBTEditor::setControl()
 {
-    // insert new record
     connect(m_ui->m_pbAdd, SIGNAL(clicked()), m_proxyModel, SLOT(slotAddRow()));
-    connect(m_proxyModel->customSourceModel(), SIGNAL(sigNewRecordInserted(int,cmmn::T_id)), m_mapper, SLOT(setCurrentIndex(int)));
+    connect(m_ui->m_pbDelete, SIGNAL(clicked()), m_proxyModel, SLOT(slotDeleteRow()));
 }
 
 void DBTEditor::setDataNavigation()
 {
+    connect(m_proxyModel->customSourceModel(), SIGNAL(sigNewRecordInserted(int,cmmn::T_id)), m_mapper, SLOT(setCurrentIndex(int)));
+    connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
+            [this](int row){ if (row > 0) --row; m_mapper->setCurrentIndex(row); } );
+
     connect(m_ui->m_tableContents->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            m_mapper, SLOT(setCurrentModelIndex(QModelIndex)));
+            m_mapper, SLOT(setCurrentModelIndex(QModelIndex))); // select rows in the view -> show data in the mapped widgets
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), m_ui->m_tableContents, SLOT(selectRow(int))); // the aim: add a new row -> select it
 }
 
 void DBTEditor::selectInitial(const QVariant &idPrim)

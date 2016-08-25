@@ -46,6 +46,7 @@ signals:
 
 public slots:
     void slotAddRow();
+    void slotDeleteRow();
     void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
