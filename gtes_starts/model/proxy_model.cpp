@@ -167,6 +167,14 @@ void ProxyChoiceDecorModel::printHeader(int role) const
     qDebug() << "Horizontal header data with role #" << role << ":" << strData;
 }
 
+void ProxyChoiceDecorModel::slotAddRow()
+{
+    int colCount = this->columnCount();
+    beginInsertRows(QModelIndex(), colCount, colCount);
+    this->customSourceModel()->slotInsertToTheModel();
+    endInsertRows();
+}
+
 void ProxyChoiceDecorModel::printData(int role) const
 {
     QString strData = "\n";

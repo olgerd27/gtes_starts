@@ -5,8 +5,9 @@
 #include <QSqlTableModel>
 #include <QIcon>
 #include <QDialog>
-#include <QItemSelection>
 #include <QDataWidgetMapper>
+#include <QTableView>
+#include <QHeaderView>
 #include "../common/common_defines.h"
 
 class ProxyChoiceDecorModel;
@@ -48,6 +49,7 @@ private:
     void setModel();
     void setMapper();
     void setSelectUI();
+    void setHorizSectionResizeMode(QHeaderView *header);
     void setEditingUI();
     void setControl();
     void setDataNavigation();
