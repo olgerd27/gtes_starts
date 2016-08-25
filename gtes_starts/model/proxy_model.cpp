@@ -1,6 +1,44 @@
+#include <QSet>
 #include <QDebug>
 #include "proxy_model.h"
 #include "custom_sql_table_model.h"
+
+/*
+ * RowsNumbers - the rows numbers storage
+ */
+class RowsNumbers
+{
+public:
+    typedef int T_rowNumber;
+    bool addRow(T_rowNumber row);
+    bool deleteRow(T_rowNumber row);
+    void clearRows();
+    bool hasRow(T_rowNumber row) const;
+private:
+    QSet<T_rowNumber> m_deletedRows;
+};
+
+bool RowsNumbers::addRow(RowsNumbers::T_rowNumber row)
+{
+    bool isDeleted = hasRow(row);
+    if (!isDeleted) m_deletedRows.insert(row);
+    return isDeleted;
+}
+
+bool RowsNumbers::deleteRow(RowsNumbers::T_rowNumber row)
+{
+    return m_deletedRows.remove(row);
+}
+
+void RowsNumbers::clearRows()
+{
+    m_deletedRows.clear();
+}
+
+bool RowsNumbers::hasRow(RowsNumbers::T_rowNumber row) const
+{
+    return m_deletedRows.contains(row);
+}
 
 /*
  * Implemented with help of: http://www.qtcentre.org/threads/58307-Problem-when-adding-a-column-to-a-QAbstractProxyModel
@@ -9,6 +47,7 @@ ProxyChoiceDecorModel::ProxyChoiceDecorModel(QObject *parent)
     : QAbstractProxyModel(parent)
     , m_selectedRow(NOT_SETTED)
     , m_selectIcon(":/images/ok.png")
+    , m_deletedRows(new RowsNumbers)
 {
     setSourceModel(new CustomSqlTableModel(this));
     /*
@@ -17,6 +56,9 @@ ProxyChoiceDecorModel::ProxyChoiceDecorModel(QObject *parent)
      * new column is reimplement some virtual methods of the QAbstractProxyModel class.
      */
 }
+
+ProxyChoiceDecorModel::~ProxyChoiceDecorModel()
+{ }
 
 void ProxyChoiceDecorModel::setSqlTable(const QString &tableName)
 {
@@ -32,10 +74,10 @@ QVariant ProxyChoiceDecorModel::data(const QModelIndex &index, int role) const
         data = m_selectIcon;
     else if (index.column() == SELECT_ICON_COLUMN /*&& (role != Qt::DecorationRole)*/)
         data = QVariant();
+    else if ( role == Qt::BackgroundColorRole && m_deletedRows->hasRow(index.row()) )
+        data = QColor(230, 183, 172, 255); // light red background
     else if ( role == Qt::TextAlignmentRole && this->data(index, Qt::DisplayRole).convert(QMetaType::Float) )
         data = Qt::AlignCenter; // center alignment of the numerical values
-    else if (index.column() > SELECT_ICON_COLUMN)
-        data = sourceModel()->data(mapToSource(index), role);
     else
         data = sourceModel()->data(mapToSource(index), role);
     return data;
@@ -65,7 +107,9 @@ int ProxyChoiceDecorModel::rowCount(const QModelIndex &/*parent*/) const
 Qt::ItemFlags ProxyChoiceDecorModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid()) return Qt::NoItemFlags;
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return m_deletedRows->hasRow(index.row())
+            ? QAbstractProxyModel::flags(index) & ~Qt::ItemIsEnabled // delete row - make it disabled
+            : Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 QVariant ProxyChoiceDecorModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -177,7 +221,9 @@ void ProxyChoiceDecorModel::slotAddRow()
 
 void ProxyChoiceDecorModel::slotDeleteRow()
 {
-    this->customSourceModel()->slotDeleteFromTheModel(m_selectedRow);
+    int deletedRow = m_selectedRow;
+    this->customSourceModel()->slotDeleteFromTheModel(deletedRow);
+    m_deletedRows->addRow(deletedRow);
 }
 
 void ProxyChoiceDecorModel::printData(int role) const

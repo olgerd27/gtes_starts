@@ -1,15 +1,17 @@
 #ifndef PROXY_MODEL_H
 #define PROXY_MODEL_H
 
+#include <memory>
 #include <QAbstractProxyModel>
 #include <QIcon>
-#include "../common/common_defines.h"
 
-class CustomSqlTableModel;
+#include "../common/common_defines.h"
 
 /*
  * The proxy model that add the choice decoration (Ok icon) to the data model.
  */
+class CustomSqlTableModel;
+class RowsNumbers;
 class ProxyChoiceDecorModel : public QAbstractProxyModel
 {
     Q_OBJECT
@@ -20,6 +22,7 @@ public:
     };
 
     explicit ProxyChoiceDecorModel(QObject *parent = 0);
+    ~ProxyChoiceDecorModel();
     void setSqlTable(const QString &tableName);
 
     QVariant data(const QModelIndex &index, int role) const;
@@ -56,6 +59,7 @@ private:
 
     int m_selectedRow;
     QIcon m_selectIcon;
+    std::unique_ptr<RowsNumbers> m_deletedRows; // TODO: use unique_ptr<>
 };
 
 #endif // PROXY_MODEL_H
