@@ -134,6 +134,7 @@ FormDataInput::FormDataInput(QWidget *parent)
 //    QSplitter *sp = new QSplitter;
 //    sp->addWidget(tableSrc);
 //    sp->addWidget(tablePrx);
+//    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_proxyModel->customSourceModel()->tableName()) );
 //    sp->move(10, 10);
 //    sp->show();
 }

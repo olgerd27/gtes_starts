@@ -1,43 +1,74 @@
-#include <QSet>
+#include <QMap>
 #include <QDebug>
 #include "proxy_model.h"
 #include "custom_sql_table_model.h"
 
 /*
- * RowsNumbers - the rows numbers storage
+ * RowsChangesHolder - storage of rows changes
  */
-class RowsNumbers
+class RowsChangesHolder
 {
 public:
     typedef int T_rowNumber;
-    bool addRow(T_rowNumber row);
+
+    enum ChangesTypes {
+          chtype_insert
+        , chtype_delete
+        , chtype_invalid
+    };
+
+    bool addRow(T_rowNumber row, ChangesTypes change);
     bool deleteRow(T_rowNumber row);
     void clearRows();
-    bool hasRow(T_rowNumber row) const;
+    bool findChangeRow(T_rowNumber row, ChangesTypes *changeType) const;
+    bool hasRowChange(T_rowNumber row, ChangesTypes controlChangeType) const; // checking - has a row change controlChangeType
 private:
-    QSet<T_rowNumber> m_deletedRows;
+    QMap<T_rowNumber, ChangesTypes> m_rowsChanges;
 };
 
-bool RowsNumbers::addRow(RowsNumbers::T_rowNumber row)
+bool RowsChangesHolder::addRow(RowsChangesHolder::T_rowNumber row, ChangesTypes change)
 {
-    bool isDeleted = hasRow(row);
-    if (!isDeleted) m_deletedRows.insert(row);
-    return isDeleted;
+    bool isContain = m_rowsChanges.contains(row);
+    if (!isContain)
+        m_rowsChanges.insert(row, change);
+    isContain = !isContain; // if initially row contains - this make bool value false, if doesn't contain - insert row and make bool value true
+
+    qDebug() << "Add row #" << row << ", changes:";
+    for (auto it = m_rowsChanges.cbegin(); it != m_rowsChanges.cend(); ++it)
+        qDebug() << "  " << it.key() << ":" << it.value();
+
+    return isContain;
 }
 
-bool RowsNumbers::deleteRow(RowsNumbers::T_rowNumber row)
+bool RowsChangesHolder::deleteRow(RowsChangesHolder::T_rowNumber row)
 {
-    return m_deletedRows.remove(row);
+//    return m_rowsChanges.remove(row);
+
+    bool b = m_rowsChanges.remove(row);
+
+    qDebug() << "Remove row #" << row << ", changes:";
+    for (auto it = m_rowsChanges.cbegin(); it != m_rowsChanges.cend(); ++it)
+        qDebug() << "  " << it.key() << ":" << it.value();
+
+    return b;
 }
 
-void RowsNumbers::clearRows()
+void RowsChangesHolder::clearRows()
 {
-    m_deletedRows.clear();
+    m_rowsChanges.clear();
 }
 
-bool RowsNumbers::hasRow(RowsNumbers::T_rowNumber row) const
+bool RowsChangesHolder::findChangeRow(RowsChangesHolder::T_rowNumber row, ChangesTypes *changeType) const
 {
-    return m_deletedRows.contains(row);
+    ChangesTypes chtype = chtype_invalid;
+    *changeType = m_rowsChanges.value(row, chtype);
+    return *changeType != chtype;
+}
+
+bool RowsChangesHolder::hasRowChange(RowsChangesHolder::T_rowNumber row, ChangesTypes controlChangeType) const
+{
+    auto changeType = RowsChangesHolder::chtype_invalid;
+    return findChangeRow(row, &changeType) && changeType == controlChangeType;
 }
 
 /*
@@ -47,7 +78,7 @@ ProxyChoiceDecorModel::ProxyChoiceDecorModel(QObject *parent)
     : QAbstractProxyModel(parent)
     , m_selectedRow(NOT_SETTED)
     , m_selectIcon(":/images/ok.png")
-    , m_deletedRows(new RowsNumbers)
+    , m_changedRows(new RowsChangesHolder)
 {
     setSourceModel(new CustomSqlTableModel(this));
     /*
@@ -70,12 +101,24 @@ void ProxyChoiceDecorModel::setSqlTable(const QString &tableName)
 QVariant ProxyChoiceDecorModel::data(const QModelIndex &index, int role) const
 {
     QVariant data;
+    auto changeType = RowsChangesHolder::chtype_invalid;
     if (index.column() == SELECT_ICON_COLUMN && index.row() == m_selectedRow && role == Qt::DecorationRole )
         data = m_selectIcon;
     else if (index.column() == SELECT_ICON_COLUMN /*&& (role != Qt::DecorationRole)*/)
         data = QVariant();
-    else if ( role == Qt::BackgroundColorRole && m_deletedRows->hasRow(index.row()) )
-        data = QColor(230, 183, 172, 255); // light red background
+    else if ( role == Qt::BackgroundColorRole && m_changedRows->findChangeRow(index.row(), &changeType) ) {
+        switch (changeType) {
+        case RowsChangesHolder::chtype_insert:
+            data = QColor(0, 110, 0, 80); // set transperent green background
+            break;
+        case RowsChangesHolder::chtype_delete:
+            data = QColor(255, 0, 0, 80); // set transperent red background
+            break;
+        case RowsChangesHolder::chtype_invalid:
+        default:
+            break;
+        }
+    }
     else if ( role == Qt::TextAlignmentRole && this->data(index, Qt::DisplayRole).convert(QMetaType::Float) )
         data = Qt::AlignCenter; // center alignment of the numerical values
     else
@@ -107,8 +150,8 @@ int ProxyChoiceDecorModel::rowCount(const QModelIndex &/*parent*/) const
 Qt::ItemFlags ProxyChoiceDecorModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid()) return Qt::NoItemFlags;
-    return m_deletedRows->hasRow(index.row())
-            ? QAbstractProxyModel::flags(index) & ~Qt::ItemIsEnabled // delete row - make it disabled
+    return m_changedRows->hasRowChange(index.row(), RowsChangesHolder::chtype_delete)
+            ? QAbstractProxyModel::flags(index) & ~Qt::ItemIsEnabled // current row deleted - make it disabled
             : Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
@@ -213,23 +256,40 @@ void ProxyChoiceDecorModel::printHeader(int role) const
 
 void ProxyChoiceDecorModel::slotAddRow()
 {
-    int rowInsert = this->columnCount();
+    int rowInsert = this->rowCount();
     beginInsertRows(QModelIndex(), rowInsert, rowInsert);
-    this->customSourceModel()->slotInsertToTheModel();
+    customSourceModel()->slotInsertToTheModel();
+    // save current row insert change
+    ASSERT_DBG( m_changedRows->addRow(rowInsert, RowsChangesHolder::chtype_insert),
+                cmmn::MessageException::type_critical, QObject::tr("Error add row"),
+                QObject::tr("Cannot add row change to the row changes storage"),
+                QString("ProxyChoiceDecorModel::slotAddRow()") );
     endInsertRows();
 }
 
 void ProxyChoiceDecorModel::slotDeleteRow()
 {
-    int deletedRow = m_selectedRow;
-    this->customSourceModel()->slotDeleteFromTheModel(deletedRow);
-    m_deletedRows->addRow(deletedRow);
+    int rowDelete = m_selectedRow;
+    customSourceModel()->slotDeleteFromTheModel(rowDelete);
+//    qDebug() << "slotDeleteRow() 1";
+//    if ( m_changedRows->hasRowChange(rowDelete, RowsChangesHolder::chtype_insert) ) {
+//        // delete current row (deletion of inserted row from model in fact delete row from model completely)
+//        ASSERT_DBG( m_changedRows->deleteRow(rowDelete),
+//                    cmmn::MessageException::type_critical, QObject::tr("Error delete row"),
+//                    QObject::tr("Cannot delete row change from the row changes storage"),
+//                    QString("ProxyChoiceDecorModel::slotDeleteRow()") );
+//        qDebug() << "slotDeleteRow() 2";
+//    }
+//    else {
+        m_changedRows->addRow(rowDelete, RowsChangesHolder::chtype_delete); // save current row delete change
+//        qDebug
+//    }
 }
 
 void ProxyChoiceDecorModel::slotRefreshModel()
 {
-    this->customSourceModel()->slotRefreshTheModel();
-    m_deletedRows->clearRows();
+    customSourceModel()->slotRefreshTheModel();
+    m_changedRows->clearRows();
     // update connected view(-s) - delete highlighting/disabling of view(-s) rows after refreshing proxy model
     emit dataChanged( this->index(0, 0), this->index(this->rowCount() - 1, this->columnCount() - 1) );
 }

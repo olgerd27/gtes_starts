@@ -11,7 +11,7 @@
  * The proxy model that add the choice decoration (Ok icon) to the data model.
  */
 class CustomSqlTableModel;
-class RowsNumbers;
+class RowsChangesHolder;
 class ProxyChoiceDecorModel : public QAbstractProxyModel
 {
     Q_OBJECT
@@ -59,7 +59,7 @@ private:
 
     int m_selectedRow;
     QIcon m_selectIcon;
-    std::unique_ptr<RowsNumbers> m_deletedRows; // TODO: use unique_ptr<>
+    std::unique_ptr<RowsChangesHolder> m_changedRows; // TODO: use unique_ptr<>
 };
 
 #endif // PROXY_MODEL_H
