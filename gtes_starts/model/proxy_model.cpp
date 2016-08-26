@@ -226,6 +226,14 @@ void ProxyChoiceDecorModel::slotDeleteRow()
     m_deletedRows->addRow(deletedRow);
 }
 
+void ProxyChoiceDecorModel::slotRefreshModel()
+{
+    this->customSourceModel()->slotRefreshTheModel();
+    m_deletedRows->clearRows();
+    // update connected view(-s) - delete highlighting/disabling of view(-s) rows after refreshing proxy model
+    emit dataChanged( this->index(0, 0), this->index(this->rowCount() - 1, this->columnCount() - 1) );
+}
+
 void ProxyChoiceDecorModel::printData(int role) const
 {
     QString strData = "\n";

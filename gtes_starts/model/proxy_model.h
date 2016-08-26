@@ -36,7 +36,6 @@ public:
     QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
     QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
 
-
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;
     QSize decorationSize() const;
@@ -50,6 +49,7 @@ signals:
 public slots:
     void slotAddRow();
     void slotDeleteRow();
+    void slotRefreshModel();
     void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:

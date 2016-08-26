@@ -187,8 +187,8 @@ void FormDataInput::setMainControls()
             m_proxyModel->customSourceModel(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
     connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigModelRefreshed,
             [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data refreshing
-    connect(m_proxyModel->customSourceModel(), SIGNAL(sigModelRefreshed()),
-            m_ui->m_leRecordId, SIGNAL(returnPressed())); // restore the current index
+    // restore current index. If view not used - u cannot use proxyModel::m_selectedRow for restore current index
+    connect(m_proxyModel->customSourceModel(), SIGNAL(sigModelRefreshed()), m_ui->m_leRecordId, SIGNAL(returnPressed()));
 
     // Revert data
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));

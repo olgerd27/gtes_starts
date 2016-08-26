@@ -241,6 +241,7 @@ void DBTEditor::setControl()
 {
     connect(m_ui->m_pbAdd, SIGNAL(clicked()), m_proxyModel, SLOT(slotAddRow()));
     connect(m_ui->m_pbDelete, SIGNAL(clicked()), m_proxyModel, SLOT(slotDeleteRow()));
+    connect(m_ui->m_pbRefresh, SIGNAL(clicked()), m_proxyModel, SLOT(slotRefreshModel()));
 }
 
 void DBTEditor::setDataNavigation()
