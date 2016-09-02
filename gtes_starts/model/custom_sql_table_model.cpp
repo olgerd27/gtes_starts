@@ -479,7 +479,7 @@ void CustomSqlTableModel::slotInsertToTheModel()
     }
 }
 
-void CustomSqlTableModel::slotDeleteFromTheModel(int row)
+void CustomSqlTableModel::slotDeleteRowRecord(int row)
 {
     // getting the primary id value
     cmmn::T_id idPrimary;
@@ -491,11 +491,11 @@ void CustomSqlTableModel::slotDeleteFromTheModel(int row)
     ASSERT_DBG( removeRow(row), cmmn::MessageException::type_critical, tr("Delete record error"),
                 tr("Cannot delete the record from the model of DB table %1. "
                    "Primary id = %2, row = %3").arg(tableName()).arg(idPrimary).arg(row),
-                QString("CustomSqlTableModel::slotDeleteFromTheModel") );
+                QString("CustomSqlTableModel::slotDeleteRowRecord") );
     ASSERT_DBG( m_genDataStorage->deleteData(idPrimary), cmmn::MessageException::type_critical, tr("Delete record error"),
                 tr("Cannot delete the record from the custom data storage of the DB table %1. "
                    "Primary id = %2, row = %3").arg(tableName()).arg(idPrimary).arg(row),
-                QString("CustomSqlTableModel::slotDeleteFromTheModel") );
+                QString("CustomSqlTableModel::slotDeleteRowRecord") );
 
     // version #2 - delete later
 //    if (!removeRow(row)) {

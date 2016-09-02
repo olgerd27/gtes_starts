@@ -40,7 +40,7 @@ signals:
 public slots:
     void slotRefreshTheModel();
     void slotInsertToTheModel();
-    void slotDeleteFromTheModel(int row);
+    void slotDeleteRowRecord(int row);
 
 private:
     enum { NOT_SETTED = -1 };

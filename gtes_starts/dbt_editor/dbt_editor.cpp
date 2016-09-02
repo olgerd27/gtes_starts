@@ -247,10 +247,7 @@ void DBTEditor::setControl()
 
 void DBTEditor::setDataNavigation()
 {
-    connect(m_proxyModel->customSourceModel(), SIGNAL(sigNewRecordInserted(int,cmmn::T_id)), m_mapper, SLOT(setCurrentIndex(int)));
-    connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
-            [this](int row){ if (row > 0) --row; m_mapper->setCurrentIndex(row); } );
-
+    connect(m_proxyModel, SIGNAL(sigChangeCurrentRow(int)), m_mapper, SLOT(setCurrentIndex(int)));
     connect(m_ui->m_tableContents->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             m_mapper, SLOT(setCurrentModelIndex(QModelIndex))); // select rows in the view -> show data in the mapped widgets
     connect(m_mapper, SIGNAL(currentIndexChanged(int)), m_ui->m_tableContents, SLOT(selectRow(int))); // the aim: add a new row -> select it

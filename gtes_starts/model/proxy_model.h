@@ -15,6 +15,7 @@ class RowsChangesHolder;
 class ProxyChoiceDecorModel : public QAbstractProxyModel
 {
     Q_OBJECT
+    friend class IRDefiner;
 public:
     enum {
         SELECT_ICON_COLUMN = 0, // index of the inserted column
@@ -45,6 +46,7 @@ public:
 
 signals:
     void sigNeedUpdateView(const QModelIndex &index);
+    void sigChangeCurrentRow(int row) const;
 
 public slots:
     void slotAddRow();
@@ -56,10 +58,11 @@ private:
     enum { NOT_SETTED = -1 };
 
     void updatePrevDeselected(const QModelIndexList &deselectList);
+    void changeRow(int defType, int row = -1);
 
     int m_selectedRow;
     QIcon m_selectIcon;
-    std::unique_ptr<RowsChangesHolder> m_changedRows; // TODO: use unique_ptr<>
+    std::unique_ptr<RowsChangesHolder> m_changedRows;
 };
 
 #endif // PROXY_MODEL_H

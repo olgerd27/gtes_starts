@@ -158,7 +158,7 @@ void FormDataInput::setMainControls()
 
     // Delete data
     connect(this, SIGNAL(sigDeleteRow(int)),
-            m_proxyModel->customSourceModel(), SLOT(slotDeleteFromTheModel(int))); // delete row from the model
+            m_proxyModel->customSourceModel(), SLOT(slotDeleteRowRecord(int))); // delete row from the model
     // update model changes - this must take place before the connection that update the current index
     connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
             [this](int row, cmmn::T_id primId)
@@ -188,8 +188,10 @@ void FormDataInput::setMainControls()
             m_proxyModel->customSourceModel(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
     connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigModelRefreshed,
             [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data refreshing
-    // restore current index. If view not used - u cannot use proxyModel::m_selectedRow for restore current index
-    connect(m_proxyModel->customSourceModel(), SIGNAL(sigModelRefreshed()), m_ui->m_leRecordId, SIGNAL(returnPressed()));
+    // set current index after refresh data in the model
+//    connect(m_proxyModel->customSourceModel(), SIGNAL(sigModelRefreshed()),
+//            m_ui->m_leRecordId, SIGNAL(returnPressed())); // generate error if current index (value in the record ID LineEdit) doesn't exist in the model
+    connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigModelRefreshed, [this](){ m_mapper->toFirst(); }); // go to the first index
 
     // Revert data
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
@@ -284,7 +286,7 @@ FormDataInput::~FormDataInput()
 void FormDataInput::slotDeleteRow()
 {
     qDebug() << "delete row, current mapper index =" << m_mapper->currentIndex();
-    emit sigDeleteRow( m_mapper->currentIndex() );
+    emit sigDeleteRow( m_mapper->currentIndex() ); // emit delete row signal with definition of the deletion row index
 }
 
 void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
