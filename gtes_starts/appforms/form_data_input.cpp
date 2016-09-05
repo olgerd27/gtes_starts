@@ -110,7 +110,6 @@ FormDataInput::FormDataInput(QWidget *parent)
 //    // selection setting - testing
 //    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
 //            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
-//    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
 
 //    // The source model
 //    QTableView *tableSrc = new QTableView;

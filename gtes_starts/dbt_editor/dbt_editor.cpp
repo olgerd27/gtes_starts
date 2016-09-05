@@ -114,47 +114,46 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     setControl();
     setDataNavigation();
 
-    // --- The test vizualization of the model data ---
-    // The proxy model
-    QTableView *tablePrx = new QTableView;
-    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
-                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-    tablePrx->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
-    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
-    // selection setting - testing
-    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
-    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), tablePrx, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
+//    // --- The test vizualization of the model data ---
+//    // The proxy model
+//    QTableView *tablePrx = new QTableView;
+//    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
+//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+//    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
+//    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
+//    tablePrx->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
+//    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+//    // selection setting - testing
+//    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+//            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
 
-    // The source model
-    QTableView *tableSrc = new QTableView;
-    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
-                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
-    tableSrc->setModel(m_proxyModel->customSourceModel());
-    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
-    // selection setting - testing
-    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
-            [tableSrc](const QItemSelection &selected, const QItemSelection &)
-    {
-        const QModelIndexList &selectedList = selected.indexes();
-        if (selectedList.size() > 0)
-            tableSrc->selectRow(selectedList.at(0).row());
-    } );
+//    // The source model
+//    QTableView *tableSrc = new QTableView;
+//    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
+//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+//    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
+//    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
+//    tableSrc->setModel(m_proxyModel->customSourceModel());
+//    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+//    // selection setting - testing
+//    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
+//            [tableSrc](const QItemSelection &selected, const QItemSelection &)
+//    {
+//        const QModelIndexList &selectedList = selected.indexes();
+//        if (selectedList.size() > 0)
+//            tableSrc->selectRow(selectedList.at(0).row());
+//    } );
 
-    QSplitter *sp = new QSplitter;
-    sp->addWidget(tableSrc);
-    sp->addWidget(tablePrx);
-    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_proxyModel->customSourceModel()->tableName()) );
-    sp->move(10, 10);
-    sp->show();
+//    QSplitter *sp = new QSplitter;
+//    sp->addWidget(tableSrc);
+//    sp->addWidget(tablePrx);
+//    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_proxyModel->customSourceModel()->tableName()) );
+//    sp->move(10, 10);
+//    sp->show();
 }
 
 DBTEditor::~DBTEditor()
@@ -210,7 +209,6 @@ void DBTEditor::setSelectUI()
      */
     connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
-    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
 }
 
 void DBTEditor::setHorizSectionResizeMode(QHeaderView *header)

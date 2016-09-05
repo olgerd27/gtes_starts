@@ -484,10 +484,9 @@ void CustomSqlTableModel::slotDeleteRowRecord(int row)
     // getting the primary id value
     cmmn::T_id idPrimary;
     const QVariant &varId = primaryIdInRow(row);
+    qDebug() << "delete from the source model, row =" << row << ", id =" << varId.toString();
     CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(varId, idPrimary), varId );
 
-    qDebug() << "delete from the source model, row =" << row << ", id =" << varId.toString();
-    // version #1 - main
     ASSERT_DBG( removeRow(row), cmmn::MessageException::type_critical, tr("Delete record error"),
                 tr("Cannot delete the record from the model of DB table %1. "
                    "Primary id = %2, row = %3").arg(tableName()).arg(idPrimary).arg(row),
@@ -496,20 +495,6 @@ void CustomSqlTableModel::slotDeleteRowRecord(int row)
                 tr("Cannot delete the record from the custom data storage of the DB table %1. "
                    "Primary id = %2, row = %3").arg(tableName()).arg(idPrimary).arg(row),
                 QString("CustomSqlTableModel::slotDeleteRowRecord") );
-
-    // version #2 - delete later
-//    if (!removeRow(row)) {
-//        // TODO: generate the critical error
-//        qCritical() << "[CRITICAL ERROR] Cannot delete the record from the data model of the DB table" << tableName()
-//                    << "with the primary key id =" << idPrimary << "(row #" << row << ")";
-//        return;
-//    }
-//    if (!m_genDataStorage->deleteData(idPrimary)) {
-//        // TODO: generate the critical error
-//        qCritical() << "[CRITICAL ERROR] Cannot delete the record from the custom data storage of the DB table" << tableName()
-//                    << "with the primary key id =" << idPrimary << "(row #" << row << ")";
-//        return;
-//    }
     qDebug() << "The record successfully deleted. DBT:" << tableName() << ", primary id =" << idPrimary << ", row =" << row;
     emit sigRecordDeleted(row, idPrimary);
 }

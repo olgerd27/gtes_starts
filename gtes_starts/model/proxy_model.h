@@ -45,7 +45,6 @@ public:
     void printHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
 
 signals:
-    void sigNeedUpdateView(const QModelIndex &index);
     void sigChangeCurrentRow(int row) const;
 
 public slots:
@@ -59,6 +58,7 @@ private:
 
     void updatePrevDeselected(const QModelIndexList &deselectList);
     void changeRow(int defType, int row = -1);
+    bool canDeleteRow(int row) const;
 
     int m_selectedRow;
     QIcon m_selectIcon;
