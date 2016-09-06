@@ -239,13 +239,26 @@ void DBTEditor::setEditingUI()
 void DBTEditor::setControl()
 {
     connect(m_ui->m_pbAdd, SIGNAL(clicked()), m_proxyModel, SLOT(slotAddRow()));
-    connect(m_ui->m_pbDelete, SIGNAL(clicked()), m_proxyModel, SLOT(slotDeleteRow()));
+//    connect(m_ui->m_pbDelete, SIGNAL(clicked()), m_proxyModel, SLOT(slotDeleteRow()));
+    connect(m_ui->m_pbDelete, &QPushButton::clicked, [this]()
+    {
+        m_proxyModel->slotDeleteRow( m_mapper->currentIndex() );
+    } );
     connect(m_ui->m_pbRefresh, SIGNAL(clicked()), m_proxyModel, SLOT(slotRefreshModel()));
 }
 
 void DBTEditor::setDataNavigation()
 {
+    connect(m_proxyModel, &ProxyChoiceDecorModel::sigChangeCurrentRow, [this](int changeRow)
+    {
+        qDebug() << "BEFORE changing row #" << changeRow << " current mapper row =" << this->m_mapper->currentIndex();
+    });
     connect(m_proxyModel, SIGNAL(sigChangeCurrentRow(int)), m_mapper, SLOT(setCurrentIndex(int)));
+    connect(m_proxyModel, &ProxyChoiceDecorModel::sigChangeCurrentRow, [this](int changeRow)
+    {
+        qDebug() << "AFTER changing row #" << changeRow << " current mapper row =" << this->m_mapper->currentIndex();
+    });
+
     connect(m_ui->m_tableContents->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             m_mapper, SLOT(setCurrentModelIndex(QModelIndex))); // select rows in the view -> show data in the mapped widgets
     connect(m_mapper, SIGNAL(currentIndexChanged(int)), m_ui->m_tableContents, SLOT(selectRow(int))); // the aim: add a new row -> select it

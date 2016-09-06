@@ -39,7 +39,9 @@ public:
 
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;
+#ifdef __linux__
     QSize decorationSize() const;
+#endif
 
     void printData(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
     void printHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
@@ -50,6 +52,7 @@ signals:
 public slots:
     void slotAddRow();
     void slotDeleteRow();
+    void slotDeleteRow(int row);
     void slotRefreshModel();
     void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 

@@ -282,7 +282,7 @@ FormDataInput::~FormDataInput()
     delete m_mchTChanger;
 }
 
-void FormDataInput::slotDeleteRow()
+void FormDataInput::slotDeleteRecord()
 {
     qDebug() << "delete row, current mapper index =" << m_mapper->currentIndex();
     emit sigDeleteRow( m_mapper->currentIndex() ); // emit delete row signal with definition of the deletion row index

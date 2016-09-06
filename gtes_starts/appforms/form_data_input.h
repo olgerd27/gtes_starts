@@ -66,7 +66,7 @@ signals:
     void sigChangesSubmitted(int currentIndex);
 
 public slots:
-    void slotDeleteRow();
+    void slotDeleteRecord();
 
 private slots:
     void slotNeedChangeMapperIndex(const QString &value);
