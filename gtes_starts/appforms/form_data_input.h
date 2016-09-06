@@ -56,7 +56,7 @@ public:
 signals:
     void sigChangeMapperIndex(int index);
     void sigInsertNew();
-    void sigDeleteRow(int row);
+    void sigDeleteRow();
     void sigSaveAll();
     void sigRefreshAll();
 //    void sigRevertChanges();
@@ -64,9 +64,6 @@ signals:
     void sigFirstRowReached(bool);
     void sigLastRowReached(bool);
     void sigChangesSubmitted(int currentIndex);
-
-public slots:
-    void slotDeleteRecord();
 
 private slots:
     void slotNeedChangeMapperIndex(const QString &value);

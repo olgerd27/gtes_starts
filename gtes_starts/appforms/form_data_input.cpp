@@ -156,8 +156,11 @@ void FormDataInput::setMainControls()
             m_mapper, SLOT(setCurrentIndex(int))); // mapper go to the inserted record (row)  --- TODO: use m_mapper.get()
 
     // Delete data
-    connect(this, SIGNAL(sigDeleteRow(int)),
-            m_proxyModel->customSourceModel(), SLOT(slotDeleteRowRecord(int))); // delete row from the model
+    connect(this, &FormDataInput::sigDeleteRow, [this]()
+    {
+        m_proxyModel->customSourceModel()->slotDeleteFromTheModel( m_mapper->currentIndex() ); // delete row from the model
+    });
+
     // update model changes - this must take place before the connection that update the current index
     connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
             [this](int row, cmmn::T_id primId)
@@ -280,12 +283,6 @@ FormDataInput::~FormDataInput()
     delete m_proxyModel;
     delete m_mapper;
     delete m_mchTChanger;
-}
-
-void FormDataInput::slotDeleteRecord()
-{
-    qDebug() << "delete row, current mapper index =" << m_mapper->currentIndex();
-    emit sigDeleteRow( m_mapper->currentIndex() ); // emit delete row signal with definition of the deletion row index
 }
 
 void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
