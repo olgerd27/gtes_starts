@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // actions connections
     connect(m_ui->m_actCreateEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigInsertNew()));
-    connect(m_ui->m_actDeleteEngine, SIGNAL(triggered()), formDInput, SLOT(slotDeleteRow()));
+    connect(m_ui->m_actDeleteEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigDeleteRow()));
     connect(m_ui->m_actSave, SIGNAL(triggered()), formDInput, SIGNAL(sigSaveAll()));
     connect(m_ui->m_actRefresh, SIGNAL(triggered()), formDInput, SIGNAL(sigRefreshAll()));
 //    connect(ui->m_actConnectToDB, SIGNAL(triggered()), formDInput, SIGNAL(sigRevertChanges())); // TODO: replace the action to the appropriate one
