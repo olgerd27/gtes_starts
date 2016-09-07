@@ -92,7 +92,8 @@ public:
           dtype_insert          // row index definer type, used after calling "insert" operation
         , dtype_deleteExistent  // row index definer type, used after calling "delete" operation of existent in the DB row
         , dtype_deleteInserted  // row index definer type, used after calling "delete" operation of just inserted row
-        , dtype_refresh         // row index definer type, used after calling "refresh" model operation
+        , dtype_refresh         // row index definer type, used after calling "refresh" model's data operation
+        , dtype_save            // row index definer type, used after calling "save" model's data operation
     };
 
     IRDefiner(const ProxyChoiceDecorModel *model) : m_model(model) { }
@@ -168,7 +169,7 @@ public:
     }
 };
 
-// Definer row index after performing refresh model operation
+// Definer row index after performing refresh model's data operation
 class IRD_Refresh : public IRDefiner
 {
 public:
@@ -177,6 +178,17 @@ public:
     {
         *pRow = 0; // return index of the first row
         return true;
+    }
+};
+
+// Definer row index after performing save model's data operation
+class IRD_Save : public IRDefiner
+{
+public:
+    IRD_Save(const ProxyChoiceDecorModel *model) : IRDefiner(model) { }
+    virtual bool define(int *) const
+    {
+        return true; // return true - this mean defined row is current row -> after saving, the current row won't change
     }
 };
 
@@ -196,6 +208,9 @@ IRDefiner *getIRDefiner(IRDefiner::DefinerType dtype, const ProxyChoiceDecorMode
         break;
     case IRDefiner::dtype_refresh:
         ird = new IRD_Refresh(model);
+        break;
+    case IRDefiner::dtype_save:
+        ird = new IRD_Save(model);
         break;
     default:
         ASSERT_DBG( 0, cmmn::MessageException::type_fatal, QObject::tr("Error index of row"),
@@ -481,6 +496,13 @@ void ProxyChoiceDecorModel::slotRefreshModel()
     customSourceModel()->slotRefreshTheModel();
     m_changedRows->clearRows();
     changeRow(IRDefiner::dtype_refresh);
+}
+
+void ProxyChoiceDecorModel::slotSaveDataToDB(int currentRow)
+{
+    customSourceModel()->slotSaveToDB();
+    m_changedRows->clearRows();
+    changeRow(IRDefiner::dtype_save, currentRow);
 }
 
 void ProxyChoiceDecorModel::printData(int role) const

@@ -4,23 +4,11 @@
 #include <QWidget>
 #include <memory>
 
-namespace Ui {
-    class FormDataInput;
-}
-namespace dbi {
-    class DBTInfo;
-}
-class DBTEditor;
-class CustomSqlTableModel;
-class ProxyChoiceDecorModel;
-class QDataWidgetMapper;
-class SelectEditPB;
-class ChangerMChTypeImpl;
-
 /*
  * Class for change model change type.
  * The available types are defined in the MChTypeLabel class, inherited from the QLabel.
  */
+class ChangerMChTypeImpl;
 class ChangerMChType : public QObject
 {
     Q_OBJECT
@@ -29,10 +17,10 @@ public:
     explicit ChangerMChType(QObject *parent = 0);
     ~ChangerMChType();
     void updateModelChange(const QVariant &idPrimary, int changeType); // changeType is the MChTypeLabel::ChangeTypes
-    void clearChanges();
 
 public slots:
     void slotCheckModelChanges(const QVariant &idPrimary);
+    void slotClearChanges();
 
 signals:
     void sigChangeChangedType(int ctype);
@@ -45,6 +33,11 @@ private:
 /*
  * The form for data input in the database
  */
+namespace Ui { class FormDataInput; }
+class ProxyChoiceDecorModel;
+class QDataWidgetMapper;
+class SelectEditPB;
+//class ModelDataSaver;
 class FormDataInput : public QWidget
 {
     Q_OBJECT
@@ -84,10 +77,12 @@ private:
 //    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel;
 //    std::unique_ptr<QDataWidgetMapper> m_mapper;
 //    std::unique_ptr<ChangerMChType> m_mchTChanger;
+//    std::unique_ptr<ModelDataSaver> m_dataSaver;
     Ui::FormDataInput *m_ui;
     ProxyChoiceDecorModel *m_proxyModel;
     QDataWidgetMapper *m_mapper;
     ChangerMChType *m_mchTChanger;
+//    ModelDataSaver *m_dataSaver;
 };
 
 #endif // FORM_DATA_INPUT_H

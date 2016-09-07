@@ -54,6 +54,7 @@ public slots:
     void slotDeleteRow();
     void slotDeleteRow(int row);
     void slotRefreshModel();
+    void slotSaveDataToDB(int currentRow);
     void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:

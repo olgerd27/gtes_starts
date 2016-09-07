@@ -498,3 +498,46 @@ void CustomSqlTableModel::slotDeleteRowRecord(int row)
     qDebug() << "The record successfully deleted. DBT:" << tableName() << ", primary id =" << idPrimary << ", row =" << row;
     emit sigRecordDeleted(row, idPrimary);
 }
+
+void CustomSqlTableModel::slotSaveToDB()
+{
+    ASSERT_DBG( database().transaction(), cmmn::MessageException::type_warning, tr("Database transaction error"),
+                tr("The database driver do not support the transactions operations"),
+                QString("CustomSqlTableModel::slotSaveToDB") );
+    if (submitAll())
+        database().commit();
+    else {
+        database().rollback();
+        ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Error data submit to the database"),
+                    tr("Cannot submit data to the database. The database report an error: %1")
+                    .arg( lastError().text() ),
+                    QString("CustomSqlTableModel::slotSaveToDB") );
+    }
+    emit sigSavedInDB();
+}
+
+/*
+ * ModelDataSaver
+ */
+//ModelDataSaver::ModelDataSaver(QSqlTableModel *model, QObject *parent)
+//    : QObject(parent)
+//    , m_model(model)
+//{ }
+
+//void ModelDataSaver::slotSave()
+//{
+//    ASSERT_DBG( m_model->database().transaction(), cmmn::MessageException::type_warning, tr("Database transaction error"),
+//                tr("The database driver do not support the transactions operations"),
+//                QString("ModelDataSaver::slotSave") );
+
+//    if (m_model->submitAll())
+//        m_model->database().commit();
+//    else {
+//        m_model->database().rollback();
+//        ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Error data submit to the database"),
+//                    tr("Cannot submit data to the database. The database report an error: %1")
+//                    .arg(m_model->lastError().text()),
+//                    QString("ModelDataSaver::slotSave") );
+//    }
+//    emit sigChangesSaved();
+//}

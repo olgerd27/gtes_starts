@@ -59,7 +59,7 @@ void ChangerMChType::updateModelChange(const QVariant &idPrimary, int changeType
     m_pImpl->updateModelChange( id, (MChTypeLabel::ChangeTypes)changeType );
 }
 
-void ChangerMChType::clearChanges()
+void ChangerMChType::slotClearChanges()
 {
     m_pImpl->clearChanges();
 }
@@ -88,6 +88,7 @@ FormDataInput::FormDataInput(QWidget *parent)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
     , m_mapper(new QDataWidgetMapper(this))
     , m_mchTChanger(new ChangerMChType(this))
+//    , m_dataSaver(new ModelDataSaver(m_proxyModel->customSourceModel()))
 {
     m_ui->setupUi(this);
     setMainControls();
@@ -158,7 +159,7 @@ void FormDataInput::setMainControls()
     // Delete data
     connect(this, &FormDataInput::sigDeleteRow, [this]()
     {
-        m_proxyModel->customSourceModel()->slotDeleteFromTheModel( m_mapper->currentIndex() ); // delete row from the model
+        m_proxyModel->customSourceModel()->slotDeleteRowRecord( m_mapper->currentIndex() ); // delete row from the model
     });
 
     // update model changes - this must take place before the connection that update the current index
@@ -181,15 +182,19 @@ void FormDataInput::setMainControls()
             [this](int row){ if (row > 0) --row; m_mapper->setCurrentIndex(row); } );
 
     // Save data
-    connect(this, SIGNAL(sigSaveAll()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
-    connect(this, &FormDataInput::sigChangesSubmitted, [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data saving
-    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int))); // TODO: use m_mapper.get()
+//    connect(this, SIGNAL(sigSaveAll()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
+//    connect(this, &FormDataInput::sigChangesSubmitted, [this](){ m_mchTChanger->slotClearChanges(); } ); // clearing changes after data saving
+//    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int))); // TODO: use m_mapper.get()
+
+    connect(this, SIGNAL(sigSaveAll()), m_proxyModel->customSourceModel(), SLOT(slotSaveToDB())); // save model's data to the DB
+    connect(m_proxyModel->customSourceModel(), SIGNAL(sigSavedInDB()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data saving
+    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int))); // TODO:  perform saving in custom or proxy model
+//    connect(m_proxyModel->customSourceModel(), SIGNAL(sigSavedInDB()), m_mapper // TODO: IMPLEMENT switching to the index, that was before saving
 
     // Refresh data
     connect(this, SIGNAL(sigRefreshAll()),
             m_proxyModel->customSourceModel(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
-    connect(m_proxyModel->customSourceModel(), &CustomSqlTableModel::sigModelRefreshed,
-            [this](){ m_mchTChanger->clearChanges(); } ); // clearing changes after data refreshing
+    connect(m_proxyModel->customSourceModel(), SIGNAL(sigModelRefreshed()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data refreshing
     // set current index after refresh data in the model
 //    connect(m_proxyModel->customSourceModel(), SIGNAL(sigModelRefreshed()),
 //            m_ui->m_leRecordId, SIGNAL(returnPressed())); // generate error if current index (value in the record ID LineEdit) doesn't exist in the model
@@ -283,6 +288,7 @@ FormDataInput::~FormDataInput()
     delete m_proxyModel;
     delete m_mapper;
     delete m_mchTChanger;
+//    delete m_dataSaver;
 }
 
 void FormDataInput::slotNeedChangeMapperIndex(const QString &value)

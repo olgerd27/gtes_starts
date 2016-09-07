@@ -32,10 +32,8 @@ public:
     void selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
-public slots:
-    void slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo);
-
 private slots:
+    void slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo);
     void slotFocusLost_DataSet(QWidget *w, const QString &data);
 
 private:
