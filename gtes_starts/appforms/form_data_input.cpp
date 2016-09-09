@@ -345,7 +345,7 @@ void FormDataInput::slotEditChildDBT()
     SelectEditPB *pbSEDBT = qobject_cast<SelectEditPB *>(sender());
     if ( !pbSEDBT ) {
         /*
-         * TODO: wrong error message text. There are need to say some like "cannot edit database table" and
+         * TODO: wrong error message text. There are need to say something like "cannot edit database table" and
          * not "cannot open the dialog", or maybe there are need rename this slot.
          * This also applies to the other error messageboxes in this slot.
          */

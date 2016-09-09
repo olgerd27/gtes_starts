@@ -260,19 +260,52 @@ void DBTEditor::setDataNavigation()
 
 void DBTEditor::selectInitial(const QVariant &idPrim)
 {
-    int selectedRow = -1;
-    ASSERT_DBG( m_proxyModel->customSourceModel()->findRowWithId(idPrim, selectedRow),
+    m_initSelectRow = -1;
+    ASSERT_DBG( m_proxyModel->customSourceModel()->findRowWithId(idPrim, m_initSelectRow),
                 cmmn::MessageException::type_warning, tr("Selection error"),
                 tr("Cannot select the row in the table \"%1\". Cannot find the item with id: %2")
                 .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),
-                QString("FormDataInput::slotEditChildDBT()") );
-    m_ui->m_tableContents->selectRow(selectedRow);
-    m_mapper->setCurrentIndex(selectedRow);
+                QString("DBTEditor::selectInitial") );
+    m_ui->m_tableContents->selectRow(m_initSelectRow);
 }
 
 cmmn::T_id DBTEditor::selectedId() const
 {
     return m_proxyModel->selectedId();
+}
+
+void DBTEditor::accept()
+{
+    if (m_proxyModel->isDirty()) {
+        /*
+         * TODO: add application settings - "Automatic save by clicking "Ok"" (checkbox).
+         * IF this setting is setted - make data autosaving when clicking "Ok" push button, ELSE - ask confirmation in user
+         */
+        bool autoSave = false;
+        if (autoSave)
+            m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() );
+        else {
+            auto btnChoosed =
+                    QMessageBox::question( this, tr("Save changes"),
+                                           tr("Do you want to save changes in the DB?"),
+                                           QMessageBox::Save | QMessageBox::Discard | QMessageBox::Close, QMessageBox::Save);
+            switch (btnChoosed) {
+            case QMessageBox::Save:
+                m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() ); // save data to the DB
+                break;
+            case QMessageBox::Discard:
+                m_ui->m_tableContents->selectRow(m_initSelectRow); // restore initial row selection
+                break;
+            case QMessageBox::Close:
+                return; // just close this dialog window
+            default:
+                ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Unknow button clicked"),
+                            tr("There was clicked unknown button: %1").arg((int)btnChoosed), QString("DBTEditor::accept"))
+                break;
+            }
+        }
+    }
+    QDialog::accept();
 }
 
 void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)

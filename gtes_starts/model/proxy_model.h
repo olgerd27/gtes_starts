@@ -39,6 +39,7 @@ public:
 
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;
+    bool isDirty() const; // check - has the model any changes, don't saved in the DB
 #ifdef __linux__
     QSize decorationSize() const;
 #endif

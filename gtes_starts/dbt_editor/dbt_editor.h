@@ -32,6 +32,9 @@ public:
     void selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
+public slots:
+    void accept();
+
 private slots:
     void slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo);
     void slotFocusLost_DataSet(QWidget *w, const QString &data);
@@ -59,6 +62,7 @@ private:
     ProxyChoiceDecorModel *m_proxyModel;
     QDataWidgetMapper *m_mapper;
     std::unique_ptr<EditUICreator> m_editUICreator;
+    int m_initSelectRow;
 };
 
 #endif // DBT_EDITOR_H
