@@ -172,7 +172,7 @@ void DBTEditor::setWindowPosition()
 
 void DBTEditor::setWindowName()
 {
-    setWindowTitle( tr("Editing the table:") + " " + m_DBTInfo->m_nameInUI );
+    setWindowTitle( tr("The DB table:") + " " + m_DBTInfo->m_nameInUI );
 }
 
 void DBTEditor::setModel()
