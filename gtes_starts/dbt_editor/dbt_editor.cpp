@@ -276,7 +276,7 @@ cmmn::T_id DBTEditor::selectedId() const
 
 void DBTEditor::accept()
 {
-    if (m_proxyModel->isDirty()) {
+    if (m_proxyModel->customSourceModel()->isDirty()) {
         /*
          * TODO: add application settings - "Automatic save by clicking "Ok"" (checkbox).
          * IF this setting is setted - make data autosaving when clicking "Ok" push button, ELSE - ask confirmation in user

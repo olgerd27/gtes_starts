@@ -127,7 +127,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
      * In this case the QSqlRelationalTableModel::setData() method return false. The setData() method successfully works only with Qt::EditRole.
      * Saving data with the Qt::UserRole (or UserRole + 1, +2, ...) can be achieved by means of data saving in a some custom storage.
      */
-//    qDebug() << "Source model setData(), [" << idx.row() << "," << idx.column() << "],  data:" << value.toString();
+    qDebug() << "Source model setData(), [" << idx.row() << "," << idx.column() << "],  data:" << value.toString();
 
     if (!idx.isValid()) return false;
     bool bSetted = false;
@@ -497,35 +497,9 @@ void CustomSqlTableModel::slotSaveToDB()
     else {
         database().rollback();
         ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Error data submit to the database"),
-                    tr("Cannot submit data to the database. The database report an error: %1")
-                    .arg( lastError().text() ),
+                    tr("Cannot submit data to the database. The database report an ERROR #%1: %2")
+                    .arg( lastError().nativeErrorCode() ).arg( lastError().text() ),
                     QString("CustomSqlTableModel::slotSaveToDB") );
     }
     emit sigSavedInDB();
 }
-
-/*
- * ModelDataSaver
- */
-//ModelDataSaver::ModelDataSaver(QSqlTableModel *model, QObject *parent)
-//    : QObject(parent)
-//    , m_model(model)
-//{ }
-
-//void ModelDataSaver::slotSave()
-//{
-//    ASSERT_DBG( m_model->database().transaction(), cmmn::MessageException::type_warning, tr("Database transaction error"),
-//                tr("The database driver do not support the transactions operations"),
-//                QString("ModelDataSaver::slotSave") );
-
-//    if (m_model->submitAll())
-//        m_model->database().commit();
-//    else {
-//        m_model->database().rollback();
-//        ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Error data submit to the database"),
-//                    tr("Cannot submit data to the database. The database report an error: %1")
-//                    .arg(m_model->lastError().text()),
-//                    QString("ModelDataSaver::slotSave") );
-//    }
-//    emit sigChangesSaved();
-//}

@@ -14,48 +14,50 @@ public:
     enum ChangesTypes {
           chtype_insert
         , chtype_delete
+        , chtype_alter
         , chtype_invalid
     };
 
-    bool addRow(T_rowNumber row, ChangesTypes change);
-    bool deleteRow(T_rowNumber row);
-    void clearRows();
+    bool addChange(T_rowNumber row, ChangesTypes change);
+    bool deleteChange(T_rowNumber row);
+    void clearChanges();
     bool getChangeForRow(T_rowNumber row, ChangesTypes *pChangeType) const; // get the change for the specified row
     bool hasRowChange(T_rowNumber row, ChangesTypes controlChangeType) const; // checking - has a row change controlChangeType
     bool setRowChangeType(T_rowNumber row, ChangesTypes changeType);
     bool hasChanges() const;
 private:
+    void print() const; // TODO: for debugging, delete later
+
     QMap<T_rowNumber, ChangesTypes> m_rowsChanges;
 };
 
-bool RowsChangesHolder::addRow(RowsChangesHolder::T_rowNumber row, ChangesTypes change)
+bool RowsChangesHolder::addChange(RowsChangesHolder::T_rowNumber row, ChangesTypes changeNew)
 {
-    bool isContain = m_rowsChanges.contains(row);
-    if (!isContain)
-        m_rowsChanges.insert(row, change);
-    isContain = !isContain; // if initially row contains - this make bool value false, if doesn't contain - insert row and make bool value true
+    ChangesTypes changeContain = chtype_invalid; // change, that has passed row
+    bool hasChange = getChangeForRow(row, &changeContain);
+    if (!hasChange)
+        m_rowsChanges.insert(row, changeNew);
+//    else if (hasChange && changeNew != chtype_alter && changeContain == chtype_alter)
+//        m_rowsChanges[row] = changeNew; // if passed row has "alter" change type -> replace it to the passed change type
+    hasChange = !hasChange; // if initially row contains - this make bool value false, if doesn't contain - insert row and make bool value true
 
-//    qDebug() << "Add row #" << row << ", changes:";
-//    for (auto it = m_rowsChanges.cbegin(); it != m_rowsChanges.cend(); ++it)
-//        qDebug() << "  " << it.key() << ":" << it.value();
+    qDebug() << "Add change, row #" << row << ", changes:";
+    print();
 
-    return isContain;
+    return hasChange;
 }
 
-bool RowsChangesHolder::deleteRow(RowsChangesHolder::T_rowNumber row)
+bool RowsChangesHolder::deleteChange(RowsChangesHolder::T_rowNumber row)
 {
-//    return m_rowsChanges.remove(row);
+    return m_rowsChanges.remove(row);
 
-    bool b = m_rowsChanges.remove(row);
-
+//    bool b = m_rowsChanges.remove(row);
 //    qDebug() << "Remove row #" << row << ", changes:";
-//    for (auto it = m_rowsChanges.cbegin(); it != m_rowsChanges.cend(); ++it)
-//        qDebug() << "  " << it.key() << ":" << it.value();
-
-    return b;
+//    print();
+//    return b;
 }
 
-void RowsChangesHolder::clearRows()
+void RowsChangesHolder::clearChanges()
 {
     m_rowsChanges.clear();
 }
@@ -84,6 +86,19 @@ bool RowsChangesHolder::setRowChangeType(RowsChangesHolder::T_rowNumber row, Row
 bool RowsChangesHolder::hasChanges() const
 {
     return !m_rowsChanges.isEmpty();
+}
+
+void RowsChangesHolder::print() const
+{
+    QString name;
+    for (auto it = m_rowsChanges.cbegin(); it != m_rowsChanges.cend(); ++it) {
+        if (it.value() == chtype_insert) name = "INSERT";
+        else if (it.value() == chtype_delete) name = "DELETE";
+        else if (it.value() == chtype_alter) name = "ALTER";
+        else if (it.value() == chtype_invalid) name = "INVALID";
+        else name = "UNKNOWN";
+        qDebug() << "  " << it.key() << ":" << name;
+    }
 }
 
 /*
@@ -236,12 +251,16 @@ ProxyChoiceDecorModel::ProxyChoiceDecorModel(QObject *parent)
     , m_selectIcon(":/images/ok.png")
     , m_changedRows(new RowsChangesHolder)
 {
-    setSourceModel(new CustomSqlTableModel(this));
     /*
-     * For insertion a new virtual column in this model you cannot use the QAbstractProxyModel::insertColumn(),
+     * NOTE: For insertion a new virtual column in this model you cannot use the QAbstractProxyModel::insertColumn(),
      * because this method insert new column in the source model too. Probably, the proper decision for insertion
      * new column is reimplement some virtual methods of the QAbstractProxyModel class.
      */
+    setSourceModel(new CustomSqlTableModel(this));
+//    connect(customSourceModel(), &CustomSqlTableModel::dataChanged, [this](const QModelIndex &topLeft, const QModelIndex &)
+//    {
+//        m_changedRows->addChange(topLeft.row(), RowsChangesHolder::chtype_alter); // add altering row change
+//    } );
 }
 
 ProxyChoiceDecorModel::~ProxyChoiceDecorModel()
@@ -437,7 +456,7 @@ void ProxyChoiceDecorModel::slotAddRow()
     beginInsertRows(QModelIndex(), rowInsert, rowInsert);
     customSourceModel()->slotInsertToTheModel();
     // save current row insert change
-    ASSERT_DBG( m_changedRows->addRow(rowInsert, RowsChangesHolder::chtype_insert),
+    ASSERT_DBG( m_changedRows->addChange(rowInsert, RowsChangesHolder::chtype_insert),
                 cmmn::MessageException::type_critical, QObject::tr("Error add row"),
                 QObject::tr("Cannot add row change to the row changes storage"),
                 QString("ProxyChoiceDecorModel::slotAddRow()") );
@@ -457,7 +476,7 @@ void ProxyChoiceDecorModel::slotDeleteRow()
     if ( m_changedRows->hasRowChange(rowDelete, RowsChangesHolder::chtype_insert) ) {
         // if row has "insert change" -> delete change of the last row in the model
         // (deletion the model's just inserted row in fact delete row from model completely)
-        ASSERT_DBG( m_changedRows->deleteRow(rowCount()),
+        ASSERT_DBG( m_changedRows->deleteChange(rowCount()),
                     cmmn::MessageException::type_critical, QObject::tr("Error delete row"),
                     QObject::tr("Cannot delete row change from the row changes storage"),
                     QString("ProxyChoiceDecorModel::slotDeleteRow()") );
@@ -465,7 +484,7 @@ void ProxyChoiceDecorModel::slotDeleteRow()
     }
     else {
         // if row is existent in the DB -> save it index as deleted and define appropriate type of row index definer
-        m_changedRows->addRow(rowDelete, RowsChangesHolder::chtype_delete); // save current row delete change
+        m_changedRows->addChange(rowDelete, RowsChangesHolder::chtype_delete); // save current row delete change
         defType = IRDefiner::dtype_deleteExistent;
     }
     changeRow(defType, rowDelete);
@@ -481,7 +500,7 @@ void ProxyChoiceDecorModel::slotDeleteRow(int row)
     if ( m_changedRows->hasRowChange(row, RowsChangesHolder::chtype_insert) ) {
         // if row has "insert change" -> delete change of the last row in the model
         // (deletion the model's just inserted row in fact delete row from model completely)
-        ASSERT_DBG( m_changedRows->deleteRow(rowCount()),
+        ASSERT_DBG( m_changedRows->deleteChange(rowCount()),
                     cmmn::MessageException::type_critical, QObject::tr("Error delete row"),
                     QObject::tr("Cannot delete row change from the row changes storage"),
                     QString("ProxyChoiceDecorModel::slotDeleteRow()") );
@@ -489,7 +508,7 @@ void ProxyChoiceDecorModel::slotDeleteRow(int row)
     }
     else {
         // if row is existent in the DB -> save it index as deleted and define appropriate type of row index definer
-        m_changedRows->addRow(row, RowsChangesHolder::chtype_delete); // save current row delete change
+        m_changedRows->addChange(row, RowsChangesHolder::chtype_delete); // save current row delete change
         defType = IRDefiner::dtype_deleteExistent;
     }
     qDebug() << "[proxy model] data deleted from the model";
@@ -499,7 +518,7 @@ void ProxyChoiceDecorModel::slotDeleteRow(int row)
 void ProxyChoiceDecorModel::slotRefreshModel()
 {
     customSourceModel()->slotRefreshTheModel();
-    m_changedRows->clearRows();
+    m_changedRows->clearChanges();
     qDebug() << "[proxy model] data refreshed in the model";
     changeRow(IRDefiner::dtype_refresh);
 }
@@ -507,7 +526,7 @@ void ProxyChoiceDecorModel::slotRefreshModel()
 void ProxyChoiceDecorModel::slotSaveDataToDB(int currentRow)
 {
     customSourceModel()->slotSaveToDB();
-    m_changedRows->clearRows();
+    m_changedRows->clearChanges();
     qDebug() << "[proxy model] data saved in the DB";
     changeRow(IRDefiner::dtype_save, currentRow);
 }

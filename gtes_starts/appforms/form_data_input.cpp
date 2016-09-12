@@ -88,7 +88,6 @@ FormDataInput::FormDataInput(QWidget *parent)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
     , m_mapper(new QDataWidgetMapper(this))
     , m_mchTChanger(new ChangerMChType(this))
-//    , m_dataSaver(new ModelDataSaver(m_proxyModel->customSourceModel()))
 {
     m_ui->setupUi(this);
     setMainControls();

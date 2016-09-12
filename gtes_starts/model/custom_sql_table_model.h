@@ -69,18 +69,4 @@ private:
                                          * the interface for getting data from this storage */
 };
 
-// Use for save a model's data to the DB. Can be used by any consumer of model, that allow don't implement own "save" method.
-//class ModelDataSaver : public QObject
-//{
-//    Q_OBJECT
-//public:
-//    ModelDataSaver(QSqlTableModel *model, QObject *parent = 0);
-//signals:
-//    void sigChangesSaved();
-//public slots:
-//    void slotSave();
-//private:
-//    QSqlTableModel *m_model;
-//};
-
 #endif // CUSTOM_SQL_TABLE_MODEL_H
