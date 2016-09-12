@@ -6,6 +6,7 @@
 #include <QItemSelection>
 #include <QMessageBox>
 #include <QLabel>
+#include <QSortFilterProxyModel>
 #include <QSplitter> // TODO: temp, delete later
 #include <QDebug>
 #include "dbt_editor.h"
@@ -95,6 +96,7 @@ private:
  * DBTEditor
  * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
  */
+#include <QStandardItemModel>
 DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbtInfo)
@@ -154,6 +156,28 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
 //    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_proxyModel->customSourceModel()->tableName()) );
 //    sp->move(10, 10);
 //    sp->show();
+
+    // --- Experiments with using QSortFilterProxyModel ---
+    QTableView *tablePrx = new QTableView;
+    tablePrx->setWindowTitle( QString("Proxy sort/filter model for debugging. Use the \"%1\" DB table")
+                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    QSortFilterProxyModel *sfPrxModel = new QSortFilterProxyModel(tablePrx);
+    sfPrxModel->setSourceModel(m_proxyModel);
+    sfPrxModel->setFilterKeyColumn(-1);
+    tablePrx->setModel(sfPrxModel);
+
+    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+
+    QLineEdit *leFilter = new QLineEdit;
+    connect(leFilter, SIGNAL(textChanged(QString)), sfPrxModel, SLOT(setFilterFixedString(QString)));
+
+    m_ui->verticalLayout->addWidget(leFilter);
+    m_ui->verticalLayout->addWidget(tablePrx);
 }
 
 DBTEditor::~DBTEditor()
