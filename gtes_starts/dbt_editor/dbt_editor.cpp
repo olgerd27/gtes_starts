@@ -6,7 +6,6 @@
 #include <QItemSelection>
 #include <QMessageBox>
 #include <QLabel>
-#include <QSortFilterProxyModel>
 #include <QSplitter> // TODO: temp, delete later
 #include <QDebug>
 #include "dbt_editor.h"
@@ -16,6 +15,49 @@
 #include "edit_ui_creator.h"
 #include "../common/db_info.h"
 #include "../common/fl_widgets.h"
+#include "../common/reimplemented_widgets.h"
+
+/*
+ * ProxyFilterModel
+ */
+ProxyFilterModel::ProxyFilterModel(QObject *parent)
+    : QSortFilterProxyModel(parent)
+{ }
+
+ProxyFilterModel::~ProxyFilterModel()
+{ }
+
+void ProxyFilterModel::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    QItemSelectionModel *selectModel = qobject_cast<QItemSelectionModel *>(sender());
+    const QModelIndexList &deselectedList = deselected.indexes();
+
+    // catch a deselection of the first left item in current row and setting icons decoration on it
+    if (deselectedList.size() == ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS) {
+        // operate special case in Windows XP, Qt ver. 5.3.0. Normal case - in this place no one item must be selected.
+        // TODO: use preprocessor declaration
+        const QModelIndexList &selectedList = selected.indexes();
+        if (!selectedList.isEmpty()) {
+            selectModel->select(selectedList.first(), QItemSelectionModel::Deselect); // repeat deselection
+            updatePrevDeselected(deselectedList);
+            return;
+        }
+        setData( index( deselectedList.first().row(), ProxyChoiceDecorModel::SELECT_ICON_COLUMN ), QVariant(), Qt::DecorationRole );
+        return;
+    }
+    // update the first left items in the previous selected row for clearing icons decoration
+    if (deselectedList.size() > ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS)
+        updatePrevDeselected(deselectedList);
+    selectModel->select(selected.indexes().first(), QItemSelectionModel::Deselect); // this make recursive calling of this slot
+}
+
+void ProxyFilterModel::updatePrevDeselected(const QModelIndexList &deselectList)
+{
+    // update the first left items in the previous selected row for clearing icons decoration
+    const QModelIndex &someDeselected = deselectList.first();
+    const QModelIndex &firstDeselected = someDeselected.model()->index(someDeselected.row(), ProxyChoiceDecorModel::SELECT_ICON_COLUMN);
+    emit dataChanged(firstDeselected, firstDeselected); // clear remained icons decoration
+}
 
 /*
  * HighlightTableRowsDelegate
@@ -96,12 +138,12 @@ private:
  * DBTEditor
  * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
  */
-#include <QStandardItemModel>
 DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbtInfo)
     , m_ui(new Ui::DBTEditor)
     , m_proxyModel(new ProxyChoiceDecorModel(this))
+    , m_sfProxyModel(new ProxyFilterModel(this))
     , m_mapper(new QDataWidgetMapper(this))
     , m_editUICreator(new EditUICreator(m_DBTInfo, m_mapper, this))
 {
@@ -123,13 +165,13 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
 //                              .arg(m_proxyModel->customSourceModel()->tableName()) );
 //    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
 //    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tablePrx->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
+//    tablePrx->setModel(m_proxyModel);
 //    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int)));
 //    // selection setting - testing
 //    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-//            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
+//            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
 
 //    // The source model
 //    QTableView *tableSrc = new QTableView;
@@ -140,7 +182,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
 //    tableSrc->setModel(m_proxyModel->customSourceModel());
 //    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+//    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int)));
 //    // selection setting - testing
 //    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
 //            [tableSrc](const QItemSelection &selected, const QItemSelection &)
@@ -157,33 +199,34 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
 //    sp->move(10, 10);
 //    sp->show();
 
-    // --- Experiments with using QSortFilterProxyModel ---
-    QTableView *tablePrx = new QTableView;
-    tablePrx->setWindowTitle( QString("Proxy sort/filter model for debugging. Use the \"%1\" DB table")
-                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
+    // --- Experiments with using QSortProxyFilterModel ---
+//    QTableView *tablePrx = new QTableView;
+//    tablePrx->setWindowTitle( QString("Proxy sort/filter model for debugging. Use the \"%1\" DB table")
+//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
+//    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
+//    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    QSortFilterProxyModel *sfPrxModel = new QSortFilterProxyModel(tablePrx);
-    sfPrxModel->setSourceModel(m_proxyModel);
-    sfPrxModel->setFilterKeyColumn(-1);
-    tablePrx->setModel(sfPrxModel);
+//    QSortFilterProxyModel *sfPrxModel = new QSortFilterProxyModel(tablePrx);
+//    sfPrxModel->setSourceModel(m_proxyModel);
+//    sfPrxModel->setFilterKeyColumn(-1);
+//    tablePrx->setModel(sfPrxModel);
 
-    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int))); // TODO: use m_mapper.get()
+//    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int)));
 
-    QLineEdit *leFilter = new QLineEdit;
-    connect(leFilter, SIGNAL(textChanged(QString)), sfPrxModel, SLOT(setFilterFixedString(QString)));
+//    QLineEdit *leFilter = new QLineEdit;
+//    connect(leFilter, SIGNAL(textChanged(QString)), sfPrxModel, SLOT(setFilterFixedString(QString)));
 
-    m_ui->verticalLayout->addWidget(leFilter);
-    m_ui->verticalLayout->addWidget(tablePrx);
+//    m_ui->verticalLayout->addWidget(leFilter);
+//    m_ui->verticalLayout->addWidget(tablePrx);
 }
 
 DBTEditor::~DBTEditor()
 {
     delete m_ui;
     delete m_proxyModel;
+    delete m_sfProxyModel;
     delete m_mapper;
 }
 
@@ -202,18 +245,23 @@ void DBTEditor::setWindowName()
 void DBTEditor::setModel()
 {
     m_proxyModel->setSqlTable(m_DBTInfo->m_nameInDB);
+    m_sfProxyModel->setSourceModel(m_proxyModel);
+    m_sfProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_sfProxyModel->setFilterKeyColumn(-1);
 }
 
 void DBTEditor::setMapper()
 {
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    m_mapper->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
+//    m_mapper->setModel(m_proxyModel);
+    m_mapper->setModel(m_sfProxyModel);
 }
 
 void DBTEditor::setSelectUI()
 {
     QTableView *view = m_ui->m_tableContents;
-    view->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
+//    view->setModel(m_proxyModel);
+    view->setModel(m_sfProxyModel);
     view->setItemDelegate(new HighlightTableRowsDelegate(view));
     view->viewport()->setAttribute(Qt::WA_Hover);
     // set headers - make select view of big data in the last column
@@ -226,13 +274,33 @@ void DBTEditor::setSelectUI()
     setHorizSectionResizeMode(hHeader);
     view->setMinimumWidth(hHeader->length() + 30); // increase view width, that vertical scroll widget do not cover data in the last table column
 
+    // Add line edit for input sorting mask
+    LE_DefinerFLCh *leFilter = new LE_DefinerFLCh;
+    leFilter->setClearButtonEnabled(true);
+    m_ui->verticalLayout->addWidget(leFilter);
+    connect(leFilter, &LE_DefinerFLCh::sigChangesExistenceCh, [](bool b){ qDebug() << "LineEdit becomes" << (b ? "EMPTY" : "NOT EMPTY"); }); // TODO: testing, delete
+    connect(leFilter, SIGNAL(textChanged(QString)), m_sfProxyModel, SLOT(setFilterFixedString(QString)));
+
     /*
      * NOTE: It is not properly to use the currentRowChanged signal for choose row, because in time of the
      * currentRowChanged signal calling, items is still not selected. Selecting items performs after changing
      * current row (or column). Because of this there are need to use only selectionChanged signal for choose some row.
      */
+//    connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+//            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
     connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
+            m_sfProxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
+    connect( view->selectionModel(), &QItemSelectionModel::selectionChanged, [](QItemSelection selected, QItemSelection deselected)
+    {
+        auto selIdxs = selected.indexes();
+        auto deselIdxs = deselected.indexes();
+        if (!deselIdxs.isEmpty() && !selIdxs.isEmpty())
+            qDebug() << "selection changed row from" << deselIdxs.first().row() << "to" << selIdxs.first().row();
+        if (deselIdxs.isEmpty())
+            qDebug() << "DEselected is EMPTY";
+        if (selIdxs.isEmpty())
+            qDebug() << "Selected is EMPTY";
+    } );
 }
 
 void DBTEditor::setHorizSectionResizeMode(QHeaderView *header)
@@ -257,7 +325,7 @@ void DBTEditor::setEditingUI()
     connect(m_editUICreator.get(), SIGNAL(sigWidgetFocusLost(QWidget*,QString)),
             this, SLOT(slotFocusLost_DataSet(QWidget*,QString))); // set data to the model when widget lose the focus
     connect(m_editUICreator.get(), SIGNAL(sigSEPBClicked(const dbi::DBTInfo*,int)),
-            this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog - provide recursive opening of dialog
+            this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog - perform recursive opening of dialog
 }
 
 void DBTEditor::setControl()
@@ -285,7 +353,7 @@ void DBTEditor::setDataNavigation()
 void DBTEditor::selectInitial(const QVariant &idPrim)
 {
     m_initSelectRow = -1;
-    ASSERT_DBG( m_proxyModel->customSourceModel()->findRowWithId(idPrim, m_initSelectRow),
+    ASSERT_DBG( m_proxyModel->customSourceModel()->getIdRow(idPrim, m_initSelectRow),
                 cmmn::MessageException::type_warning, tr("Selection error"),
                 tr("Cannot select the row in the table \"%1\". Cannot find the item with id: %2")
                 .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),
@@ -337,7 +405,7 @@ void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
     const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), fieldNo + ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS );
     const QVariant &forId = m_proxyModel->data(currIndex, Qt::UserRole);
     DBTEditor childEditor(dbtInfo, this);
-    if ( !forId.isNull() ) // if data is NULL -> don't select any row in the editor view
+    if ( !forId.isNull() ) // if data is NULL -> don't select any row in the view
         childEditor.selectInitial(forId);
     if ( childEditor.exec() == QDialog::Accepted ) {
         m_proxyModel->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */

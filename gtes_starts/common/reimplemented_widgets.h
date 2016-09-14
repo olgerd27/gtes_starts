@@ -61,17 +61,35 @@ public slots:
 };
 
 /*
- * The custom line edit that send the inputed value when user press return
+ * The custom line edit, that send the inputed value when user press return
  */
-class DataSendLineEdit : public QLineEdit
+class LE_DataSend : public QLineEdit
 {
     Q_OBJECT
 
 public:
-    explicit DataSendLineEdit(QWidget *parent = 0);
+    explicit LE_DataSend(QWidget *parent = 0);
 
 signals:
     void sigReturnPressed(const QString &value);
+};
+
+/*
+ * The custom line edit, that define changes of characters existence - when LineEdit becomes not empty and when empty,
+ * i.e. define existence of a first inputed and last deleted characters in the LineEdit
+ */
+class LE_DefinerFLCh : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    explicit LE_DefinerFLCh(QWidget *parent = 0);
+
+signals:
+    void sigChangesExistenceCh(bool); // if LineEdit becomes empty - pass true, otherwise - pass false
+
+private:
+    bool m_isPrevEmpty;
 };
 
 #endif // REIMPLEMENTED_WIDGETS_H

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QSqlTableModel>
+#include <QSortFilterProxyModel>
 #include <QIcon>
 #include <QDialog>
 #include <QDataWidgetMapper>
@@ -17,6 +18,24 @@ namespace Ui {
 namespace dbi {
     class DBTInfo;
 }
+
+/*
+ * ProxyFilterModel
+ */
+class ProxyFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    ProxyFilterModel(QObject *parent = 0);
+    ~ProxyFilterModel();
+
+public slots:
+    void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
+
+private:
+    void updatePrevDeselected(const QModelIndexList &deselectList);
+};
 
 /*
  * The base class for editing database tables (DBT)
@@ -60,6 +79,7 @@ private:
 //    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel; // use in the release mode
     Ui::DBTEditor *m_ui;
     ProxyChoiceDecorModel *m_proxyModel;
+    ProxyFilterModel *m_sfProxyModel;
     QDataWidgetMapper *m_mapper;
     std::unique_ptr<EditUICreator> m_editUICreator;
     int m_initSelectRow;

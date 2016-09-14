@@ -195,7 +195,7 @@ QVariant CustomSqlTableModel::primaryIdInRow(int row) const
     return QSqlRelationalTableModel::data(index(row, 0), Qt::DisplayRole);
 }
 
-bool CustomSqlTableModel::findRowWithId(const QVariant &idPrim, int &rRowValue) const
+bool CustomSqlTableModel::getIdRow(const QVariant &idPrim, int &rRowValue) const
 {
     for (int row = 0; row < rowCount(); ++row) {
         if (primaryIdInRow(row) == idPrim) {

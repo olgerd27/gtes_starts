@@ -247,7 +247,7 @@ IRDefiner *getIRDefiner(IRDefiner::DefinerType dtype, const ProxyChoiceDecorMode
  */
 ProxyChoiceDecorModel::ProxyChoiceDecorModel(QObject *parent)
     : QAbstractProxyModel(parent)
-    , m_selectedRow(NOT_SETTED)
+    , m_selectedId(NOT_SETTED)
     , m_selectIcon(":/images/ok.png")
     , m_changedRows(new RowsChangesHolder)
 {
@@ -277,7 +277,7 @@ QVariant ProxyChoiceDecorModel::data(const QModelIndex &index, int role) const
 {
     QVariant data;
     auto changeType = RowsChangesHolder::chtype_invalid;
-    if (index.column() == SELECT_ICON_COLUMN && index.row() == m_selectedRow && role == Qt::DecorationRole )
+    if (index.column() == SELECT_ICON_COLUMN && rowId(index.row()) == m_selectedId && role == Qt::DecorationRole )
         data = m_selectIcon;
     else if (index.column() == SELECT_ICON_COLUMN /*&& (role != Qt::DecorationRole)*/)
         data = QVariant();
@@ -298,8 +298,8 @@ bool ProxyChoiceDecorModel::setData(const QModelIndex &index, const QVariant &va
 {
     bool bSetted = false;
     if (role == Qt::DecorationRole && index.column() == SELECT_ICON_COLUMN) {
-        m_selectedRow = index.row();
-//        qDebug() << "proxy model setData(), change selected row to" << m_selectedRow;
+        m_selectedId = rowId(index.row());
+        qDebug() << "proxy model setData(), change selected row to" << index.row() << ", id =" << m_selectedId;
     }
     else {
         bSetted = sourceModel()->setData( mapToSource(index), value, role );
@@ -374,8 +374,13 @@ CustomSqlTableModel *ProxyChoiceDecorModel::customSourceModel() const
 
 cmmn::T_id ProxyChoiceDecorModel::selectedId() const
 {
+    return m_selectedId;
+}
+
+cmmn::T_id ProxyChoiceDecorModel::rowId(int row) const
+{
     cmmn::T_id id;
-    const QVariant &varId = customSourceModel()->primaryIdInRow(m_selectedRow);
+    const QVariant &varId = customSourceModel()->primaryIdInRow(row);
     CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(varId, id), varId );
     return id;
 }
@@ -399,7 +404,7 @@ void ProxyChoiceDecorModel::slotChooseRow(const QItemSelection &selected, const 
     const QModelIndexList &deselectedList = deselected.indexes();
 
     // catch a deselection of the first left item in current row and setting icons decoration on it
-    if (deselectedList.size() == 1) {
+    if (deselectedList.size() == COUNT_ADDED_COLUMNS) {
         // operate special case in Windows XP, Qt ver. 5.3.0. Normal case - in this place no one item must be selected.
         // TODO: use preprocessor declaration
         const QModelIndexList &selectedList = selected.indexes();
@@ -412,7 +417,7 @@ void ProxyChoiceDecorModel::slotChooseRow(const QItemSelection &selected, const 
         return;
     }
     // update the first left items in the previous selected row for clearing icons decoration
-    if (deselectedList.size() > 1)
+    if (deselectedList.size() > COUNT_ADDED_COLUMNS)
         updatePrevDeselected(deselectedList);
     selectModel->select(selected.indexes().first(), QItemSelectionModel::Deselect); // this make recursive calling of this slot
 }
@@ -420,8 +425,8 @@ void ProxyChoiceDecorModel::slotChooseRow(const QItemSelection &selected, const 
 void ProxyChoiceDecorModel::updatePrevDeselected(const QModelIndexList &deselectList)
 {
     // update the first left items in the previous selected row for clearing icons decoration
-    QModelIndex someDeselected = deselectList.first();
-    QModelIndex firstDeselected = someDeselected.model()->index(someDeselected.row(), SELECT_ICON_COLUMN);
+    const QModelIndex &someDeselected = deselectList.first();
+    const QModelIndex &firstDeselected = someDeselected.model()->index(someDeselected.row(), SELECT_ICON_COLUMN);
     emit dataChanged(firstDeselected, firstDeselected); // clear remained icons decoration
 }
 
@@ -463,31 +468,6 @@ void ProxyChoiceDecorModel::slotAddRow()
     endInsertRows();
     qDebug() << "[proxy model] data added to the model";
     changeRow(IRDefiner::dtype_insert, rowInsert);
-}
-
-void ProxyChoiceDecorModel::slotDeleteRow()
-{
-    int rowDelete = m_selectedRow;
-    ASSERT_DBG( canDeleteRow(rowDelete), cmmn::MessageException::type_warning, QObject::tr("Error delete row"),
-                QObject::tr("Cannot delete current row #%1").arg(rowDelete),
-                QString("ProxyChoiceDecorModel::slotDeleteRow") );
-    customSourceModel()->slotDeleteRowRecord(rowDelete);
-    IRDefiner::DefinerType defType;
-    if ( m_changedRows->hasRowChange(rowDelete, RowsChangesHolder::chtype_insert) ) {
-        // if row has "insert change" -> delete change of the last row in the model
-        // (deletion the model's just inserted row in fact delete row from model completely)
-        ASSERT_DBG( m_changedRows->deleteChange(rowCount()),
-                    cmmn::MessageException::type_critical, QObject::tr("Error delete row"),
-                    QObject::tr("Cannot delete row change from the row changes storage"),
-                    QString("ProxyChoiceDecorModel::slotDeleteRow()") );
-        defType = IRDefiner::dtype_deleteInserted;
-    }
-    else {
-        // if row is existent in the DB -> save it index as deleted and define appropriate type of row index definer
-        m_changedRows->addChange(rowDelete, RowsChangesHolder::chtype_delete); // save current row delete change
-        defType = IRDefiner::dtype_deleteExistent;
-    }
-    changeRow(defType, rowDelete);
 }
 
 void ProxyChoiceDecorModel::slotDeleteRow(int row)

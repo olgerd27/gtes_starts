@@ -39,6 +39,7 @@ public:
 
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;
+    cmmn::T_id rowId(int row) const;
     bool isDirty() const; // check - has the model any changes, don't saved in the DB
 #ifdef __linux__
     QSize decorationSize() const;
@@ -52,7 +53,6 @@ signals:
 
 public slots:
     void slotAddRow();
-    void slotDeleteRow();
     void slotDeleteRow(int row);
     void slotRefreshModel();
     void slotSaveDataToDB(int currentRow);
@@ -65,7 +65,7 @@ private:
     void changeRow(int defType, int row = -1);
     bool canDeleteRow(int row) const;
 
-    int m_selectedRow;
+    int m_selectedId;
     QIcon m_selectIcon;
     std::unique_ptr<RowsChangesHolder> m_changedRows;
 };

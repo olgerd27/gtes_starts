@@ -385,7 +385,7 @@
       </widget>
      </item>
      <item>
-      <widget class="DataSendLineEdit" name="m_leRecordId">
+      <widget class="LE_DataSend" name="m_leRecordId">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -466,7 +466,7 @@
    <header>common/reimplemented_widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>DataSendLineEdit</class>
+   <class>LE_DataSend</class>
    <extends>QLineEdit</extends>
    <header>common/reimplemented_widgets.h</header>
   </customwidget>
