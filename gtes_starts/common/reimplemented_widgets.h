@@ -74,22 +74,4 @@ signals:
     void sigReturnPressed(const QString &value);
 };
 
-/*
- * The custom line edit, that define changes of characters existence - when LineEdit becomes not empty and when empty,
- * i.e. define existence of a first inputed and last deleted characters in the LineEdit
- */
-class LE_DefinerFLCh : public QLineEdit
-{
-    Q_OBJECT
-
-public:
-    explicit LE_DefinerFLCh(QWidget *parent = 0);
-
-signals:
-    void sigChangesExistenceCh(bool); // if LineEdit becomes empty - pass true, otherwise - pass false
-
-private:
-    bool m_isPrevEmpty;
-};
-
 #endif // REIMPLEMENTED_WIDGETS_H

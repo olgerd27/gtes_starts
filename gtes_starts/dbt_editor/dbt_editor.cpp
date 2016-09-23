@@ -1,8 +1,6 @@
 #include <QSqlTableModel>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QStyledItemDelegate>
-#include <QPainter>
 #include <QItemSelection>
 #include <QMessageBox>
 #include <QLabel>
@@ -12,127 +10,11 @@
 #include "ui_dbt_editor.h"
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
+#include "../model/selection_allower.h"
 #include "edit_ui_creator.h"
 #include "../common/db_info.h"
 #include "../common/fl_widgets.h"
 #include "../common/reimplemented_widgets.h"
-
-/*
- * ProxyFilterModel
- */
-ProxyFilterModel::ProxyFilterModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
-{ }
-
-ProxyFilterModel::~ProxyFilterModel()
-{ }
-
-void ProxyFilterModel::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    QItemSelectionModel *selectModel = qobject_cast<QItemSelectionModel *>(sender());
-    const QModelIndexList &deselectedList = deselected.indexes();
-
-    // catch a deselection of the first left item in current row and setting icons decoration on it
-    if (deselectedList.size() == ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS) {
-        // operate special case in Windows XP, Qt ver. 5.3.0. Normal case - in this place no one item must be selected.
-        // TODO: use preprocessor declaration
-        const QModelIndexList &selectedList = selected.indexes();
-        if (!selectedList.isEmpty()) {
-            selectModel->select(selectedList.first(), QItemSelectionModel::Deselect); // repeat deselection
-            updatePrevDeselected(deselectedList);
-            return;
-        }
-        setData( index( deselectedList.first().row(), ProxyChoiceDecorModel::SELECT_ICON_COLUMN ), QVariant(), Qt::DecorationRole );
-        return;
-    }
-    // update the first left items in the previous selected row for clearing icons decoration
-    if (deselectedList.size() > ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS)
-        updatePrevDeselected(deselectedList);
-    selectModel->select(selected.indexes().first(), QItemSelectionModel::Deselect); // this make recursive calling of this slot
-}
-
-void ProxyFilterModel::updatePrevDeselected(const QModelIndexList &deselectList)
-{
-    // update the first left items in the previous selected row for clearing icons decoration
-    const QModelIndex &someDeselected = deselectList.first();
-    const QModelIndex &firstDeselected = someDeselected.model()->index(someDeselected.row(), ProxyChoiceDecorModel::SELECT_ICON_COLUMN);
-    emit dataChanged(firstDeselected, firstDeselected); // clear remained icons decoration
-}
-
-/*
- * HighlightTableRowsDelegate
- */
-class HighlightTableRowsDelegate : public QStyledItemDelegate
-{
-public:
-    enum { DONT_HIGHLIGHTED = -1 }; // number of a table row that is not highlighted (need for highlighting removing)
-
-    HighlightTableRowsDelegate(QObject *parent = 0)
-        : QStyledItemDelegate(parent)
-    {
-    }
-
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-    {
-        static int hRow = DONT_HIGHLIGHTED; /* initialization of the highlighted row number.
-                                             * Use static variable, bacause this is const method and it cannot to change any class data.
-                                             * Also you may use global variable, defined outside of current class.
-                                             */
-        QTableView *tableView = qobject_cast<QTableView *>(this->parent());
-
-        /* Definition the fact of necessity of highlighting removing */
-        if ( isMouseOutTable(tableView) )
-            hRow = DONT_HIGHLIGHTED;
-
-        /* Definition the table row number for highlighting, and initiate highlighting of the current row
-         * and highlighting removing of the previous highlighted row
-         */
-        if (option.state & QStyle::State_MouseOver) {
-            if (index.row() != hRow) {
-                // mouse is over item, that placed in another row, than previous "mouse over" item
-                const QAbstractItemModel *model = index.model();
-                for (int col = 0; col < model->columnCount(); ++col) {
-                    tableView->update(model->index(index.row(), col)); // update items from current row for painting visual row highlighting
-                    tableView->update(model->index(hRow, col)); // update items from previous row for removing visual row highlighting
-                }
-                hRow = index.row();
-            }
-        }
-
-        /* Creation a visual view of the highlighted row items */
-        if (index.row() == hRow && hRow != DONT_HIGHLIGHTED) {
-            // color variant #1 - horizontal linear gradient. Highlighting is the same as in simple DB table dialog
-            QRect rectView = tableView->rect();
-            QPoint topLeft = rectView.topLeft();
-            QLinearGradient gradient( topLeft.x(), topLeft.y(),
-                                      topLeft.x() + tableView->horizontalHeader()->length(), rectView.topRight().y() );
-            gradient.setColorAt(0, Qt::white);
-            gradient.setColorAt(0.8, Qt::lightGray);
-            gradient.setColorAt(1, Qt::gray);
-
-            // color variant #2 - vertical linear gradient
-//            QRect rectItem = option.rect;
-//            QLinearGradient gradient(rectItem.topLeft(), rectItem.bottomLeft());
-//            gradient.setColorAt(0, Qt::white);
-//            gradient.setColorAt(0.5, Qt::lightGray);
-//            gradient.setColorAt(1, Qt::white);
-
-            // painter paint a rectangle with setted gradient
-            painter->setBrush(gradient);
-            painter->setPen(Qt::NoPen);
-            painter->drawRect(option.rect);
-        }
-        QStyledItemDelegate::paint(painter, option, index);
-    }
-
-private:
-    bool isMouseOutTable(const QTableView * const table) const
-    {
-        /*  Checking - is a mouse out of the viewport of a table view or not */
-        QPoint viewportCursorPos = table->viewport()->mapFromGlobal(QCursor::pos());
-        return !table->indexAt(viewportCursorPos).isValid();
-    }
-};
 
 /*
  * DBTEditor
@@ -259,27 +141,16 @@ void DBTEditor::setMapper()
 
 void DBTEditor::setSelectUI()
 {
-    QTableView *view = m_ui->m_tableContents;
-//    view->setModel(m_proxyModel);
-    view->setModel(m_sfProxyModel);
-    view->setItemDelegate(new HighlightTableRowsDelegate(view));
-    view->viewport()->setAttribute(Qt::WA_Hover);
-    // set headers - make select view of big data in the last column
-    auto vHeader = view->verticalHeader();
-    vHeader->setDefaultSectionSize( vHeader->defaultSectionSize() * 0.75 ); // reduce rows high - need for the QHeaderView::Fixed resize mode
-    vHeader->setSectionResizeMode(QHeaderView::Fixed);
+    auto view = m_ui->m_tableContents; // get the table view
+    m_ui->m_tableContents->setModel(m_sfProxyModel);
+//    m_ui->m_tableContents->setModel(m_proxyModel);
 
+    // set horizontal header - this header settings must be here (after model setting)
     auto hHeader = view->horizontalHeader();
     hHeader->setStretchLastSection(true);
-    setHorizSectionResizeMode(hHeader);
     view->setMinimumWidth(hHeader->length() + 30); // increase view width, that vertical scroll widget do not cover data in the last table column
 
-    // Add line edit for input sorting mask
-    LE_DefinerFLCh *leFilter = new LE_DefinerFLCh;
-    leFilter->setClearButtonEnabled(true);
-    m_ui->verticalLayout->addWidget(leFilter);
-    connect(leFilter, &LE_DefinerFLCh::sigChangesExistenceCh, [](bool b){ qDebug() << "LineEdit becomes" << (b ? "EMPTY" : "NOT EMPTY"); }); // TODO: testing, delete
-    connect(leFilter, SIGNAL(textChanged(QString)), m_sfProxyModel, SLOT(setFilterFixedString(QString)));
+    setFilter();
 
     /*
      * NOTE: It is not properly to use the currentRowChanged signal for choose row, because in time of the
@@ -290,33 +161,16 @@ void DBTEditor::setSelectUI()
 //            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
     connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             m_sfProxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
-    connect( view->selectionModel(), &QItemSelectionModel::selectionChanged, [](QItemSelection selected, QItemSelection deselected)
-    {
-        auto selIdxs = selected.indexes();
-        auto deselIdxs = deselected.indexes();
-        if (!deselIdxs.isEmpty() && !selIdxs.isEmpty())
-            qDebug() << "selection changed row from" << deselIdxs.first().row() << "to" << selIdxs.first().row();
-        if (deselIdxs.isEmpty())
-            qDebug() << "DEselected is EMPTY";
-        if (selIdxs.isEmpty())
-            qDebug() << "Selected is EMPTY";
-    } );
 }
 
-void DBTEditor::setHorizSectionResizeMode(QHeaderView *header)
+void DBTEditor::setFilter()
 {
-#ifdef __linux__
-    // resize decoration field to fit size
-    for (int i = 0; i < header->count(); ++i) {
-        if (i == 0) {
-            header->setSectionResizeMode(i, QHeaderView::Fixed);
-            header->resizeSection(i, m_proxyModel->decorationSize().width());
-        }
-        else header->setSectionResizeMode(i, QHeaderView::ResizeToContents);
-    }
-#else
-    header->setSectionResizeMode(QHeaderView::ResizeToContents);
-#endif
+    // NOTE: creation of the SelectionAllower_IC must perform before connection the selectionModel::selectionChanged with the slotChooseRow().
+    // Also, before creating the SelectionAllower_IC model must be setted to the tableView.
+    SelectionAllower_IC *sa = new SelectionAllower_IC(m_ui->m_leFilter, m_ui->m_tableContents, m_proxyModel);
+    m_sfProxyModel->setSelectionAllower(sa);
+    connect(m_sfProxyModel, SIGNAL(sigSelectionEnded()), sa, SLOT(slotSelectionEnded()));
+    connect(m_ui->m_leFilter, SIGNAL(textChanged(QString)), m_sfProxyModel, SLOT(setFilterFixedString(QString)));
 }
 
 void DBTEditor::setEditingUI()

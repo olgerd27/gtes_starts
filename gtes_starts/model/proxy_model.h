@@ -4,7 +4,7 @@
 #include <memory>
 #include <QAbstractProxyModel>
 #include <QIcon>
-
+#include <QSortFilterProxyModel>
 #include "../common/common_defines.h"
 
 /*
@@ -65,9 +65,34 @@ private:
     void changeRow(int defType, int row = -1);
     bool canDeleteRow(int row) const;
 
-    int m_selectedId;
+    int m_selectedId; // TODO: using selected Id value (instead of selected row) may allow don't use (maybe partial) the IRDefiner and it childs classes. Test it!
     QIcon m_selectIcon;
     std::unique_ptr<RowsChangesHolder> m_changedRows;
+};
+
+/*
+ * ProxyFilterModel
+ */
+class SelectionAllower;
+class ProxyFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    ProxyFilterModel(QObject *parent = 0);
+    ~ProxyFilterModel();
+    void setSelectionAllower(SelectionAllower *sa);
+
+signals:
+    void sigSelectionEnded();
+
+public slots:
+    void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
+
+private:
+    void updatePrevDeselected(const QModelIndexList &deselectList);
+
+    std::unique_ptr<SelectionAllower> m_selectAllow;
 };
 
 #endif // PROXY_MODEL_H

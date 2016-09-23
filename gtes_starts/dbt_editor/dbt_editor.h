@@ -3,43 +3,22 @@
 
 #include <memory>
 #include <QSqlTableModel>
-#include <QSortFilterProxyModel>
 #include <QIcon>
 #include <QDialog>
 #include <QDataWidgetMapper>
-#include <QTableView>
-#include <QHeaderView>
 #include "../common/common_defines.h"
 
-class ProxyChoiceDecorModel;
+/*
+ * The class for editing database tables (DBT)
+ */
 namespace Ui {
     class DBTEditor;
 }
 namespace dbi {
     class DBTInfo;
 }
-
-/*
- * ProxyFilterModel
- */
-class ProxyFilterModel : public QSortFilterProxyModel
-{
-    Q_OBJECT
-
-public:
-    ProxyFilterModel(QObject *parent = 0);
-    ~ProxyFilterModel();
-
-public slots:
-    void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
-
-private:
-    void updatePrevDeselected(const QModelIndexList &deselectList);
-};
-
-/*
- * The base class for editing database tables (DBT)
- */
+class ProxyChoiceDecorModel;
+class ProxyFilterModel;
 class EditUICreator;
 class DBTEditor : public QDialog
 {
@@ -69,7 +48,8 @@ private:
     void setModel();
     void setMapper();
     void setSelectUI();
-    void setHorizSectionResizeMode(QHeaderView *header);
+
+    void setFilter();
     void setEditingUI();
     void setControl();
     void setDataNavigation();

@@ -23,7 +23,9 @@ SOURCES += main.cpp\
     model/storage_gen_data.cpp \
     model/proxy_model.cpp \
     common/fl_widgets.cpp \
-    dbt_editor/edit_ui_creator.cpp
+    dbt_editor/edit_ui_creator.cpp \
+    model/selection_allower.cpp \
+    dbt_editor/table_view_ds.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -39,7 +41,9 @@ HEADERS  += \
     model/storage_gen_data.h \
     model/proxy_model.h \
     common/fl_widgets.h \
-    dbt_editor/edit_ui_creator.h
+    dbt_editor/edit_ui_creator.h \
+    model/selection_allower.h \
+    dbt_editor/table_view_ds.h
 
 FORMS    += \
     appforms/main_window.ui \

@@ -1,7 +1,10 @@
 #include <QMap>
+#include <QTableView>
+#include <QLineEdit>
 #include <QDebug>
 #include "proxy_model.h"
 #include "custom_sql_table_model.h"
+#include "selection_allower.h"
 
 /*
  * RowsChangesHolder - storage of rows changes
@@ -243,6 +246,7 @@ IRDefiner *getIRDefiner(IRDefiner::DefinerType dtype, const ProxyChoiceDecorMode
 }
 
 /*
+ * ProxyChoiceDecorModel
  * Implemented with help of: http://www.qtcentre.org/threads/58307-Problem-when-adding-a-column-to-a-QAbstractProxyModel
  */
 ProxyChoiceDecorModel::ProxyChoiceDecorModel(QObject *parent)
@@ -270,8 +274,10 @@ void ProxyChoiceDecorModel::setSqlTable(const QString &tableName)
 {
     customSourceModel()->setTable(tableName);
 //    printHeader();
-//    printData();
+    //    printData();
 }
+
+
 
 QVariant ProxyChoiceDecorModel::data(const QModelIndex &index, int role) const
 {
@@ -299,7 +305,7 @@ bool ProxyChoiceDecorModel::setData(const QModelIndex &index, const QVariant &va
     bool bSetted = false;
     if (role == Qt::DecorationRole && index.column() == SELECT_ICON_COLUMN) {
         m_selectedId = rowId(index.row());
-        qDebug() << "proxy model setData(), change selected row to" << index.row() << ", id =" << m_selectedId;
+        qDebug() << "proxy model setData(), change selected id to" << m_selectedId << ", row =" << index.row();
     }
     else {
         bSetted = sourceModel()->setData( mapToSource(index), value, role );
@@ -522,4 +528,59 @@ void ProxyChoiceDecorModel::printData(int role) const
         strData += "\n";
     }
     qDebug() << "The proxy model data with role #" << role << ":" << strData;
+}
+
+/*
+ * ProxyFilterModel
+ */
+ProxyFilterModel::ProxyFilterModel(QObject *parent)
+    : QSortFilterProxyModel(parent)
+    , m_selectAllow(new SelectionAllower(this)) // set default SelectionAllower
+{ }
+
+ProxyFilterModel::~ProxyFilterModel()
+{ }
+
+void ProxyFilterModel::setSelectionAllower(SelectionAllower *sa)
+{
+    m_selectAllow.reset(sa);
+}
+
+void ProxyFilterModel::slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    if (!m_selectAllow->isSelectionAllowed()) return;
+
+//    auto selIdxs = selected.indexes();
+//    if (!selIdxs.isEmpty())
+//        qDebug() << "FilterModel, row: filter proxy =" << selIdxs.first().row() << ", proxy =" << mapToSource(selIdxs.first()).row();
+
+    QItemSelectionModel *selectModel = qobject_cast<QItemSelectionModel *>(sender());
+    const QModelIndexList &deselectedList = deselected.indexes();
+
+    // catch a deselection of the first left item in current row and setting icons decoration on it
+    if (deselectedList.size() == ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS) {
+        // operate special case in Windows XP, Qt ver. 5.3.0. Normal case - in this place no one item must be selected.
+        // TODO: use preprocessor declaration
+        const QModelIndexList &selectedList = selected.indexes();
+        if (!selectedList.isEmpty()) {
+            selectModel->select(selectedList.first(), QItemSelectionModel::Deselect); // repeat deselection
+            updatePrevDeselected(deselectedList);
+            return;
+        }
+        setData( index( deselectedList.first().row(), ProxyChoiceDecorModel::SELECT_ICON_COLUMN ), QVariant(), Qt::DecorationRole );
+        emit sigSelectionEnded(); // notification, that model ended its custom (with decoration icon) selection
+        return;
+    }
+    // update the first left items in the previous selected row for clearing icons decoration
+    if (deselectedList.size() > ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS)
+        updatePrevDeselected(deselectedList);
+    selectModel->select(selected.indexes().first(), QItemSelectionModel::Deselect); // this make recursive calling of this slot
+}
+
+void ProxyFilterModel::updatePrevDeselected(const QModelIndexList &deselectList)
+{
+    // update the first left items in the previous selected row for clearing icons decoration
+    const QModelIndex &someDeselected = deselectList.first();
+    const QModelIndex &firstDeselected = someDeselected.model()->index(someDeselected.row(), ProxyChoiceDecorModel::SELECT_ICON_COLUMN);
+    emit dataChanged(firstDeselected, firstDeselected); // clear remained icons decoration
 }

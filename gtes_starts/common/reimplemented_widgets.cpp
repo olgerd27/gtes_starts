@@ -104,23 +104,3 @@ LE_DataSend::LE_DataSend(QWidget *parent)
 {
     connect(this, &LE_DataSend::returnPressed, [this]{ emit sigReturnPressed(text()); } );
 }
-
-/*
- * LE_definerFLCh
- */
-LE_DefinerFLCh::LE_DefinerFLCh(QWidget *parent)
-    : QLineEdit(parent)
-    , m_isPrevEmpty(true)
-{
-    connect( this, &LE_DefinerFLCh::textChanged, [this]()
-    {
-        if (text().isEmpty()) { // catch the case, when deleted a some last character
-            emit sigChangesExistenceCh(true);
-            m_isPrevEmpty = true;
-        }
-        else if (!text().isEmpty() && m_isPrevEmpty) { // catch the case, when inputed a some first character
-            emit sigChangesExistenceCh(false);
-            m_isPrevEmpty = false;
-        }
-    } );
-}
