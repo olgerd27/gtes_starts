@@ -226,22 +226,16 @@ void CustomSqlTableModel::defineForeignFields()
 
 void CustomSqlTableModel::setHeader()
 {
-//    qDebug() << "setHeader() 1, columnCount =" << columnCount();
     for (int col = 0; col < columnCount(); ++col) {
-//        qDebug() << "setHeader() 2 -" << col;
         const dbi::DBTFieldInfo &fieldInf = dbi::fieldByNameIndex(tableName(), col);
-//        qDebug() << "setHeader() 3 -" << col << " field:" << fieldInf.m_nameInUI;
         setHeaderData(col, Qt::Horizontal, fieldInf.m_nameInUI, Qt::EditRole);
-//        qDebug() << "setHeader() 4 -" << col;
     }
-//    qDebug() << "setHeader() 5";
 }
 
 void CustomSqlTableModel::fillTheStorage()
 {
     QueryGenPrimaryAllId *qgen = new QueryGenPrimaryAllId(tableName()); // the foreign fields will be setted in the while loop below
     m_dataGenerator->setQueryGenerator(qgen);
-    qDebug() << "fill the storage";
 //    QString strPrint;
     while ( m_genDataStorage->hasNextFieldIndex() ) {
         auto foreignFieldIndex = m_genDataStorage->nextFieldIndex();

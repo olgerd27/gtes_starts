@@ -305,7 +305,7 @@ bool ProxyChoiceDecorModel::setData(const QModelIndex &index, const QVariant &va
     bool bSetted = false;
     if (role == Qt::DecorationRole && index.column() == SELECT_ICON_COLUMN) {
         m_selectedId = rowId(index.row());
-        qDebug() << "proxy model setData(), change selected id to" << m_selectedId << ", row =" << index.row();
+//        qDebug() << "proxy model setData(), change selected id to" << m_selectedId << ", row =" << index.row();
     }
     else {
         bSetted = sourceModel()->setData( mapToSource(index), value, role );
@@ -441,7 +441,7 @@ void ProxyChoiceDecorModel::changeRow(int defType, int row)
     std::unique_ptr<IRDefiner> rowIdxDef( getIRDefiner((IRDefiner::DefinerType)defType, this) ); // create definer of index row
     if (rowIdxDef->define(&row)) {
         emit sigChangeCurrentRow(row); // change row in connected view(-s)
-        qDebug() << "change current row to" << row;
+        qDebug() << "change row definition - change to" << row;
     }
     emit dataChanged( this->index(0, 0), this->index(this->rowCount() - 1, this->columnCount() - 1) ); // update connected view(-s)
 }
@@ -527,7 +527,7 @@ void ProxyChoiceDecorModel::printData(int role) const
         }
         strData += "\n";
     }
-    qDebug() << "The proxy model data with role #" << role << ":" << strData;
+    qDebug() << "The decor proxy model data with role #" << role << ":" << strData;
 }
 
 /*

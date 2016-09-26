@@ -238,7 +238,10 @@ void DBTEditor::accept()
         else {
             auto btnChoosed =
                     QMessageBox::question( this, tr("Save changes"),
-                                           tr("Do you want to save changes in the DB?"),
+                                           QString("<font size=+1><b>") +
+                                           tr("The data of the \"%1\" DB table has been modified.").arg(m_DBTInfo->m_nameInUI) +
+                                           QString("</b></font><br><br>") +
+                                           tr("Do you want to save your changes?"),
                                            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Close, QMessageBox::Save);
             switch (btnChoosed) {
             case QMessageBox::Save:
@@ -264,6 +267,8 @@ void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
     const QModelIndex &currIndex = m_proxyModel->index( m_mapper->currentIndex(), fieldNo + ProxyChoiceDecorModel::COUNT_ADDED_COLUMNS );
     const QVariant &forId = m_proxyModel->data(currIndex, Qt::UserRole);
     DBTEditor childEditor(dbtInfo, this);
+    connect(childEditor.m_proxyModel->customSourceModel(), SIGNAL(sigSavedInDB()),
+            m_proxyModel->customSourceModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
     if ( !forId.isNull() ) // if data is NULL -> don't select any row in the view
         childEditor.selectInitial(forId);
     if ( childEditor.exec() == QDialog::Accepted ) {
