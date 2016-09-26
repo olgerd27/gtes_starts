@@ -24,8 +24,8 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     : QDialog(parent)
     , m_DBTInfo(dbtInfo)
     , m_ui(new Ui::DBTEditor)
-    , m_proxyModel(new ProxyChoiceDecorModel(this))
-    , m_sfProxyModel(new ProxyFilterModel(this))
+    , m_proxyModel(new ProxyChoiceDecorModel(nullptr))
+    , m_sfProxyModel(new ProxyFilterModel(nullptr))
     , m_mapper(new QDataWidgetMapper(this))
     , m_editUICreator(new EditUICreator(m_DBTInfo, m_mapper, this))
 {
@@ -107,8 +107,13 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
 DBTEditor::~DBTEditor()
 {
     delete m_ui;
-    delete m_proxyModel;
+    /*
+     * if parent of proxy models is not nullptr, do not delete model memory here.
+     * It must be deleted when performs deletion of parent.
+     * Even if parent of model is DBTEditor, do not delete model here.
+     */
     delete m_sfProxyModel;
+    delete m_proxyModel;
     delete m_mapper;
 }
 
@@ -167,7 +172,7 @@ void DBTEditor::setFilter()
 {
     // NOTE: creation of the SelectionAllower_IC must perform before connection the selectionModel::selectionChanged with the slotChooseRow().
     // Also, before creating the SelectionAllower_IC model must be setted to the tableView.
-    SelectionAllower_IC *sa = new SelectionAllower_IC(m_ui->m_leFilter, m_ui->m_tableContents, m_proxyModel);
+    SelectionAllower_IC *sa = new SelectionAllower_IC(m_ui->m_leFilter, m_ui->m_tableContents, m_sfProxyModel);
     m_sfProxyModel->setSelectionAllower(sa);
     connect(m_sfProxyModel, SIGNAL(sigSelectionEnded()), sa, SLOT(slotSelectionEnded()));
     connect(m_ui->m_leFilter, SIGNAL(textChanged(QString)), m_sfProxyModel, SLOT(setFilterFixedString(QString)));
@@ -227,7 +232,7 @@ void DBTEditor::accept()
          * TODO: add application settings - "Automatic save by clicking "Ok"" (checkbox).
          * IF this setting is setted - make data autosaving when clicking "Ok" push button, ELSE - ask confirmation in user
          */
-        bool autoSave = false;
+        bool autoSave = false; // test, delete later
         if (autoSave)
             m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() );
         else {

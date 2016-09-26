@@ -32,7 +32,8 @@ class SelectionAllower_IC : public SelectionAllower
 
 public:
     SelectionAllower_IC(QLineEdit *le, QTableView *tblView, QObject *parent);
-    virtual bool isSelectionAllowed() const;
+    virtual ~SelectionAllower_IC() override { }
+    virtual bool isSelectionAllowed() const override;
 
 public slots:
     void slotSelectionEnded();
