@@ -100,7 +100,7 @@ void TableView_DS::setHorizSectionResizeMode(QHeaderView *header)
     // resize decoration field to fit size
     ProxyFilterModel *modelFilter = qobject_cast<ProxyFilterModel *>(this->model());
     if (!modelFilter) return;
-    ProxyChoiceDecorModel *modelDecor = qobject_cast<ProxyChoiceDecorModel *>(modelFilter->sourceModel());
+    ProxyDecorModel *modelDecor = qobject_cast<ProxyDecorModel *>(modelFilter->sourceModel());
     if (!modelDecor) return;
     for (int i = 0; i < header->count(); ++i) {
         if (i == 0) {

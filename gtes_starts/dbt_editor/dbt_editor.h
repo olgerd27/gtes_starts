@@ -17,7 +17,7 @@ namespace Ui {
 namespace dbi {
     class DBTInfo;
 }
-class ProxyChoiceDecorModel;
+class ProxyDecorModel;
 class ProxyFilterModel;
 class EditUICreator;
 class DBTEditor : public QDialog
@@ -58,10 +58,10 @@ private:
 
     const dbi::DBTInfo *m_DBTInfo;
 //    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode
-//    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel; // use in the release mode
+//    std::unique_ptr<ProxyDecorModel> m_proxyDcrMdl1; // use in the release mode
     Ui::DBTEditor *m_ui;
-    ProxyChoiceDecorModel *m_proxyModel;
-    ProxyFilterModel *m_sfProxyModel;
+    ProxyDecorModel *m_proxyDcrMdl1;
+    ProxyFilterModel *m_proxyFltrMdl2;
     QDataWidgetMapper *m_mapper;
     std::unique_ptr<EditUICreator> m_editUICreator;
     int m_initSelectRow;

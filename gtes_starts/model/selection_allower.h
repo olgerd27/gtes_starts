@@ -6,7 +6,7 @@
 
 /*
  * Selection allower base class with default functionality.
- * Need for allow rows selection in the proxy model (ProxyChoiceDecorModel).
+ * Need for allow rows selection in the proxy model (ProxyDecorModel).
  */
 class SelectionAllower : public QObject
 {

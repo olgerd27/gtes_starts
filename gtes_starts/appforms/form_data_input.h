@@ -34,7 +34,7 @@ private:
  * The form for data input in the database
  */
 namespace Ui { class FormDataInput; }
-class ProxyChoiceDecorModel;
+class ProxyDecorModel;
 class QDataWidgetMapper;
 class SelectEditPB;
 class FormDataInput : public QWidget
@@ -73,11 +73,11 @@ private:
 
     // TODO: use the std::unique_ptr after debugging
 //    std::unique_ptr<Ui::FormDataInput> m_ui;
-//    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel;
+//    std::unique_ptr<ProxyDecorModel> m_proxyDcrMdl1;
 //    std::unique_ptr<QDataWidgetMapper> m_mapper;
 //    std::unique_ptr<ChangerMChType> m_mchTChanger;
     Ui::FormDataInput *m_ui;
-    ProxyChoiceDecorModel *m_proxyModel;
+    ProxyDecorModel *m_proxyDcrMdl1;
     QDataWidgetMapper *m_mapper;
     ChangerMChType *m_mchTChanger;
 };

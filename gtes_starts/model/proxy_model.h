@@ -12,7 +12,7 @@
  */
 class CustomSqlTableModel;
 class RowsChangesHolder;
-class ProxyChoiceDecorModel : public QAbstractProxyModel
+class ProxyDecorModel : public QAbstractProxyModel
 {
     Q_OBJECT
     friend class IRDefiner;
@@ -22,8 +22,8 @@ public:
         COUNT_ADDED_COLUMNS // count of added columns
     };
 
-    explicit ProxyChoiceDecorModel(QObject *parent = 0);
-    ~ProxyChoiceDecorModel();
+    explicit ProxyDecorModel(QObject *parent = 0);
+    ~ProxyDecorModel();
     void setSqlTable(const QString &tableName);
 
     QVariant data(const QModelIndex &index, int role) const;
