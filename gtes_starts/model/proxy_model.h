@@ -62,7 +62,7 @@ private:
     enum { NOT_SETTED = -1 };
 
     void updatePrevDeselected(const QModelIndexList &deselectList);
-    void changeRow(int defType, int row = -1);
+    void changeRow(int defType, int row = NOT_SETTED);
     bool canDeleteRow(int row) const;
 
     int m_selectedId; // TODO: using selected Id value (instead of selected row) may allow don't use (maybe partial) the IRDefiner and it childs classes. Test it!

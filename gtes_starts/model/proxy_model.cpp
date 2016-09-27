@@ -101,8 +101,9 @@ public:
     {
           dtype_insert          // row index definer type, used after calling "insert" operation
         , dtype_deleteExistent  // row index definer type, used after calling "delete" operation of existent in the DB row
-        , dtype_deleteInserted  // row index definer type, used after calling "delete" operation of just inserted row
-        , dtype_refresh         // row index definer type, used after calling "refresh" model's data operation
+        , dtype_deleteInserted  // row index definer type, used after calling "delete" operation of new inserted row
+        , dtype_refreshExistent // row index definer type, used after calling "refresh" model operation, when current row is existent in DB row
+        , dtype_refreshInserted // row index definer type, used after calling "refresh" model operation, when current row is new inserted row
         , dtype_save            // row index definer type, used after calling "save" model's data operation
     };
 
@@ -176,15 +177,28 @@ public:
     }
 };
 
-// Definer row index after performing refresh model's data operation
-class IRD_Refresh : public IRDefiner
+// Definer row index after performing refresh model operation - case if current row is new inserted row and don't saved in the DB.
+// ER - current row is Existent Row in the DB
+class IRD_RefreshER : public IRDefiner
 {
 public:
-    IRD_Refresh(const ProxyChoiceDecorModel *model) : IRDefiner(model) { }
-    virtual bool define(int */*pRow*/) const
+    IRD_RefreshER(const ProxyChoiceDecorModel *model) : IRDefiner(model) { }
+    virtual bool define(int *) const
     {
-//        TODO: there are need to set passed row, if it exist, else set the row #0. Think how to do this.
-//        *pRow = 0; // return index of the first row
+        return true; // don't change current row if it exists
+    }
+};
+
+// Definer row index after performing refresh model operation - case if current row is existent in the DB row.
+// IR - current row is Inserted Row
+class IRD_RefreshIR : public IRDefiner
+{
+public:
+    IRD_RefreshIR(const ProxyChoiceDecorModel *model) : IRDefiner(model) { }
+    virtual bool define(int *pRow) const
+    {
+//        *pRow = 0; // change current row to the first row
+        *pRow = modelRowsCount() - 1; // change current row to the last existent in DB row
         return true;
     }
 };
@@ -214,8 +228,11 @@ IRDefiner *getIRDefiner(IRDefiner::DefinerType dtype, const ProxyChoiceDecorMode
     case IRDefiner::dtype_deleteInserted:
         ird = new IRD_DeleteInserted(model);
         break;
-    case IRDefiner::dtype_refresh:
-        ird = new IRD_Refresh(model);
+    case IRDefiner::dtype_refreshExistent:
+        ird = new IRD_RefreshER(model);
+        break;
+    case IRDefiner::dtype_refreshInserted:
+        ird = new IRD_RefreshIR(model);
         break;
     case IRDefiner::dtype_save:
         ird = new IRD_Save(model);
@@ -440,7 +457,7 @@ void ProxyChoiceDecorModel::slotAddRow()
                 QObject::tr("Cannot add row change to the row changes storage"),
                 QString("ProxyChoiceDecorModel::slotAddRow()") );
     endInsertRows();
-    qDebug() << "[proxy model] data added to the model";
+    qDebug() << "[proxy model] data ADDed to the model";
     changeRow(IRDefiner::dtype_insert, rowInsert);
 }
 
@@ -465,7 +482,7 @@ void ProxyChoiceDecorModel::slotDeleteRow(int currentRow)
         m_changedRows->addChange(currentRow, RowsChangesHolder::chtype_delete); // save current row delete change
         defType = IRDefiner::dtype_deleteExistent;
     }
-    qDebug() << "[proxy model] data deleted from the model";
+    qDebug() << "[proxy model] data DELETEd from the model";
     changeRow(defType, currentRow);
 }
 
@@ -477,16 +494,19 @@ bool ProxyChoiceDecorModel::canDeleteRow(int row) const
 void ProxyChoiceDecorModel::slotRefreshModel(int currentRow)
 {
     customSourceModel()->slotRefreshTheModel();
-    m_changedRows->clearChanges();
-    qDebug() << "[proxy model] data refreshed in the model";
-    changeRow(IRDefiner::dtype_refresh, currentRow);
+    // definition - is or not the current row a new inserted row
+    IRDefiner::DefinerType defType = m_changedRows->hasRowChange(currentRow, RowsChangesHolder::chtype_insert)
+            ? IRDefiner::dtype_refreshInserted : IRDefiner::dtype_refreshExistent;
+    m_changedRows->clearChanges(); // must be after definition - has current row the "insert change"
+    qDebug() << "[proxy model] data REFRESHed in the model";
+    changeRow(defType, currentRow);
 }
 
 void ProxyChoiceDecorModel::slotSaveDataToDB(int currentRow)
 {
     customSourceModel()->slotSaveToDB();
     m_changedRows->clearChanges();
-    qDebug() << "[proxy model] data saved in the DB";
+    qDebug() << "[proxy model] data SAVEd in the DB";
     changeRow(IRDefiner::dtype_save, currentRow);
 }
 
