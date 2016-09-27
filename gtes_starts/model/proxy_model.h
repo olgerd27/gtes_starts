@@ -41,6 +41,7 @@ public:
     cmmn::T_id selectedId() const;
     cmmn::T_id rowId(int row) const;
     bool isDirty() const; // check - has the model any changes, don't saved in the DB
+    void clearDirtyChanges();
 #ifdef __linux__
     QSize decorationSize() const;
 #endif

@@ -187,16 +187,16 @@ void DBTEditor::askSaving()
                                    tr("The data of the \"%1\" DB table has been modified.").arg(m_DBTInfo->m_nameInUI) +
                                    QString("</b></font><br><br>") +
                                    tr("Do you want to save your changes?"),
-                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Close, QMessageBox::Save);
+                                   QMessageBox::Save | QMessageBox::Discard, QMessageBox::Save);
     switch (btnChoosed) {
     case QMessageBox::Save:
         m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() ); // save data to the DB
         break;
     case QMessageBox::Discard:
-        m_ui->m_tableContents->selectRow(m_initSelectRow); // restore initial row selection
-        break;
-    case QMessageBox::Close:
-        return; // just close this dialog window
+        // Delete all changes and return initial Id value
+        m_proxyModel->clearDirtyChanges(); // this allow select initial row (below) if it is marked "deleted" and not saved in the DB
+        m_ui->m_tableContents->selectRow(m_initSelectRow); // restore initial row selection, that will return to parent DB table (returns Id value)
+        break;  // just close this dialog window without changes saving
     default:
         ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Unknow button clicked"),
                     tr("There was clicked unknown button: %1").arg((int)btnChoosed), QString("DBTEditor::accept"))

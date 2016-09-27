@@ -39,12 +39,10 @@ bool RowsChangesHolder::addChange(RowsChangesHolder::T_rowNumber row, ChangesTyp
     bool hasChange = getChangeForRow(row, &changeContain);
     if (!hasChange)
         m_rowsChanges.insert(row, changeNew);
-//    else if (hasChange && changeNew != chtype_alter && changeContain == chtype_alter)
-//        m_rowsChanges[row] = changeNew; // if passed row has "alter" change type -> replace it to the passed change type
     hasChange = !hasChange; // if initially row contains - this make bool value false, if doesn't contain - insert row and make bool value true
 
-    qDebug() << "Add change, row #" << row << ", changes:";
-    print();
+//    qDebug() << "Add change, row #" << row << ", changes:";
+//    print();
 
     return hasChange;
 }
@@ -61,6 +59,7 @@ void RowsChangesHolder::clearChanges()
 
 bool RowsChangesHolder::getChangeForRow(RowsChangesHolder::T_rowNumber row, ChangesTypes *pChangeType) const
 {
+    if (!hasChanges()) return false;
     ChangesTypes chtypeDefault = chtype_invalid;
     *pChangeType = m_rowsChanges.value(row, chtypeDefault);
     return *pChangeType != chtypeDefault;
@@ -262,10 +261,6 @@ ProxyChoiceDecorModel::ProxyChoiceDecorModel(QObject *parent)
      * new column is reimplement some virtual methods of the QAbstractProxyModel class.
      */
     setSourceModel(new CustomSqlTableModel(this));
-//    connect(customSourceModel(), &CustomSqlTableModel::dataChanged, [this](const QModelIndex &topLeft, const QModelIndex &)
-//    {
-//        m_changedRows->addChange(topLeft.row(), RowsChangesHolder::chtype_alter); // add altering row change
-//    } );
 }
 
 ProxyChoiceDecorModel::~ProxyChoiceDecorModel()
@@ -395,6 +390,11 @@ bool ProxyChoiceDecorModel::isDirty() const
     return m_changedRows->hasChanges();
 }
 
+void ProxyChoiceDecorModel::clearDirtyChanges()
+{
+    m_changedRows->clearChanges();
+}
+
 #ifdef __linux__
 QSize ProxyChoiceDecorModel::decorationSize() const
 {
@@ -497,7 +497,7 @@ void ProxyChoiceDecorModel::slotRefreshModel(int currentRow)
     // definition - is or not the current row a new inserted row
     IRDefiner::DefinerType defType = m_changedRows->hasRowChange(currentRow, RowsChangesHolder::chtype_insert)
             ? IRDefiner::dtype_refreshInserted : IRDefiner::dtype_refreshExistent;
-    m_changedRows->clearChanges(); // must be after definition - has current row the "insert change"
+    clearDirtyChanges(); // must be after definition - has current row the "insert change"
     qDebug() << "[proxy model] data REFRESHed in the model";
     changeRow(defType, currentRow);
 }
@@ -505,7 +505,7 @@ void ProxyChoiceDecorModel::slotRefreshModel(int currentRow)
 void ProxyChoiceDecorModel::slotSaveDataToDB(int currentRow)
 {
     customSourceModel()->slotSaveToDB();
-    m_changedRows->clearChanges();
+    clearDirtyChanges();
     qDebug() << "[proxy model] data SAVEd in the DB";
     changeRow(IRDefiner::dtype_save, currentRow);
 }
