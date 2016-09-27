@@ -54,6 +54,8 @@ private:
     void setControl();
     void setDataNavigation();
 
+    void askSaving();
+
     const dbi::DBTInfo *m_DBTInfo;
 //    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode
 //    std::unique_ptr<ProxyChoiceDecorModel> m_proxyModel; // use in the release mode

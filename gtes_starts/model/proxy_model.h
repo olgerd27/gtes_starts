@@ -53,8 +53,8 @@ signals:
 
 public slots:
     void slotAddRow();
-    void slotDeleteRow(int row);
-    void slotRefreshModel();
+    void slotDeleteRow(int currentRow);
+    void slotRefreshModel(int currentRow);
     void slotSaveDataToDB(int currentRow);
     void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 

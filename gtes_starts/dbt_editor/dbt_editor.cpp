@@ -39,78 +39,15 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     setEditingUI();
     setControl();
     setDataNavigation();
-
-//    // --- The test vizualization of the model data ---
-//    // The proxy model
-//    QTableView *tablePrx = new QTableView;
-//    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-//    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
-//    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tablePrx->setModel(m_proxyModel);
-//    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int)));
-//    // selection setting - testing
-//    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-//            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
-
-//    // The source model
-//    QTableView *tableSrc = new QTableView;
-//    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-//    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
-//    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tableSrc->setModel(m_proxyModel->customSourceModel());
-//    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int)));
-//    // selection setting - testing
-//    connect(tablePrx->selectionModel(), &QItemSelectionModel::selectionChanged,
-//            [tableSrc](const QItemSelection &selected, const QItemSelection &)
-//    {
-//        const QModelIndexList &selectedList = selected.indexes();
-//        if (selectedList.size() > 0)
-//            tableSrc->selectRow(selectedList.at(0).row());
-//    } );
-
-//    QSplitter *sp = new QSplitter;
-//    sp->addWidget(tableSrc);
-//    sp->addWidget(tablePrx);
-//    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_proxyModel->customSourceModel()->tableName()) );
-//    sp->move(10, 10);
-//    sp->show();
-
-    // --- Experiments with using QSortProxyFilterModel ---
-//    QTableView *tablePrx = new QTableView;
-//    tablePrx->setWindowTitle( QString("Proxy sort/filter model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_proxyModel->customSourceModel()->tableName()) );
-//    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
-//    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-
-//    QSortFilterProxyModel *sfPrxModel = new QSortFilterProxyModel(tablePrx);
-//    sfPrxModel->setSourceModel(m_proxyModel);
-//    sfPrxModel->setFilterKeyColumn(-1);
-//    tablePrx->setModel(sfPrxModel);
-
-//    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-//    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int)));
-
-//    QLineEdit *leFilter = new QLineEdit;
-//    connect(leFilter, SIGNAL(textChanged(QString)), sfPrxModel, SLOT(setFilterFixedString(QString)));
-
-//    m_ui->verticalLayout->addWidget(leFilter);
-//    m_ui->verticalLayout->addWidget(tablePrx);
 }
 
 DBTEditor::~DBTEditor()
 {
     delete m_ui;
     /*
-     * if parent of proxy models is not nullptr, do not delete model memory here.
-     * It must be deleted when performs deletion of parent.
-     * Even if parent of model is DBTEditor, do not delete model here.
+     * If parent of proxy models is not nullptr (even if parent of model is DBTEditor), do not free memory of model at here.
+     * In other words, if parent of proxy models is not nullptr, it must be deleted when performs deletion of parent.
+     * Free model's memory here only if parent is nullptr.
      */
     delete m_sfProxyModel;
     delete m_proxyModel;
@@ -198,7 +135,10 @@ void DBTEditor::setControl()
     {
         m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() );
     } );
-    connect(m_ui->m_pbRefresh, SIGNAL(clicked()), m_proxyModel, SLOT(slotRefreshModel()));
+    connect(m_ui->m_pbRefresh, &QPushButton::clicked, [this]()
+    {
+        m_proxyModel->slotRefreshModel( m_mapper->currentIndex() );
+    } );
 }
 
 void DBTEditor::setDataNavigation()
@@ -233,33 +173,35 @@ void DBTEditor::accept()
          * IF this setting is setted - make data autosaving when clicking "Ok" push button, ELSE - ask confirmation in user
          */
         bool autoSave = false; // test, delete later
-        if (autoSave)
-            m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() );
-        else {
-            auto btnChoosed =
-                    QMessageBox::question( this, tr("Save changes"),
-                                           QString("<font size=+1><b>") +
-                                           tr("The data of the \"%1\" DB table has been modified.").arg(m_DBTInfo->m_nameInUI) +
-                                           QString("</b></font><br><br>") +
-                                           tr("Do you want to save your changes?"),
-                                           QMessageBox::Save | QMessageBox::Discard | QMessageBox::Close, QMessageBox::Save);
-            switch (btnChoosed) {
-            case QMessageBox::Save:
-                m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() ); // save data to the DB
-                break;
-            case QMessageBox::Discard:
-                m_ui->m_tableContents->selectRow(m_initSelectRow); // restore initial row selection
-                break;
-            case QMessageBox::Close:
-                return; // just close this dialog window
-            default:
-                ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Unknow button clicked"),
-                            tr("There was clicked unknown button: %1").arg((int)btnChoosed), QString("DBTEditor::accept"))
-                break;
-            }
-        }
+        if (autoSave) m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() );
+        else askSaving();
     }
     QDialog::accept();
+}
+
+void DBTEditor::askSaving()
+{
+    auto btnChoosed =
+            QMessageBox::question( this, tr("Save changes"),
+                                   QString("<font size=+1><b>") +
+                                   tr("The data of the \"%1\" DB table has been modified.").arg(m_DBTInfo->m_nameInUI) +
+                                   QString("</b></font><br><br>") +
+                                   tr("Do you want to save your changes?"),
+                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Close, QMessageBox::Save);
+    switch (btnChoosed) {
+    case QMessageBox::Save:
+        m_proxyModel->slotSaveDataToDB( m_mapper->currentIndex() ); // save data to the DB
+        break;
+    case QMessageBox::Discard:
+        m_ui->m_tableContents->selectRow(m_initSelectRow); // restore initial row selection
+        break;
+    case QMessageBox::Close:
+        return; // just close this dialog window
+    default:
+        ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Unknow button clicked"),
+                    tr("There was clicked unknown button: %1").arg((int)btnChoosed), QString("DBTEditor::accept"))
+        break;
+    }
 }
 
 void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)

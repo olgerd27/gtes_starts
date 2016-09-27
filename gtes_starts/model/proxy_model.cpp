@@ -26,7 +26,6 @@ public:
     void clearChanges();
     bool getChangeForRow(T_rowNumber row, ChangesTypes *pChangeType) const; // get the change for the specified row
     bool hasRowChange(T_rowNumber row, ChangesTypes controlChangeType) const; // checking - has a row change controlChangeType
-    bool setRowChangeType(T_rowNumber row, ChangesTypes changeType);
     bool hasChanges() const;
 private:
     void print() const; // TODO: for debugging, delete later
@@ -53,11 +52,6 @@ bool RowsChangesHolder::addChange(RowsChangesHolder::T_rowNumber row, ChangesTyp
 bool RowsChangesHolder::deleteChange(RowsChangesHolder::T_rowNumber row)
 {
     return m_rowsChanges.remove(row);
-
-//    bool b = m_rowsChanges.remove(row);
-//    qDebug() << "Remove row #" << row << ", changes:";
-//    print();
-//    return b;
 }
 
 void RowsChangesHolder::clearChanges()
@@ -76,14 +70,6 @@ bool RowsChangesHolder::hasRowChange(RowsChangesHolder::T_rowNumber row, Changes
 {
     ChangesTypes changeType = chtype_invalid;
     return getChangeForRow(row, &changeType) && changeType == controlChangeType;
-}
-
-bool RowsChangesHolder::setRowChangeType(RowsChangesHolder::T_rowNumber row, RowsChangesHolder::ChangesTypes changeType)
-{
-    auto it = m_rowsChanges.find(row);
-    bool isAbsent = (it != m_rowsChanges.end());
-    if (isAbsent) it.value() = changeType;
-    return isAbsent;
 }
 
 bool RowsChangesHolder::hasChanges() const
@@ -106,7 +92,7 @@ void RowsChangesHolder::print() const
 
 /*
  * IRDefiner - definer indexes of row.
- * Use for definition row index, that need for switching to after performing change model operations.
+ * Use for definition row index, that need for switching to, after performing change model operations.
  */
 class IRDefiner
 {
@@ -125,7 +111,10 @@ public:
     virtual bool define(int *pRow = 0) const = 0;
 
 protected:
-    inline RowsChangesHolder * changesHolder() const { return m_model->m_changedRows.get(); }
+    inline const std::unique_ptr<RowsChangesHolder> & changesHolder() const { return m_model->m_changedRows; }
+    inline int modelRowsCount() const { return m_model->rowCount(); }
+
+private:
     const ProxyChoiceDecorModel *m_model;
 };
 
@@ -162,16 +151,12 @@ public:
                 fChangeRow = &IRD_DeleteExistent::incr; // set function, that increment row index
                 rowDef = *pRow; // this allow don't repeat going by the same rows after change "change row" function to incr()
             }
-            else if (rowDef == m_model->rowCount()) {
+            else if (rowDef == modelRowsCount())
                 fChangeRow = &IRD_DeleteExistent::stop; // set function, that stop of row index changing
-//                qDebug() << "  STOP";
-            }
-            if (++rowsCounter == m_model->rowCount()) return false; // no one row can be defined -> exit from function with false
+            if (++rowsCounter == modelRowsCount()) return false; // no one row can be defined -> exit from function with false
             if ( !(this->*fChangeRow)(rowDef) ) break; // make change of row index
-//            qDebug() << "  IRD_DeleteExistent, define row #" << rowDef;
         } while( changesHolder()->hasRowChange(rowDef, RowsChangesHolder::chtype_delete) );
         *pRow = rowDef;
-//        qDebug() << "  IRD_DeleteExistent, row defined #" << rowDef << ", rows =" << m_model->rowCount();
         return true;
     }
 };
@@ -186,9 +171,7 @@ public:
         do {
             if (*pRow == 0) return false;
             --(*pRow);
-//            qDebug() << "  IRD_DeleteInserted, define row #" << *pRow;
         } while ( changesHolder()->hasRowChange(*pRow, RowsChangesHolder::chtype_delete) );
-//        qDebug() << "  IRD_DeleteInserted, row defined #" << *pRow;
         return true;
     }
 };
@@ -198,9 +181,10 @@ class IRD_Refresh : public IRDefiner
 {
 public:
     IRD_Refresh(const ProxyChoiceDecorModel *model) : IRDefiner(model) { }
-    virtual bool define(int *pRow) const
+    virtual bool define(int */*pRow*/) const
     {
-        *pRow = 0; // return index of the first row
+//        TODO: there are need to set passed row, if it exist, else set the row #0. Think how to do this.
+//        *pRow = 0; // return index of the first row
         return true;
     }
 };
@@ -276,8 +260,6 @@ void ProxyChoiceDecorModel::setSqlTable(const QString &tableName)
 //    printHeader();
     //    printData();
 }
-
-
 
 QVariant ProxyChoiceDecorModel::data(const QModelIndex &index, int role) const
 {
@@ -436,21 +418,6 @@ void ProxyChoiceDecorModel::updatePrevDeselected(const QModelIndexList &deselect
     emit dataChanged(firstDeselected, firstDeselected); // clear remained icons decoration
 }
 
-void ProxyChoiceDecorModel::changeRow(int defType, int row)
-{
-    std::unique_ptr<IRDefiner> rowIdxDef( getIRDefiner((IRDefiner::DefinerType)defType, this) ); // create definer of index row
-    if (rowIdxDef->define(&row)) {
-        emit sigChangeCurrentRow(row); // change row in connected view(-s)
-        qDebug() << "change row definition - change to" << row;
-    }
-    emit dataChanged( this->index(0, 0), this->index(this->rowCount() - 1, this->columnCount() - 1) ); // update connected view(-s)
-}
-
-bool ProxyChoiceDecorModel::canDeleteRow(int row) const
-{
-    return row < rowCount() && !m_changedRows->hasRowChange(row, RowsChangesHolder::chtype_delete);
-}
-
 // PRINTING
 void ProxyChoiceDecorModel::printHeader(int role) const
 {
@@ -461,6 +428,7 @@ void ProxyChoiceDecorModel::printHeader(int role) const
     qDebug() << "Horizontal header data with role #" << role << ":" << strData;
 }
 
+// SLOTS
 void ProxyChoiceDecorModel::slotAddRow()
 {
     int rowInsert = this->rowCount();
@@ -476,14 +444,14 @@ void ProxyChoiceDecorModel::slotAddRow()
     changeRow(IRDefiner::dtype_insert, rowInsert);
 }
 
-void ProxyChoiceDecorModel::slotDeleteRow(int row)
+void ProxyChoiceDecorModel::slotDeleteRow(int currentRow)
 {
-    ASSERT_DBG( canDeleteRow(row), cmmn::MessageException::type_warning, QObject::tr("Error delete row"),
-                QObject::tr("Cannot delete current row #%1").arg(row),
+    ASSERT_DBG( canDeleteRow(currentRow), cmmn::MessageException::type_warning, QObject::tr("Error delete row"),
+                QObject::tr("Cannot delete current row #%1").arg(currentRow),
                 QString("ProxyChoiceDecorModel::slotDeleteRow") );
-    customSourceModel()->slotDeleteRowRecord(row);
+    customSourceModel()->slotDeleteRowRecord(currentRow);
     IRDefiner::DefinerType defType;
-    if ( m_changedRows->hasRowChange(row, RowsChangesHolder::chtype_insert) ) {
+    if ( m_changedRows->hasRowChange(currentRow, RowsChangesHolder::chtype_insert) ) {
         // if row has "insert change" -> delete change of the last row in the model
         // (deletion the model's just inserted row in fact delete row from model completely)
         ASSERT_DBG( m_changedRows->deleteChange(rowCount()),
@@ -494,19 +462,24 @@ void ProxyChoiceDecorModel::slotDeleteRow(int row)
     }
     else {
         // if row is existent in the DB -> save it index as deleted and define appropriate type of row index definer
-        m_changedRows->addChange(row, RowsChangesHolder::chtype_delete); // save current row delete change
+        m_changedRows->addChange(currentRow, RowsChangesHolder::chtype_delete); // save current row delete change
         defType = IRDefiner::dtype_deleteExistent;
     }
     qDebug() << "[proxy model] data deleted from the model";
-    changeRow(defType, row);
+    changeRow(defType, currentRow);
 }
 
-void ProxyChoiceDecorModel::slotRefreshModel()
+bool ProxyChoiceDecorModel::canDeleteRow(int row) const
+{
+    return row < rowCount() && !m_changedRows->hasRowChange(row, RowsChangesHolder::chtype_delete);
+}
+
+void ProxyChoiceDecorModel::slotRefreshModel(int currentRow)
 {
     customSourceModel()->slotRefreshTheModel();
     m_changedRows->clearChanges();
     qDebug() << "[proxy model] data refreshed in the model";
-    changeRow(IRDefiner::dtype_refresh);
+    changeRow(IRDefiner::dtype_refresh, currentRow);
 }
 
 void ProxyChoiceDecorModel::slotSaveDataToDB(int currentRow)
@@ -515,6 +488,16 @@ void ProxyChoiceDecorModel::slotSaveDataToDB(int currentRow)
     m_changedRows->clearChanges();
     qDebug() << "[proxy model] data saved in the DB";
     changeRow(IRDefiner::dtype_save, currentRow);
+}
+
+void ProxyChoiceDecorModel::changeRow(int defType, int row)
+{
+    std::unique_ptr<IRDefiner> rowIdxDef( getIRDefiner((IRDefiner::DefinerType)defType, this) ); // create definer of index row
+    if (rowIdxDef->define(&row)) {
+        emit sigChangeCurrentRow(row); // change row in connected view(-s)
+        qDebug() << "change row definition - change to" << row;
+    }
+    emit dataChanged( this->index(0, 0), this->index(this->rowCount() - 1, this->columnCount() - 1) ); // update connected view(-s)
 }
 
 void ProxyChoiceDecorModel::printData(int role) const
