@@ -160,8 +160,12 @@ void GeneratorDBTData::generate_Mask_QueryData(const dbi::DBTFieldInfo &ffield, 
     dbi::DBTInfo *table = dbi::relatedDBT(ffield);
     const auto &idnFieldsArr = table->m_idnFields;
     for (const auto &idnField : idnFieldsArr) {
-        const dbi::DBTFieldInfo &fieldInf = table->fieldByIndex( idnField.m_NField );
         m_strMask += idnField.m_strBefore;
+
+        if ( dbi::DBTInfo::isUseStringAfter(idnField.m_NField) )
+            continue; // in this case a "string before" become a "string after" after the previous "field number"
+
+        const dbi::DBTFieldInfo &fieldInf = table->fieldByIndex( idnField.m_NField );
         if (fieldInf.isForeign()) {
             m_queryGen->addWhere( table->m_nameInDB + ".id" );
             m_queryGen->addWhere( table->m_nameInDB + "." + fieldInf.m_nameInDB );
@@ -184,6 +188,7 @@ void GeneratorDBTData::generateResultData()
 //    qDebug() << "generateResultData(), last generated query:" << m_queryGen->lastGeneratedQuery();
     QSqlQuery query(m_queryGen->lastGeneratedQuery());
     m_resData.reserve(query.size()); // allocate the storage memory for effective adding data to the storage
+    qDebug() << "Generate result data, MASK:" << m_strMask;
     while (query.next()) {
         // get the primary id value
         const QVariant &varId = query.value(0);
@@ -192,7 +197,7 @@ void GeneratorDBTData::generateResultData()
         for (int i = 1; i < m_queryGen->quantityResultData(); ++i)
             strRes = strRes.arg( query.value(i).toString() ); // forming result data with using mask and QString::arg()
         m_resData.push_back( {idPrim, strRes} );
-//        qDebug() << "generate result data. id prim:" << idPrim << ", data:" << strRes;
+        qDebug() << "Generate result data, id:" << idPrim << ", data:" << strRes;
     }
     ASSERT_DBG( idPrim != -1,
                 cmmn::MessageException::type_critical, QObject::tr("Error data getting"),

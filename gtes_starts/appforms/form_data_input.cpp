@@ -142,7 +142,6 @@ FormDataInput::FormDataInput(QWidget *parent)
 void FormDataInput::setMainControls()
 {
     // Insert data
-//    qDebug() << "source model:" << (void*)m_proxyDcrMdl1->customSourceModel();
     connect(this, SIGNAL(sigInsertNew()),
             m_proxyDcrMdl1->customSourceModel(), SLOT(slotInsertToTheModel())); // insert data to the model
     // update model changes - this must take place before the connection that update the current index
@@ -164,10 +163,10 @@ void FormDataInput::setMainControls()
     // update model changes - this must take place before the connection that update the current index
     connect(m_proxyDcrMdl1->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
             [this](int row, cmmn::T_id primId)
-            {
-                Q_UNUSED(row);
-                m_mchTChanger->updateModelChange( primId, MChTypeLabel::ctype_deleted );
-            } );
+    {
+        Q_UNUSED(row);
+        m_mchTChanger->updateModelChange( primId, MChTypeLabel::ctype_deleted );
+    } );
     /*
      * Behaviour after deletion a some record (row) in the model.
      * The last decision is: after calling delete operation - go to the previous record.
