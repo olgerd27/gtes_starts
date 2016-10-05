@@ -56,11 +56,13 @@ signals:
     void sigFirstRowReached(bool);
     void sigLastRowReached(bool);
     void sigChangesSubmitted(int currentIndex);
+    void sigEngineNameGenerated(const QString &engName);
 
 private slots:
     void slotNeedChangeMapperIndex(const QString &value);
-    void slotRowIndexChanged(int row);
-    void slotSubmit();
+    void slotCheckRowIndex(int row);
+    void slotGenEngineName(int row);
+    void slotSubmit(); // TODO: delete
     void slotEditChildDBT();
 
 private:
@@ -70,14 +72,15 @@ private:
     void setDataOperating();
     void setDataNavigation();
     void setModelChange();
+    void setEngineName();
 
     // TODO: use the std::unique_ptr after debugging
 //    std::unique_ptr<Ui::FormDataInput> m_ui;
-//    std::unique_ptr<ProxyDecorModel> m_proxyDcrMdl1;
+//    std::unique_ptr<ProxyDecorModel> m_prxDecorMdl_1;
 //    std::unique_ptr<QDataWidgetMapper> m_mapper;
 //    std::unique_ptr<ChangerMChType> m_mchTChanger;
     Ui::FormDataInput *m_ui;
-    ProxyDecorModel *m_proxyDcrMdl1;
+    ProxyDecorModel *m_prxDecorMdl_1;
     QDataWidgetMapper *m_mapper;
     ChangerMChType *m_mchTChanger;
 };

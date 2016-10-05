@@ -47,7 +47,7 @@ void StorageGenData::updateData(T_id idPrim, int index, const StorageGenData::T_
                 cmmn::MessageException::type_critical, QObject::tr("Data update error"),
                 QObject::tr("Cannot update data in the generated data storage by the primary id = %1, index = %2. "
                             "Invalid id and/or index values").arg(idPrim).arg(index),
-                QString("StorageGenData::updateData()") );
+                QString("StorageGenData::updateData") );
     m_storage[idPrim][index] = data;
 }
 
@@ -56,7 +56,7 @@ const StorageGenData::T_data & StorageGenData::data(T_id idPrim, int index) cons
     ASSERT_DBG( isIndexesOk(idPrim, index),
                 cmmn::MessageException::type_critical, QObject::tr("Data update error"),
                 QObject::tr("Cannot return the data from the generated data storage by the id = %1, index = %2."),
-                QString("StorageGenData::data()") );
+                QString("StorageGenData::data") );
     return m_storage[idPrim][index];
 }
 

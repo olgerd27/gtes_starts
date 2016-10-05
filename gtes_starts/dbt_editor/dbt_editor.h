@@ -58,10 +58,10 @@ private:
 
     const dbi::DBTInfo *m_DBTInfo;
 //    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode
-//    std::unique_ptr<ProxyDecorModel> m_proxyDcrMdl1; // use in the release mode
+//    std::unique_ptr<ProxyDecorModel> m_prxDecorMdl_1; // use in the release mode
     Ui::DBTEditor *m_ui;
-    ProxyDecorModel *m_proxyDcrMdl1;
-    ProxyFilterModel *m_proxyFltrMdl2;
+    ProxyDecorModel *m_prxDecorMdl_1;
+    ProxyFilterModel *m_prxFilterMdl_2;
     QDataWidgetMapper *m_mapper;
     std::unique_ptr<EditUICreator> m_editUICreator;
     int m_initSelectRow;

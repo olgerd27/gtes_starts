@@ -71,17 +71,17 @@ namespace cmmn {
     /*
      * The definition, that check the conversion of id value from the QVariant to the T_id type,
      * performed with help of the cmmn::safeQVariantToIdType() function.
-     * The 1-th macro parameter is conversion success (bool type), the 2-th is initial QVariant-type id value.
-     * If conversion cannot be realized (bAssert == false), in debug mode - calls assert macro,
+     * The 1-th macro parameter is convertion success (bool type), the 2-th is initial QVariant-type id value.
+     * If conversion cannot be realized (bTest == false), in debug mode - calls assert macro,
      * in release - call the cmmn::throwConversionIdErrorMsg() function, that throws the
      * cmmn::MessageException type error message.
      */
 #ifdef QT_NO_DEBUG
-#define CHECK_ERROR_CONVERT_ID(bAssert, varId) \
-    cmmn::throwConversionIdErrorMsg(bAssert, varId);
+#define CHECK_ERROR_CONVERT_ID(bTest, varId) \
+    cmmn::throwConversionIdErrorMsg(bTest, varId);
 #else
-#define CHECK_ERROR_CONVERT_ID(bAssert, varValue) \
-    Q_ASSERT(bAssert);
+#define CHECK_ERROR_CONVERT_ID(bTest, varValue) \
+    Q_ASSERT_X( bTest, "", QString("Cannot convert the QVariant type value \"%1\" to the id values type.").arg(varValue.toString()).toStdString().c_str() );
 #endif
 
 // Macro's definition for error generating in the two modes: release (QT_NOT_DEBUG) and debug (else)

@@ -85,7 +85,7 @@ void ChangerMChType::slotCheckModelChanges(const QVariant &idPrimary)
 FormDataInput::FormDataInput(QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::FormDataInput)
-    , m_proxyDcrMdl1(new ProxyDecorModel(this))
+    , m_prxDecorMdl_1(new ProxyDecorModel(this))
     , m_mapper(new QDataWidgetMapper(this))
     , m_mchTChanger(new ChangerMChType(this))
 {
@@ -95,29 +95,30 @@ FormDataInput::FormDataInput(QWidget *parent)
     setDataOperating();
     setDataNavigation();
     setModelChange();
+    setEngineName();
 
 //    // --- The test vizualization of the model data ---
 //    // The proxy model
 //    QTableView *tablePrx = new QTableView;
 //    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_proxyDcrMdl1->customSourceModel()->tableName()) );
+//                              .arg(m_prxDecorMdl_1->customSourceModel()->tableName()) );
 //    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
 //    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tablePrx->setModel(m_proxyDcrMdl1);
+//    tablePrx->setModel(m_prxDecorMdl_1);
 //    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int)));
 //    // selection setting - testing
 //    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-//            m_proxyDcrMdl1, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
+//            m_prxDecorMdl_1, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
 
 //    // The source model
 //    QTableView *tableSrc = new QTableView;
 //    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_proxyDcrMdl1->customSourceModel()->tableName()) );
+//                              .arg(m_prxDecorMdl_1->customSourceModel()->tableName()) );
 //    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
 //    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tableSrc->setModel(m_proxyDcrMdl1->customSourceModel());
+//    tableSrc->setModel(m_prxDecorMdl_1->customSourceModel());
 //    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int)));
@@ -133,7 +134,7 @@ FormDataInput::FormDataInput(QWidget *parent)
 //    QSplitter *sp = new QSplitter;
 //    sp->addWidget(tableSrc);
 //    sp->addWidget(tablePrx);
-//    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_proxyDcrMdl1->customSourceModel()->tableName()) );
+//    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_prxDecorMdl_1->customSourceModel()->tableName()) );
 //    sp->move(10, 10);
 //    sp->show();
 }
@@ -143,25 +144,24 @@ void FormDataInput::setMainControls()
 {
     // Insert data
     connect(this, SIGNAL(sigInsertNew()),
-            m_proxyDcrMdl1->customSourceModel(), SLOT(slotInsertToTheModel())); // insert data to the model
+            m_prxDecorMdl_1->customSourceModel(), SLOT(slotInsertToTheModel())); // insert data to the model
     // update model changes - this must take place before the connection that update the current index
-    connect(m_proxyDcrMdl1->customSourceModel(), &CustomSqlTableModel::sigNewRecordInserted,
-            [this](int row, cmmn::T_id primId)
+    connect(m_prxDecorMdl_1->customSourceModel(), &CustomSqlTableModel::sigNewRecordInserted,
+            [this](int /*row*/, cmmn::T_id primId)
             {
-                Q_UNUSED(row);
                 m_mchTChanger->updateModelChange( primId, MChTypeLabel::ctype_inserted );
             } );
-    connect(m_proxyDcrMdl1->customSourceModel(), SIGNAL(sigNewRecordInserted(int, cmmn::T_id)),
+    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigNewRecordInserted(int, cmmn::T_id)),
             m_mapper, SLOT(setCurrentIndex(int))); // mapper go to the inserted record (row)
 
     // Delete data
     connect(this, &FormDataInput::sigDeleteRow, [this]()
     {
-        m_proxyDcrMdl1->customSourceModel()->slotDeleteRowRecord( m_mapper->currentIndex() ); // delete row from the model
+        m_prxDecorMdl_1->customSourceModel()->slotDeleteRowRecord( m_mapper->currentIndex() ); // delete row from the model
     });
 
     // update model changes - this must take place before the connection that update the current index
-    connect(m_proxyDcrMdl1->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
+    connect(m_prxDecorMdl_1->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
             [this](int row, cmmn::T_id primId)
     {
         Q_UNUSED(row);
@@ -176,7 +176,7 @@ void FormDataInput::setMainControls()
      * the ability go to the previous record is calling the setCurrentIndex(int) method with passing decremented value
      * of the current index (row).
      */
-    connect(m_proxyDcrMdl1->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
+    connect(m_prxDecorMdl_1->customSourceModel(), &CustomSqlTableModel::sigRecordDeleted,
             [this](int row){ if (row > 0) --row; m_mapper->setCurrentIndex(row); } );
 
     // Save data
@@ -184,24 +184,23 @@ void FormDataInput::setMainControls()
 //    connect(this, &FormDataInput::sigChangesSubmitted, [this](){ m_mchTChanger->slotClearChanges(); } ); // clearing changes after data saving
 //    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int)));
 
-    connect(this, SIGNAL(sigSaveAll()), m_proxyDcrMdl1->customSourceModel(), SLOT(slotSaveToDB())); // save model's data to the DB
-    connect(m_proxyDcrMdl1->customSourceModel(), SIGNAL(sigSavedInDB()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data saving
-    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int))); // TODO:  perform saving in custom or proxy model
-//    connect(m_proxyDcrMdl1->customSourceModel(), SIGNAL(sigSavedInDB()), m_mapper // TODO: IMPLEMENT switching to the index, that was before saving
+    connect(this, SIGNAL(sigSaveAll()), m_prxDecorMdl_1->customSourceModel(), SLOT(slotSaveToDB())); // save model's data to the DB
+    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigSavedInDB()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data saving
+//    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigSavedInDB()), m_mapper // TODO: IMPLEMENT switching to the index, that was before saving
 
     // Refresh data
     connect(this, SIGNAL(sigRefreshAll()),
-            m_proxyDcrMdl1->customSourceModel(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
-    connect(m_proxyDcrMdl1->customSourceModel(), SIGNAL(sigModelRefreshed()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data refreshing
+            m_prxDecorMdl_1->customSourceModel(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
+    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigModelRefreshed()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data refreshing
     // set current index after refresh data in the model
-//    connect(m_proxyDcrMdl1->customSourceModel(), SIGNAL(sigModelRefreshed()),
+//    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigModelRefreshed()),
 //            m_ui->m_leRecordId, SIGNAL(returnPressed())); // generate error if current index (value in the record ID LineEdit) doesn't exist in the model
-    connect(m_proxyDcrMdl1->customSourceModel(), &CustomSqlTableModel::sigModelRefreshed, [this](){ m_mapper->toFirst(); }); // go to the first index
+    connect(m_prxDecorMdl_1->customSourceModel(), &CustomSqlTableModel::sigModelRefreshed, [this](){ m_mapper->toFirst(); }); // go to the first index
 
     // Revert data
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
-//    connect(this, SIGNAL(sigRevertChanges()), m_proxyDcrMdl1->customSourceModel(), SLOT(revert()));
-//    connect(this, SIGNAL(sigRevertChanges()), m_proxyDcrMdl1->customSourceModel(), SLOT(revertAll()));
+//    connect(this, SIGNAL(sigRevertChanges()), m_prxDecorMdl_1->customSourceModel(), SLOT(revert()));
+//    connect(this, SIGNAL(sigRevertChanges()), m_prxDecorMdl_1->customSourceModel(), SLOT(revertAll()));
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
 }
 
@@ -223,11 +222,11 @@ void FormDataInput::setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWi
 
 void FormDataInput::setDataOperating()
 {
-    m_proxyDcrMdl1->setSqlTable("engines");
+    m_prxDecorMdl_1->setSqlTableName("engines");
 
     // set mapper
-    m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    m_mapper->setModel(m_proxyDcrMdl1);
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit); // use manual, because auto perform setting earlier generated data from widgets to model
+    m_mapper->setModel(m_prxDecorMdl_1);
     // indexes starts from 1, because in the 0-th section place the selection icon
     m_mapper->addMapping(m_ui->m_leIdData, 1);
     m_mapper->addMapping(m_ui->m_leFullNameData, 2);
@@ -256,16 +255,14 @@ void FormDataInput::setDataNavigation()
             m_mapper, SLOT(setCurrentIndex(int))); // change mapper index by the id's line edit value
     connect(this, SIGNAL(sigWrongIdEntered()),
             m_ui->m_leRecordId, SLOT(clear())); // indicate that inputed value is wrong and there are need to input another
-//    connect(this, SIGNAL(sigWrongIdEntered()),
-//              m_mapper, SLOT(revert())); // perform a clearing of the mapped widgets - TODO: maybe delete?
 
-    // enable & disable navigation buttons
-    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotRowIndexChanged(int)));
+    // checking boundaries of DB data records
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotCheckRowIndex(int)));
     connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordFirst, SLOT(setDisabled(bool)));
     connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordPrev, SLOT(setDisabled(bool)));
     connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordLast, SLOT(setDisabled(bool)));
     connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordNext, SLOT(setDisabled(bool)));
-    slotRowIndexChanged(m_mapper->currentIndex()); // the initial checking
+    slotCheckRowIndex(m_mapper->currentIndex()); // the initial checking
 }
 
 void FormDataInput::setModelChange()
@@ -274,25 +271,37 @@ void FormDataInput::setModelChange()
     connect(m_mapper, &QDataWidgetMapper::currentIndexChanged,
             [this](int index)
     {
-        m_mchTChanger->slotCheckModelChanges( m_proxyDcrMdl1->rowId(index) );
+        m_mchTChanger->slotCheckModelChanges( m_prxDecorMdl_1->rowId(index) );
     } );
     connect(m_mchTChanger, SIGNAL(sigChangeChangedType(bool)), m_ui->m_gboxEngineData, SLOT(setDisabled(bool)));
     connect(m_mchTChanger, SIGNAL(sigChangeChangedType(int)), m_ui->m_lblModelChangeType, SLOT(slotChangeType(int)));
 }
 
+void FormDataInput::setEngineName()
+{
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotGenEngineName(int))); // generate engine name when mapper's index changes
+    connect(m_prxDecorMdl_1, &QAbstractItemModel::dataChanged,
+            [this](const QModelIndex &topLeft, const QModelIndex &/*bottomRight*/)
+    {
+        if (topLeft.column() != ProxyDecorModel::SELECT_ICON_COLUMN)
+            slotGenEngineName(topLeft.row());
+    }); // generate engine name when model's data changes
+    connect(this, SIGNAL(sigEngineNameGenerated(QString)), m_ui->m_lblEngineName, SLOT(setText(QString)));
+    slotGenEngineName(m_mapper->currentIndex()); // generate initial engine name
+}
+
 FormDataInput::~FormDataInput()
 {
     delete m_ui;
-    delete m_proxyDcrMdl1;
+    delete m_prxDecorMdl_1;
     delete m_mapper;
     delete m_mchTChanger;
-//    delete m_dataSaver;
 }
 
 void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
 {
     int row = -1;
-    if (m_proxyDcrMdl1->customSourceModel()->getIdRow(value, row))
+    if (m_prxDecorMdl_1->customSourceModel()->getIdRow(value, row))
         emit sigChangeMapperIndex(row);
     else {
         QMessageBox::warning(this, tr("Error engine ""id"" value"),
@@ -301,38 +310,54 @@ void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
     }
 }
 
-void FormDataInput::slotRowIndexChanged(int row)
+void FormDataInput::slotCheckRowIndex(int row)
 {
 //    qDebug() << "change mapper index, current index =" << m_mapper->currentIndex() << ", row =" << row;
     emit sigFirstRowReached(row <= 0);
-    emit sigLastRowReached(row >= m_proxyDcrMdl1->rowCount() - 1);
-//    qDebug() << "slotRowIndexChanged(" << row << "), DisplayRole data:";
-//    m_proxyDcrMdl1->customSourceModel()->printData(Qt::DisplayRole);
+    emit sigLastRowReached(row >= m_prxDecorMdl_1->rowCount() - 1);
+//    qDebug() << "slotCheckRowIndex(" << row << "), DisplayRole data:";
+//    m_prxDecorMdl_1->customSourceModel()->printData(Qt::DisplayRole);
+}
+
+void FormDataInput::slotGenEngineName(int row)
+{
+    qDebug() << "Generate engine name";
+    const dbi::DBTInfo *tableInfo = DBINFO.tableByName( m_prxDecorMdl_1->sqlTableName() );
+    ASSERT_DBG(tableInfo, cmmn::MessageException::type_critical, tr("Error engine name"),
+               tr("Cannot set engine name to the label. Unknown engine: ") + m_prxDecorMdl_1->sqlTableName(),
+               QString("FormDataInput::slotGenEngineName"));
+    QString engineName;
+    for (const auto &identInf : tableInfo->m_idnFields)
+        engineName += ( identInf.m_strBefore +
+                    m_prxDecorMdl_1->index( row, identInf.m_NField + ProxyDecorModel::COUNT_ADDED_COLUMNS ).data(Qt::DisplayRole).toString() );
+    emit sigEngineNameGenerated(engineName);
 }
 
 void FormDataInput::slotSubmit()
 {
 //    qDebug() << "slotSubmit(), start";
     int currentIndex = m_mapper->currentIndex();
-    if (!m_proxyDcrMdl1->customSourceModel()->database().transaction()) {
+    if (!m_prxDecorMdl_1->customSourceModel()->database().transaction()) {
         QMessageBox::critical(this, tr("Database transaction error"),
                               tr("The database driver do not support the transactions operations"));
     }
 
-    if (m_proxyDcrMdl1->customSourceModel()->submitAll()) {
+    if (m_prxDecorMdl_1->customSourceModel()->submitAll()) {
+//        qDebug() << "slotSubmit, after submit all, index =" << m_mapper->currentIndex();
 //        qDebug() << "slotSubmit(), after submitAll(), before commit()";
-//        m_proxyDcrMdl1->customSourceModel()->printData(Qt::EditRole);
+//        m_prxDecorMdl_1->customSourceModel()->printData(Qt::EditRole);
 
         // After submit all data, the mapper current index is -1
-        m_proxyDcrMdl1->customSourceModel()->database().commit();
+        m_prxDecorMdl_1->customSourceModel()->database().commit();
     }
     else {
-        m_proxyDcrMdl1->customSourceModel()->database().rollback();
+        m_prxDecorMdl_1->customSourceModel()->database().rollback();
         QMessageBox::critical(this, tr("Error data submit to the database"),
                               tr("Cannot submit data to the database. The database report an error: %1")
-                              .arg(m_proxyDcrMdl1->customSourceModel()->lastError().text()));
+                              .arg(m_prxDecorMdl_1->customSourceModel()->lastError().text()));
         return;
     }
+    qDebug() << "before restore current index, index =" << m_mapper->currentIndex();
     emit sigChangesSubmitted(currentIndex);
 //    qDebug() << "slotSubmit(), end";
 }
@@ -367,21 +392,21 @@ void FormDataInput::slotEditChildDBT()
 
     DBTEditor editor(tableInfo, this);
     // TODO: about next line: in the EditUICreator use pbSEDBT->fieldNo() instead of the m_mapper->mappedSection(pbSEDBT->identWidget())
-    const QModelIndex &currIndex = m_proxyDcrMdl1->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbSEDBT->identWidget()));
+    const QModelIndex &currIndex = m_prxDecorMdl_1->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbSEDBT->identWidget()));
     qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
-             << ", dataD =" << m_proxyDcrMdl1->data( currIndex, Qt::DisplayRole).toString()
-             << ", dataE =" << m_proxyDcrMdl1->data( currIndex, Qt::EditRole).toString()
-             << ", dataU =" << m_proxyDcrMdl1->data( currIndex, Qt::UserRole).toString();
-    const QVariant &forId = m_proxyDcrMdl1->data(currIndex, Qt::UserRole);
+             << ", dataD =" << m_prxDecorMdl_1->data( currIndex, Qt::DisplayRole).toString()
+             << ", dataE =" << m_prxDecorMdl_1->data( currIndex, Qt::EditRole).toString()
+             << ", dataU =" << m_prxDecorMdl_1->data( currIndex, Qt::UserRole).toString();
+    const QVariant &forId = m_prxDecorMdl_1->data(currIndex, Qt::UserRole);
     if ( !forId.isNull() ) // if data is NULL -> don't select any row in the editor view
         editor.selectInitial(forId);
 
     if ( editor.exec() == QDialog::Accepted ) {
-        m_proxyDcrMdl1->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */
-        ASSERT_DBG( m_proxyDcrMdl1->setData( currIndex, editor.selectedId(), Qt::EditRole ),
+        m_prxDecorMdl_1->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */
+        ASSERT_DBG( m_prxDecorMdl_1->setData( currIndex, editor.selectedId(), Qt::EditRole ),
                     cmmn::MessageException::type_critical, tr("Error data setting"),
                     tr("Cannot set data: \"%1\" to the model").arg(editor.selectedId()),
-                    QString("FormDataInput::slotEditChildDBT()") );
+                    QString("FormDataInput::slotEditChildDBT") );
         qDebug() << "The id value: \"" << editor.selectedId() << "\" was successfully setted to the model";
     }
 }

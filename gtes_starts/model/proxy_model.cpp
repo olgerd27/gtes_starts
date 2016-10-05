@@ -266,11 +266,14 @@ ProxyDecorModel::ProxyDecorModel(QObject *parent)
 ProxyDecorModel::~ProxyDecorModel()
 { }
 
-void ProxyDecorModel::setSqlTable(const QString &tableName)
+void ProxyDecorModel::setSqlTableName(const QString &tableName)
 {
     customSourceModel()->setTable(tableName);
-//    printHeader();
-    //    printData();
+}
+
+QString ProxyDecorModel::sqlTableName() const
+{
+    return customSourceModel()->tableName();
 }
 
 QVariant ProxyDecorModel::data(const QModelIndex &index, int role) const
@@ -368,7 +371,7 @@ CustomSqlTableModel *ProxyDecorModel::customSourceModel() const
     ASSERT_DBG( srcModel,
                 cmmn::MessageException::type_critical, QObject::tr("Error get the custom source model"),
                 QObject::tr("Unknow source model was setted to the proxy model"),
-                QString("ProxyDecorModel::customSourceModel()") );
+                QString("ProxyDecorModel::customSourceModel") );
     return srcModel;
 }
 
@@ -455,7 +458,7 @@ void ProxyDecorModel::slotAddRow()
     ASSERT_DBG( m_changedRows->addChange(rowInsert, RowsChangesHolder::chtype_insert),
                 cmmn::MessageException::type_critical, QObject::tr("Error add row"),
                 QObject::tr("Cannot add row change to the row changes storage"),
-                QString("ProxyDecorModel::slotAddRow()") );
+                QString("ProxyDecorModel::slotAddRow") );
     endInsertRows();
     qDebug() << "[proxy model] data ADDed to the model";
     changeRow(IRDefiner::dtype_insert, rowInsert);
@@ -474,7 +477,7 @@ void ProxyDecorModel::slotDeleteRow(int currentRow)
         ASSERT_DBG( m_changedRows->deleteChange(rowCount()),
                     cmmn::MessageException::type_critical, QObject::tr("Error delete row"),
                     QObject::tr("Cannot delete row change from the row changes storage"),
-                    QString("ProxyDecorModel::slotDeleteRow()") );
+                    QString("ProxyDecorModel::slotDeleteRow") );
         defType = IRDefiner::dtype_deleteInserted;
     }
     else {

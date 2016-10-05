@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
      * In time of MainWindow closing it will need save current geometry in settings file and restore it by next app running.
      */
     setWindowIcon(QIcon(":/images/window_icon.png")); // TODO: use another icon
-    setWindowTitle( tr("Control application") );
+    setWindowTitle("CApp");
     setPosition();
 
     // TODO: delete later
@@ -130,13 +130,14 @@ void MainWindow::slotAboutApp()
     QString winTitle = windowTitle();
     // TODO: write correct "About application" text
     QString text = QString("The <b>") + winTitle + "</b> "
-                   "performs input, delete, update and query data, that stores in the GTE's starts database.<br><br>"
+                   "application performs interaction with the GTE's starts database.<br><br>"
                    "<b>Version 1.0</b> (freeware).<br><br>"
                    "The programm is provided \"AS IS\" with no warranty of any kind, "
                    "including the warranty of design, merchantability and "
                    "fitness for a particular purpose.<br><br>"
-                   "Developed by the group of GTE's starts characteristics, dep.19.<br>"
-                   "Developer: Matiyuk O.I., olmati@zorya.com.<br><br>"
-                   "Nikolaev, Ukraine - 2014-2016.";
+                   "Developed by the group of GTE's starts characteristics, dep.19,<br>"
+                   "GP NPKG \"Zorya\"-\"Mashproekt\".<br>"
+                   "The main developer: Matiyuk O.I., olmati@zorya.com<br><br>"
+                   "Nikolaev, Ukraine.  2014-2016.";
     QMessageBox::about(this, tr("About") + " " + winTitle, tr(text.toUtf8()));
 }

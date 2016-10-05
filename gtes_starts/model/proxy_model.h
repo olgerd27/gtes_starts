@@ -24,7 +24,8 @@ public:
 
     explicit ProxyDecorModel(QObject *parent = 0);
     ~ProxyDecorModel();
-    void setSqlTable(const QString &tableName);
+    void setSqlTableName(const QString &tableName);
+    QString sqlTableName() const;
 
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);

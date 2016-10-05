@@ -5,7 +5,7 @@
 #include <QHeaderView>
 
 /*
- * The custom table view for data selection (SD).
+ * The custom table view for data selection (DS).
  * This table notify about mouse pressing inside any cell (MPN - mouse press notify).
  */
 class TableView_DS : public QTableView
@@ -14,6 +14,7 @@ class TableView_DS : public QTableView
 
 public:
     explicit TableView_DS(QWidget *parent = 0);
+    void setModel(QAbstractItemModel *model);
 
 signals:
     void sigMousePressedOverTable();
@@ -22,7 +23,8 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 private:
-    void setHeaders();
+    void setVertHeader();
+    void setHorizHeader();
     void setHorizSectionResizeMode(QHeaderView *header);
 };
 

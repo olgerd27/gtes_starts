@@ -7,13 +7,39 @@
     <x>0</x>
     <y>0</y>
     <width>654</width>
-    <height>419</height>
+    <height>461</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QLabel" name="m_lblEngineName">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="locale">
+      <locale language="Russian" country="Ukraine"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QTabWidget" name="m_tabWidget">
      <property name="locale">
@@ -380,7 +406,7 @@
         <enum>Qt::StrongFocus</enum>
        </property>
        <property name="toolTip">
-        <string>Go to the first record</string>
+        <string>Go to the first engine</string>
        </property>
        <property name="locale">
         <locale language="Russian" country="Ukraine"/>
@@ -403,7 +429,7 @@
         <enum>Qt::StrongFocus</enum>
        </property>
        <property name="toolTip">
-        <string>Go to the previous record</string>
+        <string>Go to the previous engine</string>
        </property>
        <property name="locale">
         <locale language="Russian" country="Ukraine"/>
@@ -435,7 +461,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Inputing concrete engine id value</string>
+        <string>Input engine's Id</string>
        </property>
        <property name="locale">
         <locale language="Russian" country="Ukraine"/>
@@ -451,7 +477,7 @@
         <enum>Qt::StrongFocus</enum>
        </property>
        <property name="toolTip">
-        <string>Go to the next record</string>
+        <string>Go to the next engine</string>
        </property>
        <property name="locale">
         <locale language="Russian" country="Ukraine"/>
@@ -474,7 +500,7 @@
         <enum>Qt::StrongFocus</enum>
        </property>
        <property name="toolTip">
-        <string>Go to the last record</string>
+        <string>Go to the last engine</string>
        </property>
        <property name="locale">
         <locale language="Russian" country="Ukraine"/>

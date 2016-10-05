@@ -26,7 +26,7 @@ AbstractLabelCreator *createLabelCreator(AbstractLabelCreator::CreatorsTypes typ
     default:
         ASSERT_DBG( false, cmmn::MessageException::type_critical, QObject::tr("Error label type"),
                     QObject::tr("Cannot create the label for UI - unknow type"),
-                    QString("createLabelCreator()") );
+                    QString("AbstractLabelCreator::createLabelCreator") );
         return 0;
     }
     return creator;
@@ -166,12 +166,12 @@ void EditUICreator::slotTransmitSEPBInfo()
     SelectEditPB *pbSEDBT = qobject_cast<SelectEditPB *>(sender());
     ASSERT_DBG( pbSEDBT, cmmn::MessageException::type_critical, tr("Invalid push button"),
                 tr("Cannot define the clicked push button."),
-                QString("EditUICreator::setEditDBTOnePB => [alfa]") );
+                QString("EditUICreator::slotTransmitSEPBInfo") );
 
     const dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbSEDBT->DBTableName());
     ASSERT_DBG( tableInfo, cmmn::MessageException::type_critical, tr("Invalid push button"),
                 tr("Cannot define the clicked push button. Cannot obtain the database table info."),
-                QString("EditUICreator::setEditDBTOnePB => [alfa]") );
+                QString("EditUICreator::slotTransmitSEPBInfo") );
 
     emit sigSEPBClicked(tableInfo, pbSEDBT->fieldNo());
 }

@@ -44,8 +44,8 @@ namespace dbi {
         struct IdentityInfo
         {
             /* An identity string is: [m_strBefore + m_NField] */
-            QString m_strBefore;    // string, before the identity field number (like a some comment)
-            int m_NField;           // number of an identity field
+            const QString m_strBefore;    // string, before the identity field number (like a some comment)
+            const int m_NField;           // number of an identity field
         };
 
         typedef std::vector<DBTFieldInfo> T_arrDBTFieldsInfo;

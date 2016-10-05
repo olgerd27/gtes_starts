@@ -83,15 +83,28 @@ TableView_DS::TableView_DS(QWidget *parent)
 {
     setItemDelegate(new HighlightTableRowsDelegate(this));
     viewport()->setAttribute(Qt::WA_Hover);
-    setHeaders();
+    setVertHeader();
 }
 
-void TableView_DS::setHeaders()
+void TableView_DS::setModel(QAbstractItemModel *model)
+{
+    QTableView::setModel(model);
+    setHorizHeader(); // set horizontal header must be only after model setting
+}
+
+void TableView_DS::setVertHeader()
 {
     auto vHeader = verticalHeader();
     vHeader->setDefaultSectionSize( vHeader->defaultSectionSize() * 0.75 ); // reduce rows high - need for the QHeaderView::Fixed resize mode
     vHeader->setSectionResizeMode(QHeaderView::Fixed);
     setHorizSectionResizeMode(horizontalHeader());
+}
+
+void TableView_DS::setHorizHeader()
+{
+    auto hHeader = horizontalHeader();
+    hHeader->setStretchLastSection(true);
+    setMinimumWidth(hHeader->length() + 30); // increase view width, that vertical scroll widget do not cover data in the last table column
 }
 
 void TableView_DS::setHorizSectionResizeMode(QHeaderView *header)

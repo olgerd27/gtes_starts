@@ -266,7 +266,7 @@ cmmn::T_id CustomSqlTableModel::insertNewRecord()
     ASSERT_DBG( insertRow(Nrows),
                 cmmn::MessageException::type_critical, QObject::tr("Insertion error"),
                 QObject::tr("The new row cannot be inserted"),
-                QString("CustomSqlTableModel::insertNewRecord()") );
+                QString("CustomSqlTableModel::insertNewRecord") );
 
     // set initial values in the inserted row
     for (int col = 0; col < columnCount(); ++col) {
@@ -483,6 +483,7 @@ void CustomSqlTableModel::slotDeleteRowRecord(int row)
 
 void CustomSqlTableModel::slotSaveToDB()
 {
+    qDebug() << "Custom model. SAVE 1";
     ASSERT_DBG( database().transaction(), cmmn::MessageException::type_warning, tr("Database transaction error"),
                 tr("The database driver do not support the transactions operations"),
                 QString("CustomSqlTableModel::slotSaveToDB") );
@@ -496,4 +497,5 @@ void CustomSqlTableModel::slotSaveToDB()
                     QString("CustomSqlTableModel::slotSaveToDB") );
     }
     emit sigSavedInDB();
+    qDebug() << "Custom model. SAVE 10";
 }

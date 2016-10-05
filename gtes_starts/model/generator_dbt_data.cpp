@@ -18,7 +18,7 @@ void GeneratorDBTData::QueryGenerator::generateQuery()
     ASSERT_DBG( !m_listFrom.isEmpty() && !m_listSelect.isEmpty(),
                 cmmn::MessageException::type_critical, QObject::tr("Error query generation"),
                 QObject::tr("Too many attempts to get the query string, used for generation displayed data"),
-                QString("GeneratorDBTData::QueryGenerator::generateQuery()") );
+                QString("GeneratorDBTData::QueryGenerator::generateQuery") );
 
 //    qDebug() << "Not ready query data:\nSELECT:" << m_listSelect << "\nFROM:" << m_listFrom << "\nWHERE:" << m_listWhere;
     finalPrepare(); // the Template Method
@@ -144,7 +144,7 @@ void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)
     ASSERT_DBG( isReadyToGeneration(),
                 cmmn::MessageException::type_critical, QObject::tr("Error data generating"),
                 QObject::tr("The functor for database query was not setted"),
-                QString("GeneratorDBTData::generate()") );
+                QString("GeneratorDBTData::generate") );
     int fieldsCounter = 0;
 //    qDebug() << "generate() 1, field:" << foreignFieldInf.m_nameInDB;
     generate_Mask_QueryData( foreignFieldInf, fieldsCounter );
@@ -188,7 +188,7 @@ void GeneratorDBTData::generateResultData()
 //    qDebug() << "generateResultData(), last generated query:" << m_queryGen->lastGeneratedQuery();
     QSqlQuery query(m_queryGen->lastGeneratedQuery());
     m_resData.reserve(query.size()); // allocate the storage memory for effective adding data to the storage
-    qDebug() << "Generate result data, MASK:" << m_strMask;
+//    qDebug() << "Generate result data, MASK:" << m_strMask;
     while (query.next()) {
         // get the primary id value
         const QVariant &varId = query.value(0);
@@ -197,13 +197,13 @@ void GeneratorDBTData::generateResultData()
         for (int i = 1; i < m_queryGen->quantityResultData(); ++i)
             strRes = strRes.arg( query.value(i).toString() ); // forming result data with using mask and QString::arg()
         m_resData.push_back( {idPrim, strRes} );
-        qDebug() << "Generate result data, id:" << idPrim << ", data:" << strRes;
+//        qDebug() << "Generate result data, id:" << idPrim << ", data:" << strRes;
     }
     ASSERT_DBG( idPrim != -1,
                 cmmn::MessageException::type_critical, QObject::tr("Error data getting"),
                 QObject::tr("Cannot get a data from the database table for generation. ") +
                 QObject::tr("The database error: ") + query.lastError().text(),
-                QString("GeneratorDBTData::generateResultData()") );
+                QString("GeneratorDBTData::generateResultData") );
 //    qDebug() << "-----------------------------";
 }
 

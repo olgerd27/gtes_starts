@@ -235,7 +235,7 @@ dbi::DBInfo::DBInfo()
                 , {"start_devices_quantity", trans("Start device quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
-            // Ident str:       DG90 L2.1 #273, Zhidkoe
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe
             {
                   {"", 1}
                 , {QString(", %1: ").arg(trans("fuel")), 2}
@@ -265,7 +265,7 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
                 , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
             },
-            // Ident str:       DG90 L2.1 #273, Zhidkoe | Termoogranichenie: 570
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | Termoogranichenie: 570
             {
                   {"", 0}
                 , {" | ", 1}
@@ -327,7 +327,7 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
                 , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
             },
-            // Ident str:       DG90 L2.1 #273, Zhidkoe | 3 KPR za 5 st. KVD
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | 3 KPR za 5 st. KVD
             {
                   {"", 0}
                 , {" | ", 3}
@@ -389,7 +389,7 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
                 , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
             },
-            // Ident str:       Algorithm: DG90 L2.1 #273, Zhidkoe
+            // Ident str:       Algorithm: DG90 L2.1 #273, toplivo: Zhidkoe
             {
                   {"Algorithm: ", 0}
             }
@@ -434,7 +434,7 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
                 , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
             },
-            // Ident str:       DG90 L2.1 #273, Zhidkoe | Tehnicheskaya spravka: TS ZHAKI.102.118-2016
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | Tehnicheskaya spravka: TS ZHAKI.102.118-2016
             {
                   {"", 0}
                 , {" | ", 1}
@@ -482,7 +482,7 @@ dbi::DBInfo::DBInfo()
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
                 , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
             },
-            // Ident str:       DG90 L2.1 #273, Zhidkoe | [n1, ob/min] = f([t, s])
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | [n1, ob/min] = f([t, s])
             {
                   {"", 0}
                 , {" | ", 1}
