@@ -4,7 +4,6 @@
 #include <memory>
 #include <QLabel>
 #include <QPushButton>
-#include <QDataWidgetMapper>
 #include <QGridLayout>
 
 namespace dbi {
@@ -92,18 +91,18 @@ public:
 
 // The "edit" UI creator
 class WidgetDataSender;
+class WidgetMapper;
 class EditUICreator : public QObject, public AbstractUICreator
 {
     Q_OBJECT
 
 public:
-    EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper, QObject *parent = 0);
+    EditUICreator(const dbi::DBTInfo *tblInfo, WidgetMapper *mapper, QObject *parent = 0);
     virtual ~EditUICreator();
     virtual void createUI(QWidget *parent);
 
 signals:
-    void sigWidgetFocusLost(QWidget *, const QString &);
-    void sigSEPBClicked(const dbi::DBTInfo *dbtInfo, int fieldNo);
+    void sigSEPBClicked(const dbi::DBTInfo *dbtInfo, int fieldNo); // SEPB - Select/Edit PushButton
 
 private slots:
     void slotTransmitSEPBInfo();
@@ -113,11 +112,11 @@ private:
     void setEditChildPB(SelectEditPB *pb, const QString &childTableName, int fieldNo);
 
     const dbi::DBTInfo *m_tableInfo;
-    QDataWidgetMapper *m_mapper;
+    WidgetMapper *m_mapper;
     std::unique_ptr<AbstractLabelCreator> m_lblCreator;
     QObject *m_sigReceiver;
     const char *m_slotMember;
-    std::unique_ptr<WidgetDataSender> m_dataSender;
+    std::unique_ptr<WidgetDataSender> m_wgtDataSender;
 };
 
 #endif // EDIT_UI_CREATOR_H

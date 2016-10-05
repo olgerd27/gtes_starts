@@ -5,7 +5,6 @@
 #include <QSqlTableModel>
 #include <QIcon>
 #include <QDialog>
-#include <QDataWidgetMapper>
 #include "../common/common_defines.h"
 
 /*
@@ -20,6 +19,7 @@ namespace dbi {
 class ProxyDecorModel;
 class ProxyFilterModel;
 class EditUICreator;
+class WidgetMapper;
 class DBTEditor : public QDialog
 {
     Q_OBJECT
@@ -35,7 +35,6 @@ public slots:
 
 private slots:
     void slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo);
-    void slotFocusLost_DataSet(QWidget *w, const QString &data);
 
 private:
     enum SETTINGS {
@@ -62,7 +61,7 @@ private:
     Ui::DBTEditor *m_ui;
     ProxyDecorModel *m_prxDecorMdl_1;
     ProxyFilterModel *m_prxFilterMdl_2;
-    QDataWidgetMapper *m_mapper;
+    WidgetMapper *m_mapper;
     std::unique_ptr<EditUICreator> m_editUICreator;
     int m_initSelectRow;
 };

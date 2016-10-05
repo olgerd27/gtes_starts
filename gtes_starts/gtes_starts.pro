@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     widgets/reimplemented_widgets.cpp \
     widgets/fl_widgets.cpp \
     dbt_editor/edit_ui_creator.cpp \
-    dbt_editor/table_view_ds.cpp
+    dbt_editor/table_view_ds.cpp \
+    widgets/widget_mapper.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -43,7 +44,8 @@ HEADERS  += \
     widgets/reimplemented_widgets.h \
     widgets/fl_widgets.h \
     dbt_editor/edit_ui_creator.h \
-    dbt_editor/table_view_ds.h
+    dbt_editor/table_view_ds.h \
+    widgets/widget_mapper.h
 
 FORMS    += \
     appforms/main_window.ui \

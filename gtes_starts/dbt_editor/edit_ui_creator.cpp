@@ -5,6 +5,7 @@
 #include "../common/common_defines.h"
 #include "../widgets/fl_widgets.h"
 #include "../widgets/reimplemented_widgets.h"
+#include "../widgets/widget_mapper.h"
 
 /*
  * DLabelCreator
@@ -108,15 +109,15 @@ AbstractUICreator::~AbstractUICreator()
 { }
 
 // EditUICreator
-EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *mapper, QObject *parent)
+EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, WidgetMapper *mapper, QObject *parent)
     : QObject(parent)
     , m_tableInfo(tblInfo)
     , m_mapper(mapper)
     , m_lblCreator( createLabelCreator(AbstractLabelCreator::ctype_descriptive) ) // get descriptive label creator
-    , m_dataSender(new WidgetDataSender(this))
+    , m_wgtDataSender(new WidgetDataSender(this))
 {
-    connect(m_dataSender.get(), SIGNAL(sigWidgetSendedData(QWidget*,QString)),
-            this, SIGNAL(sigWidgetFocusLost(QWidget*,QString))); // transmit widget and its data when this widget lose the focus
+    connect(m_wgtDataSender.get(), SIGNAL(sigWidgetSendedData(QWidget*,QString)),
+            m_mapper, SLOT(slotSetWidgetData(QWidget*,QString)));
 }
 
 EditUICreator::~EditUICreator()
@@ -136,7 +137,7 @@ void EditUICreator::createUI(QWidget *parent)
         cmmnPlacer->placeWidget(field, 0, m_lblCreator->create(dbtField.m_nameInUI));
 
         // create field widget and place to the layout
-        fWgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), m_dataSender.get() );
+        fWgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), m_wgtDataSender.get() );
         m_mapper->addMapping(fWgt, field + 1); // +1 - because the proxy model add decoration icon as first column in DB table
         fwPlacer = createWidgetPlacer(dbtField, layout, fwPlacer);
         fwPlacer->placeWidget(field, 1, fWgt);

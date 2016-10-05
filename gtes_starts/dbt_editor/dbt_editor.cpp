@@ -15,6 +15,7 @@
 #include "../common/db_info.h"
 #include "../widgets/fl_widgets.h"
 #include "../widgets/reimplemented_widgets.h"
+#include "../widgets/widget_mapper.h"
 
 /*
  * DBTEditor
@@ -26,7 +27,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     , m_ui(new Ui::DBTEditor)
     , m_prxDecorMdl_1(new ProxyDecorModel(nullptr))
     , m_prxFilterMdl_2(new ProxyFilterModel(nullptr))
-    , m_mapper(new QDataWidgetMapper(this))
+    , m_mapper(new WidgetMapper(this))
     , m_editUICreator(new EditUICreator(m_DBTInfo, m_mapper, this))
 {
     m_ui->setupUi(this);
@@ -112,8 +113,6 @@ void DBTEditor::setFilter()
 void DBTEditor::setEditUI()
 {
     m_editUICreator->createUI(m_ui->m_gboxEditingData);
-    connect(m_editUICreator.get(), SIGNAL(sigWidgetFocusLost(QWidget*,QString)),
-            this, SLOT(slotFocusLost_DataSet(QWidget*,QString))); // set data to the model when widget lose the focus
     connect(m_editUICreator.get(), SIGNAL(sigSEPBClicked(const dbi::DBTInfo*,int)),
             this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog - perform recursive opening of dialog
 }
@@ -215,10 +214,4 @@ void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
                     QString("DBTEditor::slotEditChildDBT") );
         qDebug() << "The id value: \"" << childEditor.selectedId() << "\" was successfully setted to the model";
     }
-}
-
-void DBTEditor::slotFocusLost_DataSet(QWidget *w, const QString &data)
-{
-    const QModelIndex &currIndex = m_prxDecorMdl_1->index( m_mapper->currentIndex(), m_mapper->mappedSection(w) );
-    m_prxDecorMdl_1->setData(currIndex, data, Qt::EditRole);
 }
