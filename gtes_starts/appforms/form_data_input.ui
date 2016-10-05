@@ -525,17 +525,17 @@
   <customwidget>
    <class>MChTypeLabel</class>
    <extends>QLabel</extends>
-   <header>common/reimplemented_widgets.h</header>
+   <header>widgets/reimplemented_widgets.h</header>
   </customwidget>
   <customwidget>
    <class>LE_DataSend</class>
    <extends>QLineEdit</extends>
-   <header>common/reimplemented_widgets.h</header>
+   <header>widgets/reimplemented_widgets.h</header>
   </customwidget>
   <customwidget>
    <class>SelectEditPB</class>
    <extends>QPushButton</extends>
-   <header>common/reimplemented_widgets.h</header>
+   <header>widgets/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

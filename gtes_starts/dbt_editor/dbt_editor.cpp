@@ -13,8 +13,8 @@
 #include "../model/selection_allower.h"
 #include "edit_ui_creator.h"
 #include "../common/db_info.h"
-#include "../common/fl_widgets.h"
-#include "../common/reimplemented_widgets.h"
+#include "../widgets/fl_widgets.h"
+#include "../widgets/reimplemented_widgets.h"
 
 /*
  * DBTEditor
@@ -36,7 +36,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     setModel();
     setMapper();
     setSelectUI();
-    setEditingUI();
+    setEditUI();
     setControl();
     setDataNavigation();
 }
@@ -109,7 +109,7 @@ void DBTEditor::setFilter()
     connect(m_ui->m_leFilter, SIGNAL(textChanged(QString)), m_prxFilterMdl_2, SLOT(setFilterFixedString(QString)));
 }
 
-void DBTEditor::setEditingUI()
+void DBTEditor::setEditUI()
 {
     m_editUICreator->createUI(m_ui->m_gboxEditingData);
     connect(m_editUICreator.get(), SIGNAL(sigWidgetFocusLost(QWidget*,QString)),

@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <limits>
 #include "fl_widgets.h"
-#include "db_info.h"
+#include "../common/db_info.h"
 
 /*
  * The signal-slot connections in every widget constructor - is a spike. It must work when the mapper submit police was setted to the ManualSubmit.
@@ -16,7 +16,7 @@ FL_LineEdit::FL_LineEdit(const WidgetDataSender *wdsender, bool isReadOnly, QWid
     : QLineEdit(parent)
 {
     setReadOnly(isReadOnly);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)));
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigWidgetSendedData(QWidget*,QString)));
 }
 
 void FL_LineEdit::focusOutEvent(QFocusEvent *fe)
@@ -33,7 +33,7 @@ FL_SpinBox::FL_SpinBox(const WidgetDataSender *wdsender, bool isReadOnly, QWidge
 {
     setReadOnly(isReadOnly);
     setMaximum(INT_MAX);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)));
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigWidgetSendedData(QWidget*,QString)));
 }
 
 void FL_SpinBox::focusOutEvent(QFocusEvent *fe)
@@ -50,7 +50,7 @@ FL_DoubleSpinBox::FL_DoubleSpinBox(const WidgetDataSender *wdsender, bool isRead
 {
     setReadOnly(isReadOnly);
     setMaximum((double)INT_MAX);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)));
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigWidgetSendedData(QWidget*,QString)));
 }
 
 void FL_DoubleSpinBox::focusOutEvent(QFocusEvent *fe)
@@ -66,7 +66,7 @@ FL_PlainTextEdit::FL_PlainTextEdit(const WidgetDataSender *wdsender, bool isRead
     : QPlainTextEdit(parent)
 {
     setReadOnly(isReadOnly);
-    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)));
+    if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigWidgetSendedData(QWidget*,QString)));
 }
 
 void FL_PlainTextEdit::focusOutEvent(QFocusEvent *fe)

@@ -8,7 +8,7 @@
 #include <QPlainTextEdit>
 
 /*
- * Sender QString widget data
+ * Help to send QString-type data of widgets
  */
 class WidgetDataSender : public QObject
 {
@@ -16,7 +16,7 @@ class WidgetDataSender : public QObject
 public:
     WidgetDataSender(QObject *parent) : QObject(parent) { }
 signals:
-    void sigSendLostFocusWidgetData(QWidget *wgt, const QString &text);
+    void sigWidgetSendedData(QWidget *wgt, const QString &text);
 };
 
 /*

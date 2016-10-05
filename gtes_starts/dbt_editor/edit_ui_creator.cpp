@@ -3,8 +3,8 @@
 #include "edit_ui_creator.h"
 #include "../common/db_info.h"
 #include "../common/common_defines.h"
-#include "../common/fl_widgets.h"
-#include "../common/reimplemented_widgets.h"
+#include "../widgets/fl_widgets.h"
+#include "../widgets/reimplemented_widgets.h"
 
 /*
  * DLabelCreator
@@ -115,7 +115,7 @@ EditUICreator::EditUICreator(const dbi::DBTInfo *tblInfo, QDataWidgetMapper *map
     , m_lblCreator( createLabelCreator(AbstractLabelCreator::ctype_descriptive) ) // get descriptive label creator
     , m_dataSender(new WidgetDataSender(this))
 {
-    connect(m_dataSender.get(), SIGNAL(sigSendLostFocusWidgetData(QWidget*,QString)),
+    connect(m_dataSender.get(), SIGNAL(sigWidgetSendedData(QWidget*,QString)),
             this, SIGNAL(sigWidgetFocusLost(QWidget*,QString))); // transmit widget and its data when this widget lose the focus
 }
 

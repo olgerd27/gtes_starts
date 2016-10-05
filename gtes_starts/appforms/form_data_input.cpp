@@ -13,7 +13,7 @@
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
 #include "../common/db_info.h"
-#include "../common/fl_widgets.h"
+#include "../widgets/fl_widgets.h"
 
 /*
  * ChangerMChTypeImpl - private section of the ChangerMChType class
@@ -181,7 +181,7 @@ void FormDataInput::setMainControls()
 
     // Save data
 //    connect(this, SIGNAL(sigSaveAll()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
-//    connect(this, &FormDataInput::sigChangesSubmitted, [this](){ m_mchTChanger->slotClearChanges(); } ); // clearing changes after data saving
+//    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data saving
 //    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int)));
 
     connect(this, SIGNAL(sigSaveAll()), m_prxDecorMdl_1->customSourceModel(), SLOT(slotSaveToDB())); // save model's data to the DB
@@ -321,7 +321,6 @@ void FormDataInput::slotCheckRowIndex(int row)
 
 void FormDataInput::slotGenEngineName(int row)
 {
-    qDebug() << "Generate engine name";
     const dbi::DBTInfo *tableInfo = DBINFO.tableByName( m_prxDecorMdl_1->sqlTableName() );
     ASSERT_DBG(tableInfo, cmmn::MessageException::type_critical, tr("Error engine name"),
                tr("Cannot set engine name to the label. Unknown engine: ") + m_prxDecorMdl_1->sqlTableName(),

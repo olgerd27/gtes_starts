@@ -50,7 +50,7 @@ private:
     void setSelectUI();
 
     void setFilter();
-    void setEditingUI();
+    void setEditUI();
     void setControl();
     void setDataNavigation();
 
