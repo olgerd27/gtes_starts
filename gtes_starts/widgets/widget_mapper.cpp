@@ -3,8 +3,10 @@
 
 WidgetMapper::WidgetMapper(QObject *parent)
     : QDataWidgetMapper(parent)
-{
-}
+{ }
+
+WidgetMapper::~WidgetMapper()
+{ }
 
 void WidgetMapper::slotSetWidgetData(QWidget *w, const QString &data)
 {

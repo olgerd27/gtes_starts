@@ -443,7 +443,7 @@ input</string>
   <customwidget>
    <class>ResizableWidgetList</class>
    <extends>QListWidget</extends>
-   <header>common/reimplemented_widgets.h</header>
+   <header>widgets/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources>

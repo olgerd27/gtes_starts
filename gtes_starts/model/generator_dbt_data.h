@@ -93,7 +93,7 @@ public:
                          TypeQueryGenerator typeqg = tqg_foreignOneId);
     virtual ~QueryGenForeignOneId();
 protected:
-    virtual void doFinalPrepare();
+    virtual void doFinalPrepare() override;
     T_id m_idFor, m_idPrim; // foreign and primary keys id's. Primary key need for support the algorithm of a DBT data generation
 };
 
@@ -111,7 +111,7 @@ public:
     inline void setMainTableName(const QString &mtName) { m_mTableName = mtName; }
     inline void setForeignFieldName(const QString &ffName) { m_fFieldName = ffName; }
 protected:
-    virtual void doFinalPrepare();
+    virtual void doFinalPrepare() override;
     QString m_mTableName, m_fFieldName;
 };
 
@@ -131,7 +131,7 @@ struct QueryGenPrimaryOneId : public QueryGenPrimaryAllId
     inline void setId(QueryGenPrimaryOneId::T_id id) { m_idPrim = id; }
     void setId(const QVariant &varId);
 protected:
-    virtual void doFinalPrepare();
+    virtual void doFinalPrepare() override;
     T_id m_idPrim;
 };
 

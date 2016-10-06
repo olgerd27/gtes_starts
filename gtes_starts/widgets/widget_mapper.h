@@ -8,6 +8,7 @@ class WidgetMapper : public QDataWidgetMapper
     Q_OBJECT
 public:
     explicit WidgetMapper(QObject *parent = 0);
+    virtual ~WidgetMapper();
 
 signals:
 

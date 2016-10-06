@@ -28,7 +28,7 @@ public:
 class DLabelCreator : public AbstractLabelCreator
 {
 public:
-    virtual QLabel *create(const QString &text) const;
+    virtual QLabel * create(const QString &text) const override;
 };
 
 // Fabric method - return specific dlabel creator by the dlabel creator type
@@ -60,7 +60,7 @@ class CommonWidgetPlacer : public AbstractWidgetPlacer
 public:
     CommonWidgetPlacer(QGridLayout *layout);
     virtual ~CommonWidgetPlacer();
-    virtual void placeWidget(int row, int column, QWidget *wgt);
+    virtual void placeWidget(int row, int column, QWidget *wgt) override;
 };
 
 // Place widget with adding the QSpacerItem on left side from widget
@@ -69,7 +69,7 @@ class WithSpacerWidgetPlacer : public AbstractWidgetPlacer
 public:
     WithSpacerWidgetPlacer(QGridLayout *layout);
     virtual ~WithSpacerWidgetPlacer();
-    virtual void placeWidget(int row, int column, QWidget *wgt);
+    virtual void placeWidget(int row, int column, QWidget *wgt) override;
 };
 
 /*
@@ -99,7 +99,7 @@ class EditUICreator : public QObject, public AbstractUICreator
 public:
     EditUICreator(const dbi::DBTInfo *tblInfo, WidgetMapper *mapper, QObject *parent = 0);
     virtual ~EditUICreator();
-    virtual void createUI(QWidget *parent);
+    virtual void createUI(QWidget *parent) override;
 
 signals:
     void sigSEPBClicked(const dbi::DBTInfo *dbtInfo, int fieldNo); // SEPB - Select/Edit PushButton

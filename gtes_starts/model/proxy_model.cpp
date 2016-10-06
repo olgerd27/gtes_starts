@@ -123,7 +123,7 @@ class IRD_Insert : public IRDefiner
 {
 public:
     IRD_Insert(const ProxyDecorModel *model) : IRDefiner(model) { }
-    virtual bool define(int *) const
+    virtual bool define(int *) const override
     {
         return true; // return true - this mean defined row is a new inserted row
     }
@@ -141,7 +141,7 @@ private:
 
 public:
     IRD_DeleteExistent(const ProxyDecorModel *model) : IRDefiner(model) { }
-    virtual bool define(int *pRow) const
+    virtual bool define(int *pRow) const override
     {
         int rowDef = *pRow; // copy for row definition
         int rowsCounter = 0;
@@ -166,7 +166,7 @@ class IRD_DeleteInserted : public IRDefiner
 {
 public:
     IRD_DeleteInserted(const ProxyDecorModel *model) : IRDefiner(model) { }
-    virtual bool define(int *pRow) const
+    virtual bool define(int *pRow) const override
     {
         do {
             if (*pRow == 0) return false;
@@ -182,7 +182,7 @@ class IRD_RefreshER : public IRDefiner
 {
 public:
     IRD_RefreshER(const ProxyDecorModel *model) : IRDefiner(model) { }
-    virtual bool define(int *) const
+    virtual bool define(int *) const override
     {
         return true; // don't change current row if it exists
     }
@@ -194,7 +194,7 @@ class IRD_RefreshIR : public IRDefiner
 {
 public:
     IRD_RefreshIR(const ProxyDecorModel *model) : IRDefiner(model) { }
-    virtual bool define(int *pRow) const
+    virtual bool define(int *pRow) const override
     {
 //        *pRow = 0; // change current row to the first row
         *pRow = modelRowsCount() - 1; // change current row to the last existent in DB row
@@ -207,7 +207,7 @@ class IRD_Save : public IRDefiner
 {
 public:
     IRD_Save(const ProxyDecorModel *model) : IRDefiner(model) { }
-    virtual bool define(int *) const
+    virtual bool define(int *) const override
     {
         return true; // return true - this mean defined row is current row -> after saving, the current row won't change
     }

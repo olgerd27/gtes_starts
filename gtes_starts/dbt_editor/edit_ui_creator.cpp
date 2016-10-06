@@ -28,7 +28,6 @@ AbstractLabelCreator *createLabelCreator(AbstractLabelCreator::CreatorsTypes typ
         ASSERT_DBG( false, cmmn::MessageException::type_critical, QObject::tr("Error label type"),
                     QObject::tr("Cannot create the label for UI - unknow type"),
                     QString("AbstractLabelCreator::createLabelCreator") );
-        return 0;
     }
     return creator;
 }
@@ -128,8 +127,8 @@ void EditUICreator::createUI(QWidget *parent)
     QGridLayout *layout = new QGridLayout(parent);
     QWidget *fWgt = 0;
     SelectEditPB *pbse = 0;
-    std::shared_ptr<AbstractWidgetPlacer> fwPlacer;
-    std::shared_ptr<AbstractWidgetPlacer> cmmnPlacer(new CommonWidgetPlacer(layout)); // description label and push button placer
+    std::shared_ptr<AbstractWidgetPlacer> fwPlacer; // DB table's field widgets placer
+    std::shared_ptr<AbstractWidgetPlacer> cmmnPlacer(new CommonWidgetPlacer(layout)); // particular placer - place description label and push button
     for (int field = 0; field < m_tableInfo->tableDegree(); ++field) {
         const auto &dbtField = m_tableInfo->fieldByIndex(field);
 
@@ -162,15 +161,16 @@ void EditUICreator::setEditChildPB(SelectEditPB *pb, const QString &childTableNa
     connect(pb, &SelectEditPB::clicked, this, &EditUICreator::slotTransmitSEPBInfo);
 }
 
+// Slot, that transmit information from Select/Edit Push Button (SEPB) to the up of class hierarchy (to calling class of the EditUICreator)
 void EditUICreator::slotTransmitSEPBInfo()
 {
     SelectEditPB *pbSEDBT = qobject_cast<SelectEditPB *>(sender());
-    ASSERT_DBG( pbSEDBT, cmmn::MessageException::type_critical, tr("Invalid push button"),
-                tr("Cannot define the clicked push button."),
+    ASSERT_DBG( pbSEDBT, cmmn::MessageException::type_fatal, tr("Invalid push button"),
+                tr("Cannot define the clicked push button. Unknown clicked push button"),
                 QString("EditUICreator::slotTransmitSEPBInfo") );
 
     const dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbSEDBT->DBTableName());
-    ASSERT_DBG( tableInfo, cmmn::MessageException::type_critical, tr("Invalid push button"),
+    ASSERT_DBG( tableInfo, cmmn::MessageException::type_fatal, tr("Invalid push button"),
                 tr("Cannot define the clicked push button. Cannot obtain the database table info."),
                 QString("EditUICreator::slotTransmitSEPBInfo") );
 

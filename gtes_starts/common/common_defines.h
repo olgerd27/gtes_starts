@@ -20,7 +20,7 @@ namespace cmmn {
             return *this;
         }
 
-        virtual const char * what() const noexcept
+        virtual const char * what() const noexcept override
         {
             return m_msg.c_str();
         }

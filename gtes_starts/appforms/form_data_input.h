@@ -36,7 +36,8 @@ private:
 namespace Ui { class FormDataInput; }
 class ProxyDecorModel;
 class QDataWidgetMapper;
-class SelectEditPB;
+class SelectEditPB; // TODO: delete after adding the EditUICreator for creating interface
+class EditUICreator;
 class FormDataInput : public QWidget
 {
     Q_OBJECT
@@ -55,14 +56,12 @@ signals:
     void sigWrongIdEntered();
     void sigFirstRowReached(bool);
     void sigLastRowReached(bool);
-    void sigChangesSubmitted(int currentIndex);
     void sigEngineNameGenerated(const QString &engName);
 
 private slots:
     void slotNeedChangeMapperIndex(const QString &value);
     void slotCheckRowIndex(int row);
     void slotGenEngineName(int row);
-    void slotSubmit(); // TODO: delete
     void slotEditChildDBT();
 
 private:

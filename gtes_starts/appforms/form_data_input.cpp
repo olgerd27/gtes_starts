@@ -180,10 +180,6 @@ void FormDataInput::setMainControls()
             [this](int row){ if (row > 0) --row; m_mapper->setCurrentIndex(row); } );
 
     // Save data
-//    connect(this, SIGNAL(sigSaveAll()), this, SLOT(slotSubmit())); // submit changes from the "engines" model to the DB
-//    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data saving
-//    connect(this, SIGNAL(sigChangesSubmitted(int)), m_mapper, SLOT(setCurrentIndex(int)));
-
     connect(this, SIGNAL(sigSaveAll()), m_prxDecorMdl_1->customSourceModel(), SLOT(slotSaveToDB())); // save model's data to the DB
     connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigSavedInDB()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data saving
 //    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigSavedInDB()), m_mapper // TODO: IMPLEMENT switching to the index, that was before saving
@@ -330,35 +326,6 @@ void FormDataInput::slotGenEngineName(int row)
         engineName += ( identInf.m_strBefore +
                     m_prxDecorMdl_1->index( row, identInf.m_NField + ProxyDecorModel::COUNT_ADDED_COLUMNS ).data(Qt::DisplayRole).toString() );
     emit sigEngineNameGenerated(engineName);
-}
-
-void FormDataInput::slotSubmit()
-{
-//    qDebug() << "slotSubmit(), start";
-    int currentIndex = m_mapper->currentIndex();
-    if (!m_prxDecorMdl_1->customSourceModel()->database().transaction()) {
-        QMessageBox::critical(this, tr("Database transaction error"),
-                              tr("The database driver do not support the transactions operations"));
-    }
-
-    if (m_prxDecorMdl_1->customSourceModel()->submitAll()) {
-//        qDebug() << "slotSubmit, after submit all, index =" << m_mapper->currentIndex();
-//        qDebug() << "slotSubmit(), after submitAll(), before commit()";
-//        m_prxDecorMdl_1->customSourceModel()->printData(Qt::EditRole);
-
-        // After submit all data, the mapper current index is -1
-        m_prxDecorMdl_1->customSourceModel()->database().commit();
-    }
-    else {
-        m_prxDecorMdl_1->customSourceModel()->database().rollback();
-        QMessageBox::critical(this, tr("Error data submit to the database"),
-                              tr("Cannot submit data to the database. The database report an error: %1")
-                              .arg(m_prxDecorMdl_1->customSourceModel()->lastError().text()));
-        return;
-    }
-    qDebug() << "before restore current index, index =" << m_mapper->currentIndex();
-    emit sigChangesSubmitted(currentIndex);
-//    qDebug() << "slotSubmit(), end";
 }
 
 void FormDataInput::slotEditChildDBT()

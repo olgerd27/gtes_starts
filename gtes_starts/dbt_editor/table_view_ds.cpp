@@ -15,7 +15,7 @@ public:
     {
     }
 
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         static int hRow = DONT_HIGHLIGHTED; /* initialization of the highlighted row number.
                                              * Use static variable, bacause this is const method and it cannot to change any class data.
