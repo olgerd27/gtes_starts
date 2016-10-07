@@ -68,6 +68,7 @@ void DBTEditor::setModel()
     m_prxFilterMdl_2->setSourceModel(m_prxDecorMdl_1);
     m_prxFilterMdl_2->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_prxFilterMdl_2->setFilterKeyColumn(-1);
+    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigSavedInDB()), this, SIGNAL(sigDataSavedInDB())); // transmit save data signal to outside
 }
 
 void DBTEditor::setMapper()
@@ -197,7 +198,7 @@ void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
     const QModelIndex &currIndex = m_prxDecorMdl_1->index( m_mapper->currentIndex(), fieldNo + ProxyDecorModel::COUNT_ADDED_COLUMNS );
     const QVariant &forId = m_prxDecorMdl_1->data(currIndex, Qt::UserRole);
     DBTEditor childEditor(dbtInfo, this);
-    connect(childEditor.m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigSavedInDB()),
+    connect(&childEditor, SIGNAL(sigDataSavedInDB()),
             m_prxDecorMdl_1->customSourceModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
     if ( !forId.isNull() ) // if data is NULL -> don't select any row in the view
         childEditor.selectInitial(forId);

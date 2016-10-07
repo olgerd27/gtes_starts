@@ -107,24 +107,24 @@ FormDataInput::FormDataInput(QWidget *parent)
 //    // The proxy model
 //    QTableView *tablePrx = new QTableView;
 //    tablePrx->setWindowTitle( QString("Proxy model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_prxDecorMdl_1->customSourceModel()->tableName()) );
+//                              .arg(m_prxDecorMdl->customSourceModel()->tableName()) );
 //    tablePrx->setSelectionBehavior(QAbstractItemView::SelectRows);
 //    tablePrx->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tablePrx->setModel(m_prxDecorMdl_1);
+//    tablePrx->setModel(m_prxDecorMdl);
 //    tablePrx->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    tablePrx->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tablePrx, SLOT(selectRow(int)));
 //    // selection setting - testing
 //    connect(tablePrx->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-//            m_prxDecorMdl_1, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
+//            m_prxDecorMdl, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
 
 //    // The source model
 //    QTableView *tableSrc = new QTableView;
 //    tableSrc->setWindowTitle( QString("Source model for debugging. Use the \"%1\" DB table")
-//                              .arg(m_prxDecorMdl_1->customSourceModel()->tableName()) );
+//                              .arg(m_prxDecorMdl->customSourceModel()->tableName()) );
 //    tableSrc->setSelectionBehavior(QAbstractItemView::SelectRows);
 //    tableSrc->setSelectionMode(QAbstractItemView::SingleSelection);
-//    tableSrc->setModel(m_prxDecorMdl_1->customSourceModel());
+//    tableSrc->setModel(m_prxDecorMdl->customSourceModel());
 //    tableSrc->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    tableSrc->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 //    //    connect(m_mapper, SIGNAL(currentIndexChanged(int)), tableSrc, SLOT(selectRow(int)));
@@ -140,7 +140,7 @@ FormDataInput::FormDataInput(QWidget *parent)
 //    QSplitter *sp = new QSplitter;
 //    sp->addWidget(tableSrc);
 //    sp->addWidget(tablePrx);
-//    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_prxDecorMdl_1->customSourceModel()->tableName()) );
+//    sp->setWindowTitle( QString("Source and Proxy models of the table: %1").arg(m_prxDecorMdl->customSourceModel()->tableName()) );
 //    sp->move(10, 10);
 //    sp->show();
 }
@@ -159,6 +159,8 @@ void FormDataInput::setMapper()
 void FormDataInput::setEditUI()
 {
     m_editUICreator->createUI(m_ui->m_gboxEngineData);
+    connect(m_editUICreator, SIGNAL(sigSEPBClicked(const dbi::DBTInfo*,int)),
+            this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog
     m_mapper->toFirst(); // must place after creation the edit UI
 }
 
@@ -205,21 +207,21 @@ void FormDataInput::setMainControls()
     // Save data
     connect(this, SIGNAL(sigSaveAll()), m_prxDecorMdl->customSourceModel(), SLOT(slotSaveToDB())); // save model's data to the DB
     connect(m_prxDecorMdl->customSourceModel(), SIGNAL(sigSavedInDB()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data saving
-//    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigSavedInDB()), m_mapper // TODO: IMPLEMENT switching to the index, that was before saving
+//    connect(m_prxDecorMdl->customSourceModel(), SIGNAL(sigSavedInDB()), m_mapper // TODO: IMPLEMENT switching to the index, that was before saving
 
     // Refresh data
     connect(this, SIGNAL(sigRefreshAll()),
             m_prxDecorMdl->customSourceModel(), SLOT(slotRefreshTheModel())); // refresh all data in the "engines" model
     connect(m_prxDecorMdl->customSourceModel(), SIGNAL(sigModelRefreshed()), m_mchTChanger, SLOT(slotClearChanges())); // clearing changes after data refreshing
     // set current index after refresh data in the model
-//    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigModelRefreshed()),
+//    connect(m_prxDecorMdl->customSourceModel(), SIGNAL(sigModelRefreshed()),
 //            m_ui->m_leRecordId, SIGNAL(returnPressed())); // generate error if current index (value in the record ID LineEdit) doesn't exist in the model
     connect(m_prxDecorMdl->customSourceModel(), &CustomSqlTableModel::sigModelRefreshed, [this](){ m_mapper->toFirst(); }); // go to the first index
 
     // Revert data
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
-//    connect(this, SIGNAL(sigRevertChanges()), m_prxDecorMdl_1->customSourceModel(), SLOT(revert()));
-//    connect(this, SIGNAL(sigRevertChanges()), m_prxDecorMdl_1->customSourceModel(), SLOT(revertAll()));
+//    connect(this, SIGNAL(sigRevertChanges()), m_prxDecorMdl->customSourceModel(), SLOT(revert()));
+//    connect(this, SIGNAL(sigRevertChanges()), m_prxDecorMdl->customSourceModel(), SLOT(revertAll()));
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
 }
 
@@ -334,7 +336,7 @@ void FormDataInput::slotCheckRowIndex(int row)
     emit sigFirstRowReached(row <= 0);
     emit sigLastRowReached(row >= m_prxDecorMdl->rowCount() - 1);
 //    qDebug() << "slotCheckRowIndex(" << row << "), DisplayRole data:";
-//    m_prxDecorMdl_1->customSourceModel()->printData(Qt::DisplayRole);
+//    m_prxDecorMdl->customSourceModel()->printData(Qt::DisplayRole);
 }
 
 void FormDataInput::slotGenEngineName(int row)
@@ -392,5 +394,24 @@ void FormDataInput::slotEditChildDBT()
                     tr("Cannot set data: \"%1\" to the model").arg(editor.selectedId()),
                     QString("FormDataInput::slotEditChildDBT") );
         qDebug() << "The id value: \"" << editor.selectedId() << "\" was successfully setted to the model";
+    }
+}
+
+void FormDataInput::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
+{
+    const QModelIndex &currIndex = m_prxDecorMdl->index( m_mapper->currentIndex(), fieldNo + ProxyDecorModel::COUNT_ADDED_COLUMNS );
+    const QVariant &forId = m_prxDecorMdl->data(currIndex, Qt::UserRole);
+    DBTEditor childEditor(dbtInfo, this);
+    connect(&childEditor, SIGNAL(sigDataSavedInDB()),
+            m_prxDecorMdl->customSourceModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
+    if ( !forId.isNull() ) // if data is NULL -> don't select any row in the view
+        childEditor.selectInitial(forId);
+    if ( childEditor.exec() == QDialog::Accepted ) {
+        m_prxDecorMdl->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */
+        ASSERT_DBG( m_prxDecorMdl->setData( currIndex, childEditor.selectedId(), Qt::EditRole ),
+                    cmmn::MessageException::type_critical, tr("Error data setting"),
+                    tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),
+                    QString("DBTEditor::slotEditChildDBT") );
+        qDebug() << "The id value: \"" << childEditor.selectedId() << "\" was successfully setted to the model";
     }
 }

@@ -64,6 +64,7 @@ private slots:
     void slotCheckRowIndex(int row);
     void slotGenEngineName(int row);
     void slotEditChildDBT();
+    void slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo);
 
 private:
     void setModel();

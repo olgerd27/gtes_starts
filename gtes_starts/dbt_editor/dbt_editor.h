@@ -24,6 +24,9 @@ public:
     void selectInitial(const QVariant &idPrim);
     cmmn::T_id selectedId() const;
 
+signals:
+    void sigDataSavedInDB();
+
 public slots:
     void accept();
 
