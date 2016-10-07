@@ -73,7 +73,7 @@ private:
 };
 
 /*
- * ProxyFilterModel
+ * The proxy model that allow to filter model data.
  */
 class SelectionAllower;
 class ProxyFilterModel : public QSortFilterProxyModel

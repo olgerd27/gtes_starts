@@ -61,7 +61,7 @@ public slots:
 };
 
 /*
- * The custom line edit, that send the inputed value when user press return
+ * The custom line edit, that send the inputed value when user press Enter
  */
 class LE_DataSend : public QLineEdit
 {

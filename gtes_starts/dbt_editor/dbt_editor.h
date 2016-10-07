@@ -2,20 +2,14 @@
 #define DBT_EDITOR_H
 
 #include <memory>
-#include <QSqlTableModel>
-#include <QIcon>
 #include <QDialog>
 #include "../common/common_defines.h"
 
 /*
  * The class for editing database tables (DBT)
  */
-namespace Ui {
-    class DBTEditor;
-}
-namespace dbi {
-    class DBTInfo;
-}
+namespace Ui { class DBTEditor; }
+namespace dbi { class DBTInfo; }
 class ProxyDecorModel;
 class ProxyFilterModel;
 class EditUICreator;
@@ -50,15 +44,14 @@ private:
 
     void setFilter();
     void setEditUI();
-    void setControl();
+    void setMainControl();
     void setDataNavigation();
 
     void askSaving();
 
-    const dbi::DBTInfo *m_DBTInfo;
-//    std::unique_ptr<Ui::DBTEditor> m_ui; // use in the release mode
-//    std::unique_ptr<ProxyDecorModel> m_prxDecorMdl_1; // use in the release mode
+    // TODO: use the std::unique_ptr after debugging
     Ui::DBTEditor *m_ui;
+    const dbi::DBTInfo *m_DBTInfo;
     ProxyDecorModel *m_prxDecorMdl_1;
     ProxyFilterModel *m_prxFilterMdl_2;
     WidgetMapper *m_mapper;

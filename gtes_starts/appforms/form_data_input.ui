@@ -65,6 +65,17 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
+        <widget class="MChTypeLabel" name="m_lblModelChangeType">
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="m_gboxEngineData">
          <property name="locale">
           <locale language="Russian" country="Ukraine"/>
@@ -75,224 +86,6 @@
          <property name="checked">
           <bool>false</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="2">
-           <widget class="QLineEdit" name="m_leIdData">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>65</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="m_lblCommentsTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Comments:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="5">
-           <widget class="SelectEditPB" name="m_pbEditStartDevices">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QLabel" name="m_lblChamberTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Combustion chamber:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2" colspan="3">
-           <widget class="QLineEdit" name="m_leChamberData">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <spacer name="verticalSpacer">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>108</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="5" column="0" colspan="2">
-           <widget class="QLabel" name="m_lblStartDevicesQntyTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Start devices quantity:</string>
-            </property>
-            <property name="buddy">
-             <cstring>m_sboxStartDevicesQntyData</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <spacer name="horizontalSpacer">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>265</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="5">
-           <widget class="SelectEditPB" name="m_pbEditFuels">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="2" rowspan="2" colspan="4">
-           <widget class="QPlainTextEdit" name="m_pteComments"/>
-          </item>
-          <item row="3" column="5">
-           <widget class="SelectEditPB" name="m_pbEditChambers">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="m_lblStartDeviceTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Start device:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QSpinBox" name="m_sboxStartDevicesQntyData">
-            <property name="maximumSize">
-             <size>
-              <width>65</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="maximum">
-             <number>10</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="m_lblFuelTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Fuel:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="m_lblFullNameTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Full name:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="5">
-           <widget class="SelectEditPB" name="m_pbEditFullName">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2" colspan="3">
-           <widget class="QLineEdit" name="m_leFullNameData">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="m_lblIdTitle">
-            <property name="locale">
-             <locale language="Russian" country="Ukraine"/>
-            </property>
-            <property name="text">
-             <string>Id:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="MChTypeLabel" name="m_lblModelChangeType">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2" colspan="3">
-           <widget class="QLineEdit" name="m_leStartDeviceData">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2" colspan="3">
-           <widget class="QLineEdit" name="m_leFuel">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
       </layout>
@@ -530,24 +323,9 @@
    <extends>QLineEdit</extends>
    <header>widgets/reimplemented_widgets.h</header>
   </customwidget>
-  <customwidget>
-   <class>SelectEditPB</class>
-   <extends>QPushButton</extends>
-   <header>widgets/reimplemented_widgets.h</header>
-  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>m_tabWidget</tabstop>
-  <tabstop>m_leIdData</tabstop>
-  <tabstop>m_leFullNameData</tabstop>
-  <tabstop>m_pbEditFullName</tabstop>
-  <tabstop>m_pbEditFuels</tabstop>
-  <tabstop>m_leChamberData</tabstop>
-  <tabstop>m_pbEditChambers</tabstop>
-  <tabstop>m_leStartDeviceData</tabstop>
-  <tabstop>m_pbEditStartDevices</tabstop>
-  <tabstop>m_sboxStartDevicesQntyData</tabstop>
-  <tabstop>m_pteComments</tabstop>
   <tabstop>m_tbRecordFirst</tabstop>
   <tabstop>m_tbRecordPrev</tabstop>
   <tabstop>m_leRecordId</tabstop>
@@ -558,22 +336,6 @@
   <include location="../images_resources.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>m_leIdData</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>m_leRecordId</receiver>
-   <slot>setText(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>177</x>
-     <y>78</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>577</x>
-     <y>405</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>m_leRecordId</sender>
    <signal>editingFinished()</signal>

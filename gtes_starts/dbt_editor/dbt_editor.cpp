@@ -1,10 +1,5 @@
-#include <QSqlTableModel>
-#include <QSqlError>
-#include <QSqlQuery>
 #include <QItemSelection>
 #include <QMessageBox>
-#include <QLabel>
-#include <QSplitter> // TODO: temp, delete later
 #include <QDebug>
 #include "dbt_editor.h"
 #include "ui_dbt_editor.h"
@@ -23,8 +18,8 @@
  */
 DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     : QDialog(parent)
-    , m_DBTInfo(dbtInfo)
     , m_ui(new Ui::DBTEditor)
+    , m_DBTInfo(dbtInfo)
     , m_prxDecorMdl_1(new ProxyDecorModel(nullptr))
     , m_prxFilterMdl_2(new ProxyFilterModel(nullptr))
     , m_mapper(new WidgetMapper(this))
@@ -38,7 +33,7 @@ DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     setMapper();
     setSelectUI();
     setEditUI();
-    setControl();
+    setMainControl();
     setDataNavigation();
 }
 
@@ -117,7 +112,7 @@ void DBTEditor::setEditUI()
             this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog - perform recursive opening of dialog
 }
 
-void DBTEditor::setControl()
+void DBTEditor::setMainControl()
 {
     connect(m_ui->m_pbAdd, SIGNAL(clicked()), m_prxDecorMdl_1, SLOT(slotAddRow()));
     connect(m_ui->m_pbDelete, &QPushButton::clicked, [this]()

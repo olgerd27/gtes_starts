@@ -34,8 +34,9 @@ private:
  * The form for data input in the database
  */
 namespace Ui { class FormDataInput; }
+namespace dbi { class DBTInfo; }
 class ProxyDecorModel;
-class QDataWidgetMapper;
+class WidgetMapper;
 class SelectEditPB; // TODO: delete after adding the EditUICreator for creating interface
 class EditUICreator;
 class FormDataInput : public QWidget
@@ -65,22 +66,23 @@ private slots:
     void slotEditChildDBT();
 
 private:
+    void setModel();
+    void setMapper();
+    void setEditUI();
     void setMainControls();
-    void setEditDBTPushButtons();
-    void setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget);
-    void setDataOperating();
+//    void setEditDBTPushButtons(); // delete
+//    void setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget); // delete
+//    void setDataOperating(); // delete
     void setDataNavigation();
     void setModelChange();
     void setEngineName();
 
     // TODO: use the std::unique_ptr after debugging
-//    std::unique_ptr<Ui::FormDataInput> m_ui;
-//    std::unique_ptr<ProxyDecorModel> m_prxDecorMdl_1;
-//    std::unique_ptr<QDataWidgetMapper> m_mapper;
-//    std::unique_ptr<ChangerMChType> m_mchTChanger;
     Ui::FormDataInput *m_ui;
-    ProxyDecorModel *m_prxDecorMdl_1;
-    QDataWidgetMapper *m_mapper;
+    const dbi::DBTInfo *m_DBTInfo;
+    ProxyDecorModel *m_prxDecorMdl;
+    WidgetMapper *m_mapper;
+    EditUICreator *m_editUICreator;
     ChangerMChType *m_mchTChanger;
 };
 

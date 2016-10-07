@@ -103,7 +103,7 @@ dbi::DBInfo::DBInfo()
     m_tables = {
         /* names_engines */
         new DBTInfo {
-            "names_engines", trans("Engine name"), DBTInfo::ttype_simple,
+            "names_engines", trans("Engines names"), DBTInfo::ttype_simple,
             {
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
@@ -116,7 +116,7 @@ dbi::DBInfo::DBInfo()
 
         /* names_modifications_engines */
         new DBTInfo {
-            "names_modifications_engines", trans("Engine name and modification"), DBTInfo::ttype_complex,
+            "names_modifications_engines", trans("Engines names and modifications"), DBTInfo::ttype_complex,
             {
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name_id", trans("Name"), DBTFieldInfo::wtype_lineEdit, "names_engines"}
@@ -131,7 +131,7 @@ dbi::DBInfo::DBInfo()
 
         /* full_names_engines */
         new DBTInfo {
-            "full_names_engines", trans("Full name"), DBTInfo::ttype_complex,
+            "full_names_engines", trans("Full engines names"), DBTInfo::ttype_complex,
             {
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name_modif_id", trans("Name and modification"), DBTFieldInfo::wtype_lineEdit, "names_modifications_engines"}

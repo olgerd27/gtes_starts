@@ -176,7 +176,7 @@ public:
     }
 };
 
-// Definer row index after performing refresh model operation - case if current row is new inserted row and don't saved in the DB.
+// Definer row index after performing refresh model operation - case if current row is a new inserted row and doesn't saved in the DB.
 // ER - current row is Existent Row in the DB
 class IRD_RefreshER : public IRDefiner
 {
@@ -184,7 +184,7 @@ public:
     IRD_RefreshER(const ProxyDecorModel *model) : IRDefiner(model) { }
     virtual bool define(int *) const override
     {
-        return true; // don't change current row if it exists
+        return true; // don't change current row
     }
 };
 
