@@ -203,7 +203,7 @@ void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
     if ( !forId.isNull() ) // if data is NULL -> don't select any row in the view
         childEditor.selectInitial(forId);
     if ( childEditor.exec() == QDialog::Accepted ) {
-        m_prxDecorMdl_1->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */
+        m_prxDecorMdl_1->customSourceModel()->spike1_turnOn(); // switch ON the Spike #1
         ASSERT_DBG( m_prxDecorMdl_1->setData( currIndex, childEditor.selectedId(), Qt::EditRole ),
                     cmmn::MessageException::type_critical, tr("Error data setting"),
                     tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),

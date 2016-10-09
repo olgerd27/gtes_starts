@@ -54,6 +54,7 @@ signals:
     void sigSaveAll();
     void sigRefreshAll();
 //    void sigRevertChanges();
+    void sigCurrentIdChanged(const QString &id);
     void sigWrongIdEntered();
     void sigFirstRowReached(bool);
     void sigLastRowReached(bool);
@@ -61,9 +62,7 @@ signals:
 
 private slots:
     void slotNeedChangeMapperIndex(const QString &value);
-    void slotCheckRowIndex(int row);
     void slotGenEngineName(int row);
-    void slotEditChildDBT();
     void slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo);
 
 private:
@@ -71,10 +70,8 @@ private:
     void setMapper();
     void setEditUI();
     void setMainControls();
-//    void setEditDBTPushButtons(); // delete
-//    void setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget); // delete
-//    void setDataOperating(); // delete
     void setDataNavigation();
+    void setLEid();
     void setModelChange();
     void setEngineName();
 

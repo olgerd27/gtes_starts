@@ -9,8 +9,7 @@
 #include "../common/db_info.h"
 
 /*
- * CustomSqlTableModel
- *
+ * Spike1
  * Description of the spike #1.
  * When user set a new data in the foreign key field, the others foreign fields in the current row assigns generated string-type values,
  * but here must remain the int-type id values. This not expected behaviour performs in the QSqlRelationalTableModel::setData()
@@ -19,8 +18,64 @@
  * To prevent this invalid behaviour, it was added the spike #1. The Spike #1 performs data saving from the foreign key fields, before calling the
  * QSqlRelationalTableModel::setData() and restore saved data after calling the QSqlRelationalTableModel::setData(). It allows remains the int-type id values
  * in the foreign keys fields.
- * Turn on the Spike #1 performs by calling the public method spike1_turnOn(bool).
+ * Turn on the Spike #1 performs by calling the public method useSpike1().
  * Turn off the Spike #1 performs automatically (without assistance from outside) in the restoreData_spike1() method.
+ */
+// TODO: rename this class
+class Spike1
+{
+public:
+    Spike1(CustomSqlTableModel *model);
+    void save(const QModelIndex &index, const QVariant &data);
+    void restore(const QModelIndex &index);
+    inline void turnOn() { m_isNeedUse = true; }
+
+private:
+    typedef QMap<int, QVariant> T_storage;
+
+    CustomSqlTableModel *m_model;
+    T_storage m_storage;
+    bool m_isNeedUse;
+};
+
+Spike1::Spike1(CustomSqlTableModel *model)
+    : m_model(model)
+    , m_isNeedUse(false)
+{}
+
+// Save data of the foreign keys in the current row and the current item data
+void Spike1::save(const QModelIndex &index, const QVariant &data)
+{
+    if (!m_isNeedUse) return;
+//    static int counter = 0;
+    const dbi::DBTInfo *tableInf = DBINFO.tableByName( m_model->tableName() );
+    for (int field = 0; field < tableInf->tableDegree(); ++field)
+        if ( tableInf->fieldByIndex(field).isForeign() )
+            m_storage.insert( field, ( field == index.column()
+                                       ? data
+                                       : m_model->data( m_model->index(index.row(), field), Qt::UserRole ) ) );
+//    qDebug() << "Spike1::save() #" << counter++ << ":";
+//    for (auto it = m_storage.cbegin(); it != m_storage.cend(); ++it)
+//        qDebug() << it.key() << ":" << it.value().toString();
+}
+
+/* Restore saved data after calling the QSqlRelationalTableModel::setData() method. Spike #1 */
+void Spike1::restore(const QModelIndex &index)
+{
+    if (!m_isNeedUse) return;
+//    qDebug() << "Spike1::restore()";
+    for (auto it = m_storage.cbegin(); it != m_storage.cend(); ++it) {
+//        qDebug() << "[" << index.row() << "," << it.key() << "], replace:"
+//                 << m_model->data( m_model->index(index.row(), it.key()), Qt::DisplayRole ).toString()
+//                 << "to the:" << it.value().toString();
+        m_model->setParentData( m_model->index(index.row(), it.key()), it.value(), Qt::EditRole );
+    }
+    m_storage.clear();
+    m_isNeedUse = false;
+}
+
+/*
+ * CustomSqlTableModel
  *
  * Rules of data setting and getting:
  * - in time of initial running of a view (and/or mapper) performs getting from the DB all data, generate the data of the foreign keys fields
@@ -44,18 +99,19 @@ CustomSqlTableModel::CustomSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlRelationalTableModel(parent, db)
     , m_dataGenerator(new GeneratorDBTData)
     , m_genDataStorage(new StorageGenData)
-    , m_spike1_bNeedSave(false) /* Spike #1 */
+    , m_spike1(new Spike1(this))
 { }
 
 CustomSqlTableModel::~CustomSqlTableModel()
 {
     delete m_dataGenerator;
     delete m_genDataStorage;
+    delete m_spike1;
 }
 
-void CustomSqlTableModel::spike1_turnOn(bool bOn)
+void CustomSqlTableModel::spike1_turnOn()
 {
-    m_spike1_bNeedSave = bOn; /* Spike #1 */
+    m_spike1->turnOn();
 }
 
 void CustomSqlTableModel::setTable(const QString &tableName)
@@ -132,7 +188,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
     if (!idx.isValid()) return false;
     bool bSetted = false;
     int storageDataIndex = -1;
-//    if (m_spike1_bNeedSave) spike1_saveData(idx, value); // TODO: use only this??
+    m_spike1->save(idx, value); // spike 1: save data and restore at the end of this method
     if (role == Qt::EditRole && value == NOT_SETTED) {
         // fill the model's new row by the empty values.
         // The storages new rows filling performs earlier by calling the CustomSqlTableModel::slotInsertToTheModel()
@@ -141,31 +197,11 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
 //                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
     else if (role == Qt::EditRole && m_genDataStorage->isForeignField(idx.column(), storageDataIndex) ) {
-        qDebug() << "source model, setData(), is foreign, START, index: [" << idx.row() << "," << idx.column() << "],  data:" << value.toString();
-
-        if (m_spike1_bNeedSave) spike1_saveData(idx, value); // Spike #1 - TODO: delete?
-
-//        qDebug() << "setData(), before QSqlRelationalTableModel::setData()";
-//        printDataDB(Qt::DisplayRole);
-
+        qDebug() << "source setData(), is foreign, START, index: [" << idx.row() << "," << idx.column() << "],  data:" << value.toString();
         bSetted = QSqlRelationalTableModel::setData(idx, value, role);
 
-//        qDebug() << "After QSqlRelationalTableModel::setData()";
-//        qDebug() << "[" << idx.row() << "," << idx.column() << "]," << "role:" << role
-//                 << ", set data:" << value.toString() << ", bSetted:" << bSetted;
-//        printDataDB(Qt::DisplayRole);
-
-        if (m_spike1_bNeedSave) spike1_restoreData(idx); // Spike #1 - TODO: delete?
-//        qDebug() << "setData(), after spike1_restoreData();";
-//        printDataDB(Qt::DisplayRole);
-
         try {
-//            qDebug() << "source setData(), before updateDataInStorage()";
-
             updateDataInStorage(idx, storageDataIndex);
-
-//            qDebug() << "source setData(), after updateDataInStorage()";
-//            printDataDB(Qt::DisplayRole);
         }
         catch (const cmmn::MessageException &me) {
             // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
@@ -182,10 +218,10 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
     }
     else {
         bSetted = QSqlRelationalTableModel::setData(idx, value, role);
-//        qDebug() << "source setData(), else: [" << idx.row() << "," << idx.column() << "],"
+//        qDebug() << "source setData(), ELSE case: [" << idx.row() << "," << idx.column() << "],"
 //                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     }
-//    if (m_spike1_bNeedSave) spike1_restoreData(idx); // TODO: use only this???
+    m_spike1->restore(idx);
 //    qDebug() << "setData(), [" << item.row() << "," << item.column() << "], role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
     return bSetted;
 }
@@ -326,50 +362,14 @@ void CustomSqlTableModel::updateDataInStorage(const QModelIndex &frgnIndex, int 
     }
 }
 
-void CustomSqlTableModel::flush()
+void CustomSqlTableModel::flushGenData()
 {
     m_genDataStorage->clear();
 }
 
-/* Spike #1. Save data (EditRole) of the foreign keys in the current row and the current item data */
-void CustomSqlTableModel::spike1_saveData(const QModelIndex &index, const QVariant &data)
+void CustomSqlTableModel::setParentData(const QModelIndex &idx, const QVariant &value, int role)
 {
-    while (m_genDataStorage->hasNextFieldIndex()) {
-        const auto &fieldIndex = m_genDataStorage->nextFieldIndex();
-        m_spike1_saveRestore.insert( fieldIndex, ( fieldIndex == index.column()
-                                                   ? data
-                                                   : QSqlRelationalTableModel::data( this->index(index.row(), fieldIndex), Qt::DisplayRole ) ) );
-//        if (fieldIndex == index.column()) {
-//            m_spike1_saveRestore.insert( fieldIndex, data);
-//        }
-//        else {
-//            m_spike1_saveRestore.insert( fieldIndex,
-//                                         QSqlRelationalTableModel::data( this->index(index.row(), fieldIndex), Qt::DisplayRole ) );
-//        }
-    }
-    m_genDataStorage->flushFieldIndex(); // restore the field index for the nexts data gettings
-//    qDebug() << "Spike #1, saved data:";
-//    for (auto it = m_spike1_saveRestore.cbegin(); it != m_spike1_saveRestore.cend(); ++it)
-//        qDebug() << it.key() << ":" << it.value();
-}
-
-/* Restore saved data after calling the QSqlRelationalTableModel::setData() method. Spike #1 */
-void CustomSqlTableModel::spike1_restoreData(const QModelIndex &index)
-{
-//    qDebug() << "spike1_restoreData() 1";
-//    int ii = 0;
-    for (auto it = m_spike1_saveRestore.cbegin(); it != m_spike1_saveRestore.cend(); ++it) {
-//        qDebug() << "spike1_restoreData() 2" << ii << ", [" << index.row() << "," << it.key() << "], replace:"
-//                 << QSqlRelationalTableModel::data( this->index(index.row(), it.key()), Qt::DisplayRole ).toString()
-//                 << "to the:" << it.value().toString();
-        QSqlRelationalTableModel::setData( this->index(index.row(), it.key()), it.value(), Qt::EditRole );
-//        qDebug() << "spike1_restoreData() 3" << ii;
-//        ++ii;
-    }
-//    qDebug() << "spike1_restoreData() 4";
-    m_spike1_saveRestore.clear();
-//    qDebug() << "spike1_restoreData() 5";
-    m_spike1_bNeedSave = false;
+    QSqlRelationalTableModel::setData( idx, value, role );
 }
 
 void CustomSqlTableModel::printDataDB(int role) const
@@ -397,7 +397,7 @@ void CustomSqlTableModel::printHeader(int role) const
 void CustomSqlTableModel::slotRefreshTheModel()
 {
     try {
-        flush(); // delete previous results
+        flushGenData(); // delete previous results
 
 //        qDebug() << "before slotRefreshTheModel()::select(), column count =" << columnCount();
 //        printHeader(Qt::DisplayRole);

@@ -305,9 +305,10 @@ bool ProxyDecorModel::setData(const QModelIndex &index, const QVariant &value, i
 //        qDebug() << "proxy model setData(), change selected id to" << m_selectedId << ", row =" << index.row();
     }
     else {
-        bSetted = sourceModel()->setData( mapToSource(index), value, role );
 //        qDebug() << "proxy model setData(), ELSE case: [" << index.row() << "," << index.column()
-//                 << "] role =" << role << "data:" << value.toString() << ", bSetted:" << bSetted;
+//                 << "], role =" << role << ", data:" << value.toString();
+        customSourceModel()->spike1_turnOn();
+        bSetted = sourceModel()->setData( mapToSource(index), value, role );
     }
     if (bSetted) emit dataChanged(index, index);
     return bSetted;

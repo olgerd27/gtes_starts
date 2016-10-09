@@ -97,11 +97,10 @@ FormDataInput::FormDataInput(QWidget *parent)
     setMapper();
     setEditUI();
     setMainControls();
-//    setEditDBTPushButtons(); // delete
-//    setDataOperating(); // delete
     setDataNavigation();
     setModelChange();
     setEngineName();
+    m_mapper->toFirst(); // set init data - must placing after performing all settings
 
 //    // --- The test vizualization of the model data ---
 //    // The proxy model
@@ -161,7 +160,6 @@ void FormDataInput::setEditUI()
     m_editUICreator->createUI(m_ui->m_gboxEngineData);
     connect(m_editUICreator, SIGNAL(sigSEPBClicked(const dbi::DBTInfo*,int)),
             this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog
-    m_mapper->toFirst(); // must place after creation the edit UI
 }
 
 /* set the main commands for data manipulation */
@@ -225,39 +223,8 @@ void FormDataInput::setMainControls()
 //    connect(this, SIGNAL(sigRevertChanges()), m_mapper, SLOT(revert()));
 }
 
-/* set push buttons, that call some widget for editing DB tables */
-//void FormDataInput::setEditDBTPushButtons()
-//{
-//    setEditDBTOnePB( m_ui->m_pbEditFullName, "full_names_engines", m_ui->m_leFullNameData );
-//    setEditDBTOnePB( m_ui->m_pbEditFuels, "fuels_types", m_ui->m_leFuel );
-//    setEditDBTOnePB( m_ui->m_pbEditChambers, "combustion_chambers", m_ui->m_leChamberData );
-//    setEditDBTOnePB( m_ui->m_pbEditStartDevices, "start_devices", m_ui->m_leStartDeviceData );
-//}
-
-//void FormDataInput::setEditDBTOnePB(SelectEditPB *pb, const QString &pbname, QWidget *identWidget)
-//{
-//    pb->setDBTableName(pbname);
-//    pb->setIdentDataWidget(identWidget);
-//    connect(pb, SIGNAL(clicked()), this, SLOT(slotEditChildDBT()));
-//}
-
-//void FormDataInput::setDataOperating()
-//{
-//    // indexes starts from 1, because in the 0-th section place the selection icon
-//    m_mapper->addMapping(m_ui->m_leIdData, 1);
-//    m_mapper->addMapping(m_ui->m_leFullNameData, 2);
-//    m_mapper->addMapping(m_ui->m_leFuel, 3);
-//    m_mapper->addMapping(m_ui->m_leChamberData, 4);
-//    m_mapper->addMapping(m_ui->m_leStartDeviceData, 5);
-//    m_mapper->addMapping(m_ui->m_sboxStartDevicesQntyData, 6);
-//    m_mapper->addMapping(m_ui->m_pteComments, 7);
-//    m_mapper->toFirst();
-//}
-
 void FormDataInput::setDataNavigation()
 {
-    m_ui->m_leRecordId->setValidator(new QIntValidator(0, 1e6, m_ui->m_leRecordId)); /* set validator that control inputing only
-                                                                                    integer values in range between 0 and 1e6 */
     // navigation set
     connect(m_ui->m_tbRecordFirst, SIGNAL(clicked()), m_mapper, SLOT(toFirst()));
     connect(m_ui->m_tbRecordLast, SIGNAL(clicked()), m_mapper, SLOT(toLast()));
@@ -265,22 +232,39 @@ void FormDataInput::setDataNavigation()
     connect(m_ui->m_tbRecordNext, SIGNAL(clicked()), m_mapper, SLOT(toNext()));
 
     // TODO: place here the signal/slot connection, that force to set current mapper's index from decor proxy model (like in the DBTEditor::setDataNavigation method)
+    setLEid();
 
-    // set inputing of the "id" value in the line edit
+    // checking boundaries of DB data records
+    connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, [this](int row)
+    {
+        emit sigFirstRowReached(row <= 0);
+        emit sigLastRowReached(row >= m_prxDecorMdl->rowCount() - 1);
+    });
+    connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordFirst, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordPrev, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordLast, SLOT(setDisabled(bool)));
+    connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordNext, SLOT(setDisabled(bool)));
+}
+
+void FormDataInput::setLEid()
+{
+    m_ui->m_leRecordId->setValidator(new QIntValidator(0, 1e6, m_ui->m_leRecordId)); // control input integer values in range between 0 and 1e6
+
+    // behaviour of Id's LineEdit after changing current mapper index
+    connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, [this](int row)
+    {
+        // transmit signal from mapper to LineEdit in appropriate view - convert row number value to Id value in QString-type format
+        emit sigCurrentIdChanged( QString::number( this->m_prxDecorMdl->rowId(row) ) );
+    });
+    connect(this, SIGNAL(sigCurrentIdChanged(QString)), m_ui->m_leRecordId, SLOT(setText(QString)));
+
+    // behaviour after pressing Enter in the LineEdit with records Id
     connect(m_ui->m_leRecordId, SIGNAL(sigReturnPressed(QString)),
             this, SLOT(slotNeedChangeMapperIndex(QString)));
     connect(this, SIGNAL(sigChangeMapperIndex(int)),
             m_mapper, SLOT(setCurrentIndex(int))); // change mapper index by the id's line edit value
     connect(this, SIGNAL(sigWrongIdEntered()),
             m_ui->m_leRecordId, SLOT(clear())); // indicate that inputed value is wrong and there are need to input another
-
-    // checking boundaries of DB data records
-    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotCheckRowIndex(int)));
-    connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordFirst, SLOT(setDisabled(bool)));
-    connect(this, SIGNAL(sigFirstRowReached(bool)), m_ui->m_tbRecordPrev, SLOT(setDisabled(bool)));
-    connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordLast, SLOT(setDisabled(bool)));
-    connect(this, SIGNAL(sigLastRowReached(bool)), m_ui->m_tbRecordNext, SLOT(setDisabled(bool)));
-    slotCheckRowIndex(m_mapper->currentIndex()); // the initial checking
 }
 
 void FormDataInput::setModelChange()
@@ -330,15 +314,6 @@ void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
     }
 }
 
-void FormDataInput::slotCheckRowIndex(int row)
-{
-//    qDebug() << "change mapper index, current index =" << m_mapper->currentIndex() << ", row =" << row;
-    emit sigFirstRowReached(row <= 0);
-    emit sigLastRowReached(row >= m_prxDecorMdl->rowCount() - 1);
-//    qDebug() << "slotCheckRowIndex(" << row << "), DisplayRole data:";
-//    m_prxDecorMdl->customSourceModel()->printData(Qt::DisplayRole);
-}
-
 void FormDataInput::slotGenEngineName(int row)
 {
     QString engineName;
@@ -346,55 +321,6 @@ void FormDataInput::slotGenEngineName(int row)
         engineName += ( identInf.m_strBefore +
                         m_prxDecorMdl->index( row, identInf.m_NField + ProxyDecorModel::COUNT_ADDED_COLUMNS ).data().toString() );
     emit sigEngineNameGenerated(engineName);
-}
-
-void FormDataInput::slotEditChildDBT()
-{
-    // TODO: use try-catch
-    SelectEditPB *pbSEDBT = qobject_cast<SelectEditPB *>(sender());
-    if ( !pbSEDBT ) {
-        /*
-         * TODO: wrong error message text. There are need to say something like "cannot edit database table" and
-         * not "cannot open the dialog", or maybe there are need rename this slot.
-         * This also applies to the other error messageboxes in this slot.
-         */
-        QMessageBox::critical(this, tr("Invalid widget"),
-                              tr("Error of editing database table\n"
-                                 "Cannot open the dialog for database table editing.\n"
-                                 "The reason is: clicked on an unexpected push button.\n\n"
-                                 "Please consult with the application developer for fixing this problem."));
-        return;
-    }
-
-    dbi::DBTInfo *tableInfo = DBINFO.tableByName(pbSEDBT->DBTableName());
-    if ( !tableInfo ) {
-        QMessageBox::critical(this, tr("Invalid push button"),
-                              tr("Error of editing database table\n"
-                                 "Cannot open the dialog for database table editing.\n"
-                                 "The reason is: cannot define the database table - pressed unknown push button.\n\n"
-                                 "Please consult with the application developer for fixing this problem."));
-        return;
-    }
-
-    DBTEditor editor(tableInfo, this);
-    // TODO: about next line: in the EditUICreator use pbSEDBT->fieldNo() instead of the m_mapper->mappedSection(pbSEDBT->identWidget())
-    const QModelIndex &currIndex = m_prxDecorMdl->index(m_mapper->currentIndex(), m_mapper->mappedSection(pbSEDBT->identWidget()));
-    qDebug() << "before selectInitial(), [" << currIndex.row() << "," << currIndex.column() << "]"
-             << ", dataD =" << m_prxDecorMdl->data( currIndex, Qt::DisplayRole).toString()
-             << ", dataE =" << m_prxDecorMdl->data( currIndex, Qt::EditRole).toString()
-             << ", dataU =" << m_prxDecorMdl->data( currIndex, Qt::UserRole).toString();
-    const QVariant &forId = m_prxDecorMdl->data(currIndex, Qt::UserRole);
-    if ( !forId.isNull() ) // if data is NULL -> don't select any row in the editor view
-        editor.selectInitial(forId);
-
-    if ( editor.exec() == QDialog::Accepted ) {
-        m_prxDecorMdl->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */
-        ASSERT_DBG( m_prxDecorMdl->setData( currIndex, editor.selectedId(), Qt::EditRole ),
-                    cmmn::MessageException::type_critical, tr("Error data setting"),
-                    tr("Cannot set data: \"%1\" to the model").arg(editor.selectedId()),
-                    QString("FormDataInput::slotEditChildDBT") );
-        qDebug() << "The id value: \"" << editor.selectedId() << "\" was successfully setted to the model";
-    }
 }
 
 void FormDataInput::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
@@ -407,7 +333,7 @@ void FormDataInput::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
     if ( !forId.isNull() ) // if data is NULL -> don't select any row in the view
         childEditor.selectInitial(forId);
     if ( childEditor.exec() == QDialog::Accepted ) {
-        m_prxDecorMdl->customSourceModel()->spike1_turnOn(true); /* Switch ON the Spike #1 */
+        m_prxDecorMdl->customSourceModel()->spike1_turnOn(); // switch ON the Spike #1
         ASSERT_DBG( m_prxDecorMdl->setData( currIndex, childEditor.selectedId(), Qt::EditRole ),
                     cmmn::MessageException::type_critical, tr("Error data setting"),
                     tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),

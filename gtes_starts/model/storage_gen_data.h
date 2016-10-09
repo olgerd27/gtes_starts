@@ -45,7 +45,7 @@ private:
     bool isIndexesOk(StorageGenData::T_id id, int index) const;
 
     T_dataStorage m_storage;    // key - the primary id, value - container of generated data for every foreign key
-    T_fieldsIndexes m_fIndexes; // indexes of the main DBT fields, that is foreign keys
+    T_fieldsIndexes m_fIndexes; // indexes of the main DB table's fields, that is foreign keys
     T_fIndex m_indexFIndexes;   // index value for going by the fields indexes array
 };
 
