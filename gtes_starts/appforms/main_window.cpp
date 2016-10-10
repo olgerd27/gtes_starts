@@ -52,6 +52,10 @@ MainWindow::MainWindow(QWidget *parent)
      * TODO: move to the external class for manipulation with DB
      */
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    /*
+     * TODO: save every inputed successful enter data (host, port, user name) in the settings file.
+     * When starts app next time, add all saved settings to the comboBoxes, that places in the connections settings dialog.
+     */
     db.setHostName("localhost"); // local: localhost, LAN: 190.91.112.211
     db.setPort(3306);
     db.setUserName("root");

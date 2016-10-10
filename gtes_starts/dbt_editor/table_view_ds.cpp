@@ -1,6 +1,7 @@
 #include <QStyledItemDelegate>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QDebug>
 #include "table_view_ds.h"
 #include "../model/proxy_model.h"
 
@@ -102,6 +103,7 @@ void TableView_DS::setModel(QAbstractItemModel *model)
 void TableView_DS::setHorizHeader()
 {
     auto hHeader = horizontalHeader();
+    setHorizSectionResizeMode(hHeader);
     hHeader->setStretchLastSection(true);
 
     // increase view width, that vertical scroll widget do not cover data in the last table column
@@ -112,8 +114,6 @@ void TableView_DS::setHorizHeader()
     minWidthIncreasing = 30;
 #endif
     setMinimumWidth(hHeader->length() + minWidthIncreasing);
-
-    setHorizSectionResizeMode(hHeader);
 }
 
 void TableView_DS::setHorizSectionResizeMode(QHeaderView *header)
