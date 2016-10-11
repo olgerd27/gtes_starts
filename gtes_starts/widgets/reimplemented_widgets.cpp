@@ -66,34 +66,50 @@ int SelectEditPB::fieldNo() const
  */
 MChTypeLabel::MChTypeLabel(QWidget *parent)
     : QLabel(parent)
-{ }
+    , m_defaultPalette(palette())
+{
+//    setAutoFillBackground(true);
+}
 
 void MChTypeLabel::slotChangeType(int ctype)
 {
     QString strType;
     QPalette pal = palette();
-    QPalette::ColorRole crWinText = QPalette::WindowText;
+    bool isAFBG = false; // is AutoFillBackGround. Changing the label's background color is possible when this parameter is true, if false - use inherited color.
     switch (ctype) {
     case ctype_inserted:
+    {
         strType = tr("inserted");
-        pal.setColor(crWinText, Qt::darkGreen);
-        show();
+        setCustomPalette(pal, Qt::darkGreen);
+        isAFBG = true;
         break;
+    }
     case ctype_deleted:
         strType = tr("deleted");
-        pal.setColor(crWinText, Qt::red);
-        show();
+        setCustomPalette(pal, Qt::red);
+        isAFBG = true;
         break;
     case ctype_noChange:
-        hide();
+        strType = "";
+        pal = m_defaultPalette;
+        isAFBG = false;
         break;
     default:
         // TODO: generate the message error
         qWarning() << tr("Unknown change model type - ") + QString::number((int)ctype);
-        break;
+        return;
     }
     setText(strType);
     setPalette(pal);
+    setAutoFillBackground(isAFBG);
+}
+
+void MChTypeLabel::setCustomPalette(QPalette &pal, Qt::GlobalColor glColorBack)
+{
+    QColor colorBack(glColorBack);
+    colorBack.setAlpha(150);
+    pal.setColor(QPalette::Window, colorBack);
+    pal.setColor(QPalette::WindowText, Qt::white);
 }
 
 /*

@@ -102,6 +102,13 @@ void TableView_DS::setModel(QAbstractItemModel *model)
 
 void TableView_DS::setHorizHeader()
 {
+    /*
+     * TODO: changes the setting of horizontal header. The reason is:
+     * This horizontal header settings way is not valid, in particular artificial setting the minimum width of the tableView.
+     * The wrong way stay obviously if for example increase the name of m_nameInUI of the field "number" in the table "full_names_engines"
+     * in the db_info.cpp, and after this run app. The increased part of string will not be shown, i.e. the app is not enough flexible
+     * for complete showing any length string in any case.
+     */
     auto hHeader = horizontalHeader();
     setHorizSectionResizeMode(hHeader);
     hHeader->setStretchLastSection(true);

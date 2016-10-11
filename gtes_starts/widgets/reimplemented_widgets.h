@@ -58,6 +58,11 @@ public:
 
 public slots:
     void slotChangeType(int ctype);
+
+private:
+    void setCustomPalette(QPalette &pal, Qt::GlobalColor glColorBack);
+
+    QPalette m_defaultPalette;
 };
 
 /*
