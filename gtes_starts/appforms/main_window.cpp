@@ -139,7 +139,8 @@ void MainWindow::slotAboutApp()
                    "The programm is provided \"AS IS\" with no warranty of any kind, "
                    "including the warranty of design, merchantability and "
                    "fitness for a particular purpose.<br><br>"
-                   "Developed by Matiyuk O.I. (olmati@zorya.com), group of GTE's starts characteristics, dep.19.<br>"
+                   "Developed by Matiyuk O.I. (olmati@zorya.com)<br>"
+                   "Group of GTE's starts characteristics, dep.19<br>"
                    "GTR & PC Zorya-Mashproekt<br><br>"
                    "Nikolaev, Ukraine   2014-2016.";
     QMessageBox::about(this, tr("About") + " " + winTitle, tr(text.toUtf8()));

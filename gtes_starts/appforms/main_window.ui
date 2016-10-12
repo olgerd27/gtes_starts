@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>765</width>
-    <height>632</height>
+    <height>602</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -133,7 +133,7 @@ input</string>
       <property name="minimumSize">
        <size>
         <width>600</width>
-        <height>450</height>
+        <height>420</height>
        </size>
       </property>
       <property name="locale">
@@ -173,8 +173,8 @@ input</string>
      <string>Language</string>
     </property>
     <addaction name="m_actEnglish"/>
-    <addaction name="m_actUkrainian"/>
     <addaction name="m_actRussian"/>
+    <addaction name="m_actUkrainian"/>
    </widget>
    <widget class="QMenu" name="m_menuDatabase">
     <property name="locale">
