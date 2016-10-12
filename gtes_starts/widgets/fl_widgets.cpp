@@ -66,6 +66,7 @@ FL_PlainTextEdit::FL_PlainTextEdit(const WidgetDataSender *wdsender, bool isRead
     : QPlainTextEdit(parent)
 {
     setReadOnly(isReadOnly);
+    setMinimumHeight(75);
     if (!isReadOnly) connect(this, SIGNAL(sigFocusOut(QWidget*,QString)), wdsender, SIGNAL(sigWidgetSendedData(QWidget*,QString)));
 }
 

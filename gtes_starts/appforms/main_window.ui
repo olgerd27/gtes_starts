@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>765</width>
-    <height>621</height>
+    <height>632</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -118,10 +124,16 @@ input</string>
     </item>
     <item>
      <widget class="QStackedWidget" name="m_stackForms">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>600</width>
-        <height>425</height>
+        <height>450</height>
        </size>
       </property>
       <property name="locale">

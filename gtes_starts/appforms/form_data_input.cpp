@@ -281,6 +281,7 @@ void FormDataInput::setModelChange()
 
 void FormDataInput::setEngineName()
 {
+    // Generate engine name in two case: when mapper's index changes and when model's data changes
     connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotGenEngineName(int))); // generate engine name when mapper's index changes
     connect(m_prxDecorMdl, &QAbstractItemModel::dataChanged,
             [this](const QModelIndex &topLeft, const QModelIndex &/*bottomRight*/)
