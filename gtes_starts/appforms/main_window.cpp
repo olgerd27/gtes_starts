@@ -3,8 +3,9 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QDebug>
 #include <QScrollBar>
+#include <QDesktopWidget>
+#include <QDebug>
 
 #include "main_window.h"
 #include "ui_main_window.h"
@@ -33,8 +34,14 @@ MainWindow::MainWindow(QWidget *parent)
 {
     m_ui->setupUi(this);
     m_ui->m_listChoice->setItemDelegate(new DelegateListIconsLeft(m_ui->m_listChoice));
+    /*
+     * TODO: in time of the first running app on particular computer, move window to the center of the desktop with help of:  \
+     * widget.move(QApplication::desktop()->screen()->rect().center() - widget.rect().center());
+     * In time of MainWindow closing it will need save current geometry in settings file and restore it by next app running.
+     */
     setWindowIcon(QIcon(":/images/window_icon.png")); // TODO: use another icon
-    setWindowTitle( tr("Control application") );
+    setWindowTitle("CApp");
+    setPosition();
 
     // TODO: delete later
     m_ui->dockWidget->hide();
@@ -45,6 +52,10 @@ MainWindow::MainWindow(QWidget *parent)
      * TODO: move to the external class for manipulation with DB
      */
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    /*
+     * TODO: save every inputed successful enter data (host, port, user name) in the settings file.
+     * When starts app next time, add all saved settings to the comboBoxes, that places in the connections settings dialog.
+     */
     db.setHostName("localhost"); // local: localhost, LAN: 190.91.112.211
     db.setPort(3306);
     db.setUserName("root");
@@ -80,14 +91,14 @@ MainWindow::MainWindow(QWidget *parent)
 //    qDebug() << "Last error:" << db.lastError().text();
 
     QStackedWidget *sw = m_ui->m_stackForms;
-    FormDataInput *formDInput = new FormDataInput(sw);
+    FormDataInput *formDInput = new FormDataInput(this);
     sw->insertWidget(index_data_input, formDInput);
-    sw->insertWidget(index_queries, new FormQueries(sw));
-    sw->insertWidget(index_options, new FormOptions(sw));
+    sw->insertWidget(index_queries, new FormQueries(this));
+    sw->insertWidget(index_options, new FormOptions(this));
 
     // actions connections
     connect(m_ui->m_actCreateEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigInsertNew()));
-    connect(m_ui->m_actDeleteEngine, SIGNAL(triggered()), formDInput, SLOT(slotDeleteRow()));
+    connect(m_ui->m_actDeleteEngine, SIGNAL(triggered()), formDInput, SIGNAL(sigDeleteRow()));
     connect(m_ui->m_actSave, SIGNAL(triggered()), formDInput, SIGNAL(sigSaveAll()));
     connect(m_ui->m_actRefresh, SIGNAL(triggered()), formDInput, SIGNAL(sigRefreshAll()));
 //    connect(ui->m_actConnectToDB, SIGNAL(triggered()), formDInput, SIGNAL(sigRevertChanges())); // TODO: replace the action to the appropriate one
@@ -97,6 +108,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     // another signals & slots connections
     connect(m_ui->m_listChoice, SIGNAL(currentRowChanged(int)), sw, SLOT(setCurrentIndex(int)));
+}
+
+void MainWindow::setPosition()
+{
+    // The main window appears in the center of desktop by default
+//    this->move( QApplication::desktop()->screenGeometry().center() - this->rect().center() );
 }
 
 MainWindow::~MainWindow()
@@ -117,13 +134,14 @@ void MainWindow::slotAboutApp()
     QString winTitle = windowTitle();
     // TODO: write correct "About application" text
     QString text = QString("The <b>") + winTitle + "</b> "
-                   "performs input, delete, update and query data, that stores in the GTE's starts database.<br><br>"
+                   "application performs interaction with the GTE's starts database.<br><br>"
                    "<b>Version 1.0</b> (freeware).<br><br>"
                    "The programm is provided \"AS IS\" with no warranty of any kind, "
                    "including the warranty of design, merchantability and "
                    "fitness for a particular purpose.<br><br>"
-                   "Developed by the group of GTE's starts characteristics, dep.19.<br>"
-                   "Developer: Matiyuk O.I., olmati@zorya.com.<br><br>"
-                   "Nikolaev, Ukraine - 2014-2016.";
+                   "Developed by Matiyuk O.I. (olmati@zorya.com)<br>"
+                   "Group of GTE's starts characteristics, dep.19<br>"
+                   "GTR & PC Zorya-Mashproekt<br><br>"
+                   "Nikolaev, Ukraine   2014-2016.";
     QMessageBox::about(this, tr("About") + " " + winTitle, tr(text.toUtf8()));
 }

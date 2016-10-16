@@ -21,7 +21,7 @@ void StorageGenData::addData(T_id idPrim, const StorageGenData::T_data &data)
 
 bool StorageGenData::deleteData(StorageGenData::T_id idPrim)
 {
-    qDebug() << "delete data: idPrim = " << idPrim << ", data:";
+    qDebug() << "delete foreign field data: idPrim = " << idPrim << ", data:";
     for (auto val : m_storage[idPrim])
         qDebug() << "  " << val;
     return m_storage.remove(idPrim);
@@ -32,22 +32,22 @@ void StorageGenData::updateData(T_id idPrim, int index, const StorageGenData::T_
 //    qDebug() << "update generated data. id prim:" << idPrim << ", index:" << index << ", data:" << data;
 
     // TODO: print all stored data - delete later
-    QString str;
-    for (auto itId = m_storage.begin(); itId != m_storage.end(); ++itId) {
-        str += (QString::number(itId.key()) + ": ");
-        for (auto itIdx = itId->begin(); itIdx != itId->end(); ++itIdx) {
-            str += "[";
-            str += ((*itIdx).toString() + "]");
-        }
-        str += "\n";
-    }
-    qDebug() << str;
+//    QString str;
+//    for (auto itId = m_storage.begin(); itId != m_storage.end(); ++itId) {
+//        str += (QString::number(itId.key()) + ": ");
+//        for (auto itIdx = itId->begin(); itIdx != itId->end(); ++itIdx) {
+//            str += "[";
+//            str += ((*itIdx).toString() + "]");
+//        }
+//        str += "\n";
+//    }
+//    qDebug() << str;
 
     ASSERT_DBG( isIndexesOk(idPrim, index),
                 cmmn::MessageException::type_critical, QObject::tr("Data update error"),
                 QObject::tr("Cannot update data in the generated data storage by the primary id = %1, index = %2. "
                             "Invalid id and/or index values").arg(idPrim).arg(index),
-                QString("StorageGenData::updateData()") );
+                QString("StorageGenData::updateData") );
     m_storage[idPrim][index] = data;
 }
 
@@ -56,7 +56,7 @@ const StorageGenData::T_data & StorageGenData::data(T_id idPrim, int index) cons
     ASSERT_DBG( isIndexesOk(idPrim, index),
                 cmmn::MessageException::type_critical, QObject::tr("Data update error"),
                 QObject::tr("Cannot return the data from the generated data storage by the id = %1, index = %2."),
-                QString("StorageGenData::data()") );
+                QString("StorageGenData::data") );
     return m_storage[idPrim][index];
 }
 

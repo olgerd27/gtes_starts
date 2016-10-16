@@ -1,26 +1,31 @@
 #ifndef PROXY_MODEL_H
 #define PROXY_MODEL_H
 
+#include <memory>
 #include <QAbstractProxyModel>
 #include <QIcon>
+#include <QSortFilterProxyModel>
 #include "../common/common_defines.h"
-
-class CustomSqlTableModel;
 
 /*
  * The proxy model that add the choice decoration (Ok icon) to the data model.
  */
-class ProxyChoiceDecorModel : public QAbstractProxyModel
+class CustomSqlTableModel;
+class RowsChangesHolder;
+class ProxyDecorModel : public QAbstractProxyModel
 {
     Q_OBJECT
+    friend class IRDefiner;
 public:
     enum {
         SELECT_ICON_COLUMN = 0, // index of the inserted column
         COUNT_ADDED_COLUMNS // count of added columns
     };
 
-    explicit ProxyChoiceDecorModel(QObject *parent = 0);
-    void setSqlTable(const QString &tableName);
+    explicit ProxyDecorModel(QObject *parent = 0);
+    ~ProxyDecorModel();
+    void setSqlTableName(const QString &tableName);
+    QString sqlTableName() const;
 
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
@@ -35,23 +40,61 @@ public:
 
     CustomSqlTableModel * customSourceModel() const;
     cmmn::T_id selectedId() const;
+    cmmn::T_id rowId(int row) const;
+    bool isDirty() const; // check - has the model any changes, don't saved in the DB
+    void clearDirtyChanges();
+#ifdef __linux__
+    QSize decorationSize() const;
+#endif
 
     void printData(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
     void printHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
 
 signals:
-    void sigNeedUpdateView(const QModelIndex &index);
+    void sigChangeCurrentRow(int row) const;
 
 public slots:
+    void slotAddRow();
+    void slotDeleteRow(int currentRow);
+    void slotRefreshModel(int currentRow);
+    void slotSaveDataToDB(int currentRow);
     void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     enum { NOT_SETTED = -1 };
 
     void updatePrevDeselected(const QModelIndexList &deselectList);
+    void changeRow(int defType, int row = NOT_SETTED);
+    bool canDeleteRow(int row) const;
 
-    int m_selectedRow;
+    int m_selectedId; // TODO: using selected Id value (instead of selected row) may allow don't use (maybe partial) the IRDefiner and it childs classes. Test it!
     QIcon m_selectIcon;
+    std::unique_ptr<RowsChangesHolder> m_changedRows;
+};
+
+/*
+ * The proxy model that allow to filter model data.
+ */
+class SelectionAllower;
+class ProxyFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    ProxyFilterModel(QObject *parent = 0);
+    ~ProxyFilterModel();
+    void setSelectionAllower(SelectionAllower *sa);
+
+signals:
+    void sigSelectionEnded();
+
+public slots:
+    void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
+
+private:
+    void updatePrevDeselected(const QModelIndexList &deselectList);
+
+    std::unique_ptr<SelectionAllower> m_selectAllow;
 };
 
 #endif // PROXY_MODEL_H

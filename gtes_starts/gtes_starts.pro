@@ -16,13 +16,17 @@ SOURCES += main.cpp\
     appforms/form_options.cpp \
     dbt_editor/dbt_editor.cpp \
     common/db_info.cpp \
-    common/reimplemented_widgets.cpp \
     common/common_defines.cpp \
     model/custom_sql_table_model.cpp \
     model/generator_dbt_data.cpp \
     model/storage_gen_data.cpp \
     model/proxy_model.cpp \
-    common/fl_widgets.cpp
+    model/selection_allower.cpp \
+    widgets/reimplemented_widgets.cpp \
+    widgets/fl_widgets.cpp \
+    dbt_editor/edit_ui_creator.cpp \
+    dbt_editor/table_view_ds.cpp \
+    widgets/widget_mapper.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -31,13 +35,17 @@ HEADERS  += \
     appforms/form_options.h \
     dbt_editor/dbt_editor.h \
     common/db_info.h \
-    common/reimplemented_widgets.h \
     common/common_defines.h \
     model/custom_sql_table_model.h \
     model/generator_dbt_data.h \
     model/storage_gen_data.h \
     model/proxy_model.h \
-    common/fl_widgets.h
+    model/selection_allower.h \
+    widgets/reimplemented_widgets.h \
+    widgets/fl_widgets.h \
+    dbt_editor/edit_ui_creator.h \
+    dbt_editor/table_view_ds.h \
+    widgets/widget_mapper.h
 
 FORMS    += \
     appforms/main_window.ui \

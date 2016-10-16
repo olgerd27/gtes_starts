@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>765</width>
-    <height>621</height>
+    <height>602</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -118,10 +124,16 @@ input</string>
     </item>
     <item>
      <widget class="QStackedWidget" name="m_stackForms">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>600</width>
-        <height>400</height>
+        <height>420</height>
        </size>
       </property>
       <property name="locale">
@@ -161,8 +173,8 @@ input</string>
      <string>Language</string>
     </property>
     <addaction name="m_actEnglish"/>
-    <addaction name="m_actUkrainian"/>
     <addaction name="m_actRussian"/>
+    <addaction name="m_actUkrainian"/>
    </widget>
    <widget class="QMenu" name="m_menuDatabase">
     <property name="locale">
@@ -335,7 +347,7 @@ input</string>
     <string>Save</string>
    </property>
    <property name="toolTip">
-    <string>Save inputed data in the database</string>
+    <string>Save data in the database</string>
    </property>
   </action>
   <action name="m_actRefresh">
@@ -434,7 +446,7 @@ input</string>
     <string>Delete engine</string>
    </property>
    <property name="toolTip">
-    <string>Delete the current engine. This action is enabled only if it was choosed &quot;Engines&quot; tab panel</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Delete the current engine.&lt;/p&gt;&lt;p&gt;This action is enabled only if it was choosed Engines tab panel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
  </widget>
@@ -443,7 +455,7 @@ input</string>
   <customwidget>
    <class>ResizableWidgetList</class>
    <extends>QListWidget</extends>
-   <header>common/reimplemented_widgets.h</header>
+   <header>widgets/reimplemented_widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources>

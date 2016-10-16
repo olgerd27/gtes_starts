@@ -95,42 +95,52 @@ QString trans(const char *s, const char *c = 0, int n = -1)
 
 dbi::DBInfo::DBInfo()
 {
+    /*
+     * TODO: there are need to move this data to an external file, like XML.
+     * Also, it is need to create the specific xml editor for altering structure of DB outside of this app.
+     * This is possible only if app is entirely flexible, i.e. can adapt to any DB structure.
+     */
     m_tables = {
         /* names_engines */
         new DBTInfo {
-            "names_engines", trans("Engine name"), DBTInfo::ttype_simple,
+            "names_engines", trans("Engines names"), DBTInfo::ttype_simple,
             {
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
+            // Ident str:      DG90
             {
-                {"", 1}
+                  {"", 1}
             }
         },
 
         /* names_modifications_engines */
         new DBTInfo {
-            "names_modifications_engines", trans("Engine name and modification"), DBTInfo::ttype_complex,
+            "names_modifications_engines", trans("Engines names and modifications"), DBTInfo::ttype_complex,
             {
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name_id", trans("Name"), DBTFieldInfo::wtype_lineEdit, "names_engines"}
                 , {"modification", trans("Modification"), DBTFieldInfo::wtype_lineEdit, ""}
             },
+            // Ident str:      DG90 L2.1
             {
-                  {"", 1}, {" ", 2}
+                  {"", 1}
+                , {" ", 2}
             }
         },
 
         /* full_names_engines */
         new DBTInfo {
-            "full_names_engines", trans("Full name"), DBTInfo::ttype_complex,
+            "full_names_engines", trans("Full engines names"), DBTInfo::ttype_complex,
             {
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name_modif_id", trans("Name and modification"), DBTFieldInfo::wtype_lineEdit, "names_modifications_engines"}
                 , {"number", trans("Number"), DBTFieldInfo::wtype_spinBoxInt, ""}
             },
+            // Ident str:      DG90 L2.1 #273
             {
-                  {"", 1}, {QString(" %1").arg(trans("#")), 2}
+                  {"", 1}
+                , {QString(" %1").arg(trans("#")), 2}
             }
         },
 
@@ -141,8 +151,9 @@ dbi::DBInfo::DBInfo()
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
+            // Ident str:      Zhidkoe
             {
-                {"", 1}
+                  {"", 1}
             }
         },
 
@@ -153,8 +164,9 @@ dbi::DBInfo::DBInfo()
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
+            // Ident str:      Elektrodvigatel
             {
-                {"", 1}
+                  {"", 1}
             }
         },
 
@@ -172,8 +184,10 @@ dbi::DBInfo::DBInfo()
                 , {"f2", trans("f2"), DBTFieldInfo::wtype_spinBoxDouble, ""}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
+            // Ident str:      Elektrodvigatel DST7
             {
-                  {"", 1}, {" ", 2}
+                  {"", 1}
+                , {" ", 2}
             }
         },
 
@@ -184,8 +198,9 @@ dbi::DBInfo::DBInfo()
                   {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
                 , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
             },
+            // Ident str:      Type1
             {
-                {"", 1}
+                  {"", 1}
             }
         },
 
@@ -200,6 +215,7 @@ dbi::DBInfo::DBInfo()
                 , {"igniters_quantity", trans("Igniters quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
+            // Ident str:      #3, chertezh: H50001082
             {
                   {"#", 0}
                 , {QString(", %1: ").arg(trans("draft")), 1}
@@ -219,12 +235,261 @@ dbi::DBInfo::DBInfo()
                 , {"start_devices_quantity", trans("Start device quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
             },
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe
             {
-                  {"#", 0}
-                , {", ", 1}
+                  {"", 1}
                 , {QString(", %1: ").arg(trans("fuel")), 2}
             }
-        }
+        },
+
+        /* settings_names */
+        new DBTInfo {
+            "settings_names", trans("Names of settings"), DBTInfo::ttype_simple,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:     Termoogranichenie
+            {
+                  {"", 1}
+            }
+        },
+
+        /* engines_settings */
+        new DBTInfo {
+            "engines_settings", trans("Settings"), DBTInfo::ttype_composite,
+            {
+                  {"engine_id", trans("Engine's id"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                , {"setting_name_id", trans("Setting's name id"), DBTFieldInfo::wtype_lineEdit, "settings_names"}
+                , {"setting_value", trans("Setting's value"), DBTFieldInfo::wtype_spinBoxDouble, ""}
+                , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
+                , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
+            },
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | Termoogranichenie: 570
+            {
+                  {"", 0}
+                , {" | ", 1}
+                , {": ", 2}
+            }
+        },
+
+        /* bypass_types */
+        new DBTInfo {
+            "bypass_types", trans("Bypass types"), DBTInfo::ttype_simple,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:      NZ
+            {
+                  {"", 1}
+            }
+        },
+
+        /* bypasses */
+        new DBTInfo {
+            "bypasses", trans("Bypasses"), DBTInfo::ttype_complex,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"type_id", trans("Bypass type"), DBTFieldInfo::wtype_lineEdit, "bypass_types"}
+                , {"S_section", trans("S section"), DBTFieldInfo::wtype_spinBoxDouble, ""}
+                , {"draft_number", trans("Draft number"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:       T907533410, NZ, S = 60
+            {
+                  {"", 3}
+                , {QString(", "), 1}
+                , {", S = ", 2}
+            }
+        },
+
+        /* bypass_mount_places */
+        new DBTInfo {
+            "bypass_mount_places", trans("Bypasses mount places"), DBTInfo::ttype_simple,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:      za 5 st. KVD
+            {
+                  {"", 1}
+            }
+        },
+
+        /* engines_bypasses */
+        new DBTInfo {
+            "engines_bypasses", trans("Bypasses"), DBTInfo::ttype_composite,
+            {
+                  {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                , {"bypass_id", trans("Bypass"), DBTFieldInfo::wtype_lineEdit, "bypasses"}
+                , {"mount_place_id", trans("Mount place"), DBTFieldInfo::wtype_lineEdit, "bypass_mount_places"}
+                , {"quantity", trans("Quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
+                , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
+                , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
+            },
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | 3 KPR za 5 st. KVD
+            {
+                  {"", 0}
+                , {" | ", 3}
+                , {QString(" %1 ").arg(trans("bypass")), 2}
+            }
+        },
+
+        /* alg_parameters_names */
+        new DBTInfo {
+            "alg_parameters_names", trans("Algorithm's parameters names"), DBTInfo::ttype_simple,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:       Vklyuchenie II skorosti
+            {
+                  {"", 1}
+            }
+        },
+
+        /* on_off_units */
+        new DBTInfo {
+            "on_off_units", trans("Units"), DBTInfo::ttype_simple,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:       ob/min
+            {
+                  {"", 1}
+            }
+        },
+
+        /* on_off_parameters */
+        new DBTInfo {
+            "on_off_parameters", trans("Parameters"), DBTInfo::ttype_complex,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"unit_id", trans("Unit"), DBTFieldInfo::wtype_lineEdit, "on_off_units"}
+            },
+            // Ident str:       Chastota vrasheniya rotora TKVD, ob/min
+            {
+                  {"", 1}
+                , {", ", 2}
+            }
+        },
+
+        /* engines_algorithms */
+        new DBTInfo {
+            "engines_algorithms", trans("Algorithms"), DBTInfo::ttype_composite,
+            {
+                  {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                , {"parameter_id", trans("Parameter"), DBTFieldInfo::wtype_lineEdit, "alg_parameters_names"}
+                , {"switching_on_id", trans("Switching-on"), DBTFieldInfo::wtype_lineEdit, "on_off_parameters"}
+                , {"switching_on_value", trans("Switching-on value"), DBTFieldInfo::wtype_spinBoxDouble, ""}
+                , {"switching_off_id", trans("Switching-off"), DBTFieldInfo::wtype_lineEdit, "on_off_parameters"}
+                , {"switching_off_value", trans("Switching-off value"), DBTFieldInfo::wtype_spinBoxDouble, ""}
+                , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
+                , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
+            },
+            // Ident str:       Algorithm: DG90 L2.1 #273, toplivo: Zhidkoe
+            {
+                  {"Algorithm: ", 0}
+            }
+        },
+
+        /* documents_types */
+        new DBTInfo {
+            "documents_types", trans("Documents types"), DBTInfo::ttype_simple,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:       Tehnicheskaya spravka
+            {
+                  {"", 1}
+            }
+        },
+
+        /* documents */
+        new DBTInfo {
+            "documents", trans("Documents"), DBTInfo::ttype_complex,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"name", trans("Name"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"number", trans("Number"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"type_id", trans("Type"), DBTFieldInfo::wtype_lineEdit, "documents_types"}
+                , {"file_reference", trans("File reference"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:       Tehnicheskaya spravka: TS ZHAKI.102.118-2016
+            {
+                  {"", 3}
+                , {": ", 2}
+            }
+        },
+
+        /* engines_documents */
+        new DBTInfo {
+            "engines_documents", trans("Documents"), DBTInfo::ttype_composite,
+            {
+                  {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                , {"document_id", trans("Document"), DBTFieldInfo::wtype_lineEdit, "documents"}
+                , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
+                , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
+            },
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | Tehnicheskaya spravka: TS ZHAKI.102.118-2016
+            {
+                  {"", 0}
+                , {" | ", 1}
+            }
+        },
+
+        /* graphs_parameters_type */
+        new DBTInfo {
+            "graphs_parameters_type", trans("Graph's parameters types"), DBTInfo::ttype_complex,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"symbol", trans("Symbol"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"full_name", trans("Full name"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"units", trans("Units"), DBTFieldInfo::wtype_lineEdit, ""}
+            },
+            // Ident str:       n1, ob/min
+            {
+                  {"", 1}
+                , {", ", 3}
+            }
+        },
+
+        /* graphs_parameters_values */
+        new DBTInfo {
+            "graphs_parameters_values", trans("Graph's parameters values"), DBTInfo::ttype_complex,
+            {
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"par_type_id", trans("Parameter type"), DBTFieldInfo::wtype_lineEdit, "graphs_parameters_type"}
+                , {"par_values", trans("Parameter values"), DBTFieldInfo::wtype_plainTextEdit, ""}
+            },
+            // Ident str:       [n1, ob/min]
+            {
+                  {"[", 1}
+                , {"]", DBTInfo::NFIELD_STRING_AFTER}
+            }
+        },
+
+        /* engines_graphs */
+        new DBTInfo {
+            "engines_graphs", trans("Graphs"), DBTInfo::ttype_composite,
+            {
+                  {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                , {"par_x_id", trans("X"), DBTFieldInfo::wtype_lineEdit, "graphs_parameters_values"}
+                , {"par_y_id", trans("Y"), DBTFieldInfo::wtype_lineEdit, "graphs_parameters_values"}
+                , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
+                , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
+            },
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | [n1, ob/min] = f([t, s])
+            {
+                  {"", 0}
+                , {" | ", 1}
+                , {" = f(", 2}
+                , {")", DBTInfo::NFIELD_STRING_AFTER}
+            }
+        },
     };
 }
 

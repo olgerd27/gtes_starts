@@ -1,206 +1,213 @@
-#include <QSqlTableModel>
-#include <QSqlError>
-#include <QSqlQuery>
-#include <QStyledItemDelegate>
-#include <QPainter>
-#include <QTableView>
-#include <QHeaderView>
 #include <QItemSelection>
 #include <QMessageBox>
-#include <QLabel>
 #include <QDebug>
 #include "dbt_editor.h"
 #include "ui_dbt_editor.h"
 #include "../model/custom_sql_table_model.h"
 #include "../model/proxy_model.h"
+#include "../model/selection_allower.h"
+#include "edit_ui_creator.h"
 #include "../common/db_info.h"
-#include "../common/fl_widgets.h"
-
-/*
- * HighlightTableRowsDelegate
- */
-class HighlightTableRowsDelegate : public QStyledItemDelegate
-{
-public:
-    enum { DONT_HIGHLIGHTED = -1 }; // number of a table row that is not highlighted (need for highlighting removing)
-
-    HighlightTableRowsDelegate(QObject *parent = 0)
-        : QStyledItemDelegate(parent)
-    {
-    }
-
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-    {
-        static int hRow = DONT_HIGHLIGHTED; /* initialization of the highlighted row number.
-                                             * Use static variable, bacause this is const method and it cannot to change any class data.
-                                             * Also you may use global variable, defined outside of current class.
-                                             */
-        QTableView *tableView = qobject_cast<QTableView *>(this->parent());
-
-        /* Definition the fact of necessity of highlighting removing */
-        if ( isMouseOutTable(tableView) )
-            hRow = DONT_HIGHLIGHTED;
-
-        /* Definition the table row number for highlighting, and initiate highlighting of the current row
-         * and highlighting removing of the previous highlighted row
-         */
-        if (option.state & QStyle::State_MouseOver) {
-            if (index.row() != hRow) {
-                // mouse is over item, that placed in another row, than previous "mouse over" item
-                const QAbstractItemModel *model = index.model();
-                for (int col = 0; col < model->columnCount(); ++col) {
-                    tableView->update(model->index(index.row(), col)); // update items from current row for painting visual row highlighting
-                    tableView->update(model->index(hRow, col)); // update items from previous row for removing visual row highlighting
-                }
-                hRow = index.row();
-            }
-        }
-
-        /* Creation a visual view of the highlighted row items */
-        if (index.row() == hRow && hRow != DONT_HIGHLIGHTED) {
-            // color variant #1 - horizontal linear gradient. Highlighting is the same as in simple DB table dialog
-            QRect rectView = tableView->rect();
-            QPoint topLeft = rectView.topLeft();
-            QLinearGradient gradient( topLeft.x(), topLeft.y(),
-                                      topLeft.x() + tableView->horizontalHeader()->length(), rectView.topRight().y() );
-            gradient.setColorAt(0, Qt::white);
-            gradient.setColorAt(0.8, Qt::lightGray);
-            gradient.setColorAt(1, Qt::gray);
-
-            // color variant #2 - vertical linear gradient
-//            QRect rectItem = option.rect;
-//            QLinearGradient gradient(rectItem.topLeft(), rectItem.bottomLeft());
-//            gradient.setColorAt(0, Qt::white);
-//            gradient.setColorAt(0.5, Qt::lightGray);
-//            gradient.setColorAt(1, Qt::white);
-
-            // painter paint a rectangle with setted gradient
-            painter->setBrush(gradient);
-            painter->setPen(Qt::NoPen);
-            painter->drawRect(option.rect);
-        }
-        QStyledItemDelegate::paint(painter, option, index);
-    }
-
-private:
-    bool isMouseOutTable(const QTableView * const table) const
-    {
-        /*  Checking - is a mouse out of the viewport of a table view or not */
-        QPoint viewportCursorPos = table->viewport()->mapFromGlobal(QCursor::pos());
-        return !table->indexAt(viewportCursorPos).isValid();
-    }
-};
+#include "../widgets/fl_widgets.h"
+#include "../widgets/reimplemented_widgets.h"
+#include "../widgets/widget_mapper.h"
 
 /*
  * DBTEditor
  * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
  */
-DBTEditor::DBTEditor(const dbi::DBTInfo *dbTable, QWidget *parent)
+DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     : QDialog(parent)
-    , m_DBTInfo(dbTable)
     , m_ui(new Ui::DBTEditor)
-    , m_proxyModel(new ProxyChoiceDecorModel(this))
+    , m_DBTInfo(dbtInfo)
+    , m_prxDecorMdl_1(new ProxyDecorModel(nullptr))
+    , m_prxFilterMdl_2(new ProxyFilterModel(nullptr))
+    , m_mapper(new WidgetMapper(this))
+    , m_editUICreator(new EditUICreator(m_DBTInfo, m_mapper, this))
 {
     m_ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowPosition();
     setWindowName();
-    setWindowSize();
     setModel();
+    setMapper();
     setSelectUI();
-    setEditingUI();
+    setEditUI();
+    setMainControl();
+    setDataNavigation();
 }
 
 DBTEditor::~DBTEditor()
 {
     delete m_ui;
-    delete m_proxyModel;
+    /*
+     * If parent of proxy models is not nullptr (even if parent of model is DBTEditor), do not free memory of model at here.
+     * In other words, if parent of proxy models is not nullptr, it must be deleted when performs deletion of parent.
+     * Free model's memory here only if parent is nullptr.
+     */
+    delete m_prxFilterMdl_2;
+    delete m_prxDecorMdl_1;
+    delete m_mapper;
+}
+
+void DBTEditor::setWindowPosition()
+{
+    // if parent widget is not dialog, this dialog appears in the center of parent widget by default
+    if (parentWidget()->windowFlags() & Qt::Dialog)
+        this->move( parentWidget()->pos() + QPoint(shiftCEByX, shiftCEByY) );
 }
 
 void DBTEditor::setWindowName()
 {
-    setWindowTitle( tr("Editing the table:") + " " + m_DBTInfo->m_nameInUI );
-}
-
-void DBTEditor::setWindowSize()
-{
-    // TODO: set window size depending on the DB table size
+    setWindowTitle( tr("The DB table:") + " " + m_DBTInfo->m_nameInUI );
 }
 
 void DBTEditor::setModel()
 {
-    m_proxyModel->setSqlTable(m_DBTInfo->m_nameInDB);
+    m_prxDecorMdl_1->setSqlTableName(m_DBTInfo->m_nameInDB);
+    m_prxFilterMdl_2->setSourceModel(m_prxDecorMdl_1);
+    m_prxFilterMdl_2->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_prxFilterMdl_2->setFilterKeyColumn(-1);
+    connect(m_prxDecorMdl_1->customSourceModel(), SIGNAL(sigSavedInDB()), this, SIGNAL(sigDataSavedInDB())); // transmit save data signal to outside
 }
 
-cmmn::T_id DBTEditor::selectedId() const
+void DBTEditor::setMapper()
 {
-    return m_proxyModel->selectedId();
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+//    m_mapper->setModel(m_prxDecorMdl_1);
+    m_mapper->setModel(m_prxFilterMdl_2);
 }
 
 void DBTEditor::setSelectUI()
 {
-    QTableView *view = m_ui->m_tableContents;
-    view->setModel(m_proxyModel); // TODO: use m_proxyModel.get()
-    view->setItemDelegate(new HighlightTableRowsDelegate(view));
-    view->viewport()->setAttribute(Qt::WA_Hover);
-    view->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    view->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    view->setMinimumWidth(view->horizontalHeader()->length() + 20);
+    m_ui->m_tableContents->setModel(m_prxFilterMdl_2);
+//    m_ui->m_tableContents->setModel(m_prxDecorMdl_1);
+
+    setFilter();
 
     /*
-     * It is not properly to use the currentRowChanged signal for choose row, because in time of the
+     * NOTE: It is not properly to use the currentRowChanged signal for choose row, because in time of the
      * currentRowChanged signal calling, items is still not selected. Selecting items performs after changing
      * current row (or column). Because of this there are need to use only selectionChanged signal for choose some row.
      */
-    connect(view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            m_proxyModel, SLOT(slotChooseRow(QItemSelection,QItemSelection))); // TODO: use m_proxyModel.get()
-    connect(m_proxyModel, SIGNAL(sigNeedUpdateView(QModelIndex)), view, SLOT(update(QModelIndex))); // TODO: use m_proxyModel.get()
+//    connect(m_ui->m_tableContents->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+//            m_prxDecorMdl_1, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
+    connect(m_ui->m_tableContents->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            m_prxFilterMdl_2, SLOT(slotChooseRow(QItemSelection,QItemSelection)));
 }
 
-void DBTEditor::setEditingUI()
+void DBTEditor::setFilter()
 {
-    // TODO: maybe move this to the external builder class. This class can use the FormDataInput class too.
-    int rowWgtSpan = 1;
-    QWidget *wgt = 0;
-    QGridLayout *layout = new QGridLayout(m_ui->m_gboxEditingData);
-    for (int i = 0; i < m_DBTInfo->tableDegree(); ++i) {
-        const auto &dbtField = m_DBTInfo->fieldByIndex(i);
-
-        if (dbtField.m_widgetType == dbi::DBTFieldInfo::wtype_plainTextEdit) {
-            rowWgtSpan = 2;
-            layout->addItem(new QSpacerItem(10, 70), i + 1, 0);
-        }
-        else rowWgtSpan = 1;
-
-        layout->addWidget( createFieldDescLabel(dbtField.m_nameInUI), i, 0 );
-        wgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey() );
-        layout->addWidget( wgt, i, 1, rowWgtSpan, 1 ); // set read only status if it is a key
-        if (dbtField.isForeign()) {
-            layout->addWidget(createSelEdPButton(), i, 3);
-        }
-    }
+    // NOTE: creation of the SelectionAllower_IC must perform before connection the selectionModel::selectionChanged with the slotChooseRow().
+    // Also, before creating the SelectionAllower_IC model must be setted to the tableView.
+    SelectionAllower_IC *sa = new SelectionAllower_IC(m_ui->m_leFilter, m_ui->m_tableContents, m_prxFilterMdl_2);
+    m_prxFilterMdl_2->setSelectionAllower(sa);
+    connect(m_prxFilterMdl_2, SIGNAL(sigSelectionEnded()), sa, SLOT(slotSelectionEnded()));
+    connect(m_ui->m_leFilter, SIGNAL(textChanged(QString)), m_prxFilterMdl_2, SLOT(setFilterFixedString(QString)));
 }
 
-QLabel * DBTEditor::createFieldDescLabel(const QString &text) const
+void DBTEditor::setEditUI()
 {
-    // create field description label
-    return new QLabel(text + ":"); // TODO: use smart pointer
+    m_editUICreator->createUI(m_ui->m_gboxEditingData);
+    connect(m_editUICreator.get(), SIGNAL(sigSEPBClicked(const dbi::DBTInfo*,int)),
+            this, SLOT(slotEditChildDBT(const dbi::DBTInfo*,int))); // open child DBT edit dialog - perform recursive opening of dialog
 }
 
-QPushButton *DBTEditor::createSelEdPButton() const
+void DBTEditor::setMainControl()
 {
-    // create select/edit push button
-    QPushButton *cmd = new QPushButton(QIcon(":/images/edit.png"), tr("Select/Edit")); // TODO: use smart pointer
-    cmd->setStyleSheet("text-align: left");
-    return cmd;
+    connect(m_ui->m_pbAdd, SIGNAL(clicked()), m_prxDecorMdl_1, SLOT(slotAddRow()));
+    connect(m_ui->m_pbDelete, &QPushButton::clicked, [this]()
+    {
+        m_prxDecorMdl_1->slotDeleteRow( m_mapper->currentIndex() );
+    } );
+    connect(m_ui->m_pbSave, &QPushButton::clicked, [this]()
+    {
+        m_prxDecorMdl_1->slotSaveDataToDB( m_mapper->currentIndex() );
+    } );
+    connect(m_ui->m_pbRefresh, &QPushButton::clicked, [this]()
+    {
+        m_prxDecorMdl_1->slotRefreshModel( m_mapper->currentIndex() );
+    } );
+}
+
+void DBTEditor::setDataNavigation()
+{
+    connect(m_prxDecorMdl_1, SIGNAL(sigChangeCurrentRow(int)), m_mapper, SLOT(setCurrentIndex(int)));
+    connect(m_ui->m_tableContents->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            m_mapper, SLOT(setCurrentModelIndex(QModelIndex))); // select rows in the view -> show data in the mapped widgets
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), m_ui->m_tableContents, SLOT(selectRow(int))); // the aim: add a new row -> select it
 }
 
 void DBTEditor::selectInitial(const QVariant &idPrim)
 {
-    int selectedRow = -1;
-    ASSERT_DBG( m_proxyModel->customSourceModel()->findRowWithId(idPrim, selectedRow),
+    m_initSelectRow = -1;
+    ASSERT_DBG( m_prxDecorMdl_1->customSourceModel()->getIdRow(idPrim, m_initSelectRow),
                 cmmn::MessageException::type_warning, tr("Selection error"),
                 tr("Cannot select the row in the table \"%1\". Cannot find the item with id: %2")
                 .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),
-                QString("FormDataInput::slotEditChildDBT()") );
-    m_ui->m_tableContents->selectRow(selectedRow);
+                QString("DBTEditor::selectInitial") );
+    m_ui->m_tableContents->selectRow(m_initSelectRow);
+}
+
+cmmn::T_id DBTEditor::selectedId() const
+{
+    return m_prxDecorMdl_1->selectedId();
+}
+
+void DBTEditor::accept()
+{
+    if (m_prxDecorMdl_1->customSourceModel()->isDirty()) {
+        /*
+         * TODO: add application settings - "Automatic save by clicking "Ok"" (checkbox).
+         * IF this setting is setted - make data autosaving when clicking "Ok" push button, ELSE - ask confirmation in user
+         */
+        bool autoSave = false; // test, delete when will be added setting "Autosave"
+        if (autoSave) m_prxDecorMdl_1->slotSaveDataToDB( m_mapper->currentIndex() );
+        else askSaving();
+    }
+    QDialog::accept();
+}
+
+void DBTEditor::askSaving()
+{
+    auto btnChoosed =
+            QMessageBox::question( this, tr("Save changes"),
+                                   QString("<font size=+1><b>") +
+                                   tr("The data of the \"%1\" DB table has been modified.").arg(m_DBTInfo->m_nameInUI) +
+                                   QString("</b></font><br><br>") +
+                                   tr("Do you want to save your changes?"),
+                                   QMessageBox::Save | QMessageBox::Discard, QMessageBox::Save);
+    switch (btnChoosed) {
+    case QMessageBox::Save:
+        m_prxDecorMdl_1->slotSaveDataToDB( m_mapper->currentIndex() ); // save data to the DB
+        break;
+    case QMessageBox::Discard:
+        // Delete all changes and return initial Id value
+        m_prxDecorMdl_1->clearDirtyChanges(); // this allow select initial row (below) if it is marked "deleted" and not saved in the DB
+        m_ui->m_tableContents->selectRow(m_initSelectRow); // restore initial row selection, that will return to parent DB table (returns Id value)
+        break;  // just close this dialog window without changes saving
+    default:
+        ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Unknow button clicked"),
+                    tr("There was clicked unknown button: %1").arg((int)btnChoosed), QString("DBTEditor::askSaving"))
+        break;
+    }
+}
+
+void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
+{
+    const QModelIndex &currIndex = m_prxDecorMdl_1->index( m_mapper->currentIndex(), fieldNo + ProxyDecorModel::COUNT_ADDED_COLUMNS );
+    const QVariant &forId = m_prxDecorMdl_1->data(currIndex, Qt::UserRole);
+    DBTEditor childEditor(dbtInfo, this);
+    connect(&childEditor, SIGNAL(sigDataSavedInDB()),
+            m_prxDecorMdl_1->customSourceModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
+    if ( !forId.isNull() ) // if data is NULL -> don't select any row in the view
+        childEditor.selectInitial(forId);
+    if ( childEditor.exec() == QDialog::Accepted ) {
+        m_prxDecorMdl_1->customSourceModel()->spike1_turnOn(); // switch ON the Spike #1
+        ASSERT_DBG( m_prxDecorMdl_1->setData( currIndex, childEditor.selectedId(), Qt::EditRole ),
+                    cmmn::MessageException::type_critical, tr("Error data setting"),
+                    tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),
+                    QString("DBTEditor::slotEditChildDBT") );
+        qDebug() << "The id value: \"" << childEditor.selectedId() << "\" was successfully setted to the model";
+    }
 }

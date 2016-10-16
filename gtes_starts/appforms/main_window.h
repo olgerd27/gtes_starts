@@ -31,6 +31,8 @@ private:
         , index_options     // Options panel index
     };
 
+    void setPosition();
+
     std::unique_ptr<Ui::MainWindow> m_ui;
 };
 

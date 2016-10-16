@@ -30,10 +30,10 @@ namespace dbi {
         int relationDBTtype() const; /* return DBTInfo::TableTypes value. Returned value has the int type,
                                       * because the DBTInfo::TableTypes type is not known here */
 
-        QString m_nameInDB;         /* a field name, used in database */
-        QString m_nameInUI;         /* a field name, used in user interface */
-        WidgetsTypes m_widgetType;  /* a type of a widget, used for showing data of this table filed */
-        QString m_relationDBTable;  /* a name of another relational database table. It is like a foreign key */
+        QString m_nameInDB;         // a field name, used in database
+        QString m_nameInUI;         // a field name, used in user interface
+        WidgetsTypes m_widgetType;  // a type of a widget, used for showing data of this table filed
+        QString m_relationDBTable;  // a name of another relational database table. It is like a foreign key
     };
 
     /*
@@ -44,8 +44,8 @@ namespace dbi {
         struct IdentityInfo
         {
             /* An identity string is: [m_strBefore + m_NField] */
-            QString m_strBefore;    /* string, before the identity field number (like a some comment) */
-            int m_NField;           /* number of an identity field */
+            const QString m_strBefore;    // string, before the identity field number (like a some comment)
+            const int m_NField;           // number of an identity field
         };
 
         typedef std::vector<DBTFieldInfo> T_arrDBTFieldsInfo;
@@ -59,7 +59,7 @@ namespace dbi {
             , ttype_invalid     // invalid type of database table
         };
 
-        enum { NO_IDENTITY_FIELD = -1 };
+        enum { NFIELD_STRING_AFTER = -1 }; // NField, that use for adding "string after"
 
         int tableDegree() const;
 
@@ -76,11 +76,14 @@ namespace dbi {
          */
         DBTFieldInfo fieldByIndex(int index) const;
 
-        QString m_nameInDB;                 /* a table name, used in database */
-        QString m_nameInUI;                 /* a table name, used in user interface */
-        TableTypes m_type;                  /* a table type */
-        T_arrDBTFieldsInfo m_fields;        /* array of the table fileds */
-        T_arrIdentityFields m_idnFields;    /* array of the identity fields information, that use for forming the identity string */
+        // This static function allow to hold in the T_arrIdentityFields-type container a some "string after"
+        static bool isUseStringAfter(int Nfield) { return Nfield == NFIELD_STRING_AFTER; }
+
+        QString m_nameInDB;                 // a table name, used in database
+        QString m_nameInUI;                 // a table name, used in user interface
+        TableTypes m_type;                  // a table type
+        T_arrDBTFieldsInfo m_fields;        // array of the table fileds
+        T_arrIdentityFields m_idnFields;    // array of the identity fields information, that use for forming the identity string
     };
 
     /*
@@ -108,7 +111,7 @@ namespace dbi {
         DBInfo(const DBInfo &) = delete;
         DBInfo & operator=(const DBInfo &) = delete;
 
-        std::vector<DBTInfo *> m_tables; /* array of all DB tables */
+        std::vector<DBTInfo *> m_tables; // array of all DB tables
     };
 
     /*
