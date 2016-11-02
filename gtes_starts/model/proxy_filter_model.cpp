@@ -30,7 +30,7 @@ void ProxyFilterModel::setSelectionAllower(SelectionAllower *sa)
     m_selectAllow.reset(sa);
 }
 
-CustomSqlTableModel *ProxyFilterModel::customSourceModel() const
+CustomSqlTableModel *ProxyFilterModel::customSqlSrcModel() const
 {
     CustomSqlTableModel *srcModel = qobject_cast<CustomSqlTableModel *>(m_decorPrxModel->sourceModel());
     ASSERT_DBG( srcModel,

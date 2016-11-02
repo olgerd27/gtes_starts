@@ -147,7 +147,7 @@ void TableView_DS::setHorizSectionResizeMode(QHeaderView *header)
 
 void TableView_DS::mousePressEvent(QMouseEvent *event)
 {
-    if ( indexAt(event->pos()).isValid() ) // if model index on the mouse current position is valid -> mouse pressed over the table field
+    if ( indexAt(event->pos()).isValid() ) // if mouse current position is over the valid model index -> mouse pressed over the table field
         emit sigMousePressedOverTable();
     QTableView::mousePressEvent(event);
 }

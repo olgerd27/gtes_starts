@@ -60,7 +60,7 @@ void DBTEditor::setModel()
     m_filterPrxModel->setSqlTableName(m_DBTInfo->m_nameInDB);
     m_filterPrxModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_filterPrxModel->setFilterKeyColumn(-1);
-    connect(m_filterPrxModel->customSourceModel(), SIGNAL(sigSavedInDB()), this, SIGNAL(sigDataSavedInDB())); // transmit save data signal to outside
+    connect(m_filterPrxModel->customSqlSrcModel(), SIGNAL(sigSavedInDB()), this, SIGNAL(sigDataSavedInDB())); // transmit save data signal to outside
 }
 
 void DBTEditor::setMapper()
@@ -72,9 +72,7 @@ void DBTEditor::setMapper()
 void DBTEditor::setSelectUI()
 {
     m_ui->m_tableContents->setModel(m_filterPrxModel);
-
     setFilter();
-
     /*
      * NOTE: It is not properly to use the currentRowChanged signal for choose row, because in time of the
      * currentRowChanged signal calling, items is still not selected. Selecting items performs after changing
@@ -129,7 +127,7 @@ void DBTEditor::setDataNavigation()
 void DBTEditor::selectInitial(const QVariant &idPrim)
 {
     m_initSelectRow = -1;
-    ASSERT_DBG( m_filterPrxModel->customSourceModel()->getIdRow(idPrim, m_initSelectRow),
+    ASSERT_DBG( m_filterPrxModel->customSqlSrcModel()->getIdRow(idPrim, m_initSelectRow),
                 cmmn::MessageException::type_warning, tr("Selection error"),
                 tr("Cannot select the row in the table \"%1\". Cannot find the item with id: %2")
                 .arg(m_DBTInfo->m_nameInUI).arg(idPrim.toString()),
@@ -144,7 +142,7 @@ cmmn::T_id DBTEditor::selectedId() const
 
 void DBTEditor::accept()
 {
-    if (m_filterPrxModel->customSourceModel()->isDirty()) {
+    if (m_filterPrxModel->customSqlSrcModel()->isDirty()) {
         /*
          * TODO: add application settings - "Automatic save by clicking "Ok"" (checkbox).
          * IF this setting is setted - make data autosaving when clicking "Ok" push button, ELSE - ask confirmation in user
@@ -180,16 +178,16 @@ void DBTEditor::askSaving()
 
 void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
 {
-    const QModelIndex &srcIndex = m_filterPrxModel->customSourceModel()->index( m_mapper->currentIndex(), fieldNo );
-    const QVariant &foreignId = m_filterPrxModel->customSourceModel()->data(srcIndex, Qt::UserRole);
+    const QModelIndex &srcIndex = m_filterPrxModel->customSqlSrcModel()->index( m_mapper->currentIndex(), fieldNo );
+    const QVariant &foreignId = m_filterPrxModel->customSqlSrcModel()->data(srcIndex, Qt::UserRole);
     DBTEditor childEditor(dbtInfo, this);
     connect(&childEditor, SIGNAL(sigDataSavedInDB()),
-            m_filterPrxModel->customSourceModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
+            m_filterPrxModel->customSqlSrcModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
     if ( !foreignId.isNull() ) // if data is NULL (this is a new record) -> don't select any row in the view
         childEditor.selectInitial(foreignId);
     if ( childEditor.exec() == QDialog::Accepted ) {
-        m_filterPrxModel->customSourceModel()->spike1_turnOn(); // switch ON the Spike #1
-        ASSERT_DBG( m_filterPrxModel->customSourceModel()->setData( srcIndex, childEditor.selectedId(), Qt::EditRole ),
+        m_filterPrxModel->customSqlSrcModel()->spike1_turnOn(); // switch ON the Spike #1
+        ASSERT_DBG( m_filterPrxModel->customSqlSrcModel()->setData( srcIndex, childEditor.selectedId(), Qt::EditRole ),
                     cmmn::MessageException::type_critical, tr("Error data setting"),
                     tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),
                     QString("DBTEditor::slotEditChildDBT") );

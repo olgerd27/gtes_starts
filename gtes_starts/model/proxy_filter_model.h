@@ -23,7 +23,7 @@ public:
     void setSqlTableName(const QString &tableName);
     void setSelectionAllower(SelectionAllower *sa);
 
-    CustomSqlTableModel * customSourceModel() const; // get pointer to the custom sql source model
+    CustomSqlTableModel * customSqlSrcModel() const; // get pointer to the custom sql source model
     cmmn::T_id selectedId() const;
 
 signals:
