@@ -14,7 +14,7 @@
 
 /*
  * DBTEditor
- * TODO: add the apply and revert push buttons on this window, as in example "Cached table"
+ * TODO: add the apply and revert push buttons on this window, as in example "Cached table". (Note: apply (save) push button already added )
  */
 DBTEditor::DBTEditor(const dbi::DBTInfo *dbtInfo, QWidget *parent)
     : QDialog(parent)

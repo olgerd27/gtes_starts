@@ -137,6 +137,7 @@ void EditUICreator::createUI(QWidget *parent)
 
         // create field widget and place to the layout
         fWgt = createFieldWidget( dbtField.m_widgetType, dbtField.isKey(), m_wgtDataSender.get() );
+        if (field == 0) setBoldFont(fWgt); // set bold font in the "Id" lineEdit
         m_mapper->addMapping(fWgt, field + 1); // +1 - because the proxy model add decoration icon as first column in DB table
         fwPlacer = createWidgetPlacer(dbtField, layout, fwPlacer);
         fwPlacer->placeWidget(field, 1, fWgt);
@@ -146,6 +147,13 @@ void EditUICreator::createUI(QWidget *parent)
         cmmnPlacer->placeWidget(field, 2, pbse);
         setEditChildPB(pbse, dbtField.m_relationDBTable, field);
     }
+}
+
+void EditUICreator::setBoldFont(QWidget *wgt)
+{
+    QFont f = wgt->font();
+    f.setBold(true);
+    wgt->setFont(f);
 }
 
 SelectEditPB *EditUICreator::createSEPB(bool canCreate)
