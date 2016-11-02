@@ -20,13 +20,14 @@ SOURCES += main.cpp\
     model/custom_sql_table_model.cpp \
     model/generator_dbt_data.cpp \
     model/storage_gen_data.cpp \
-    model/proxy_model.cpp \
     model/selection_allower.cpp \
     widgets/reimplemented_widgets.cpp \
     widgets/fl_widgets.cpp \
     dbt_editor/edit_ui_creator.cpp \
     dbt_editor/table_view_ds.cpp \
-    widgets/widget_mapper.cpp
+    widgets/widget_mapper.cpp \
+    model/proxy_filter_model.cpp \
+    model/proxy_decor_model.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -39,13 +40,14 @@ HEADERS  += \
     model/custom_sql_table_model.h \
     model/generator_dbt_data.h \
     model/storage_gen_data.h \
-    model/proxy_model.h \
     model/selection_allower.h \
     widgets/reimplemented_widgets.h \
     widgets/fl_widgets.h \
     dbt_editor/edit_ui_creator.h \
     dbt_editor/table_view_ds.h \
-    widgets/widget_mapper.h
+    widgets/widget_mapper.h \
+    model/proxy_filter_model.h \
+    model/proxy_decor_model.h
 
 FORMS    += \
     appforms/main_window.ui \

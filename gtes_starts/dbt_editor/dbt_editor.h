@@ -6,11 +6,10 @@
 #include "../common/common_defines.h"
 
 /*
- * The class for editing database tables (DBT)
+ * This class provides UI and functionality for editing data in database tables (DBT).
  */
 namespace Ui { class DBTEditor; }
 namespace dbi { class DBTInfo; }
-class ProxyDecorModel;
 class ProxyFilterModel;
 class EditUICreator;
 class WidgetMapper;
@@ -55,8 +54,7 @@ private:
     // TODO: use the std::unique_ptr after debugging
     Ui::DBTEditor *m_ui;
     const dbi::DBTInfo *m_DBTInfo;
-    ProxyDecorModel *m_prxDecorMdl_1;
-    ProxyFilterModel *m_prxFilterMdl_2;
+    ProxyFilterModel *m_filterPrxModel;
     WidgetMapper *m_mapper;
     std::unique_ptr<EditUICreator> m_editUICreator;
     int m_initSelectRow;

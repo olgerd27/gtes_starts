@@ -3,7 +3,9 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include "table_view_ds.h"
-#include "../model/proxy_model.h"
+#ifdef __linux__
+#include "../model/proxy_decor_model.h"
+#endif
 
 // HighlightTableRowsDelegate
 class HighlightTableRowsDelegate : public QStyledItemDelegate

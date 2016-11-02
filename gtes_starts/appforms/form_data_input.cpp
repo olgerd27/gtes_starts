@@ -1,16 +1,14 @@
 #include <QSqlError>
 #include <QMessageBox>
 #include <QSplitter> // TODO: temp, delete later
-#include <QDebug>
-
-#include "../model/proxy_model.h"
+#include <QDebug>  // TODO: temp, delete later
 #include <QTableView> // TODO: for testing, delete later
 
 #include "form_data_input.h"
 #include "ui_form_data_input.h"
 #include "../dbt_editor/dbt_editor.h"
 #include "../model/custom_sql_table_model.h"
-#include "../model/proxy_model.h"
+#include "../model/proxy_decor_model.h"
 #include "../common/db_info.h"
 #include "../widgets/fl_widgets.h"
 #include "../widgets/widget_mapper.h"

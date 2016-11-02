@@ -4,7 +4,6 @@
 #include <memory>
 #include <QAbstractProxyModel>
 #include <QIcon>
-#include <QSortFilterProxyModel>
 #include "../common/common_defines.h"
 
 /*
@@ -19,7 +18,7 @@ class ProxyDecorModel : public QAbstractProxyModel
 public:
     enum {
         SELECT_ICON_COLUMN = 0, // index of the inserted column
-        COUNT_ADDED_COLUMNS // count of added columns
+        COUNT_ADDED_COLUMNS     // count of added columns
     };
 
     explicit ProxyDecorModel(QObject *parent = 0);
@@ -70,31 +69,6 @@ private:
     int m_selectedId; // TODO: using selected Id value (instead of selected row) may allow don't use (maybe partial) the IRDefiner and it childs classes. Test it!
     QIcon m_selectIcon;
     std::unique_ptr<RowsChangesHolder> m_changedRows;
-};
-
-/*
- * The proxy model that allow to filter model data.
- */
-class SelectionAllower;
-class ProxyFilterModel : public QSortFilterProxyModel
-{
-    Q_OBJECT
-
-public:
-    ProxyFilterModel(QObject *parent = 0);
-    ~ProxyFilterModel();
-    void setSelectionAllower(SelectionAllower *sa);
-
-signals:
-    void sigSelectionEnded();
-
-public slots:
-    void slotChooseRow(const QItemSelection &selected, const QItemSelection &deselected);
-
-private:
-    void updatePrevDeselected(const QModelIndexList &deselectList);
-
-    std::unique_ptr<SelectionAllower> m_selectAllow;
 };
 
 #endif // PROXY_MODEL_H
