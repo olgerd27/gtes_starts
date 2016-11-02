@@ -17,17 +17,17 @@ SOURCES += main.cpp\
     dbt_editor/dbt_editor.cpp \
     common/db_info.cpp \
     common/common_defines.cpp \
-    model/custom_sql_table_model.cpp \
-    model/sql_gen/generator_dbt_data.cpp \
-    model/sql_gen/storage_gen_data.cpp \
-    model/selection_allower.cpp \
+    models/src_sql/custom_sql_table_model.cpp \
+    models/src_sql/generator_dbt_data.cpp \
+    models/src_sql/storage_gen_data.cpp \
     widgets/reimplemented_widgets.cpp \
     widgets/fl_widgets.cpp \
     dbt_editor/edit_ui_creator.cpp \
     dbt_editor/table_view_ds.cpp \
     widgets/widget_mapper.cpp \
-    model/proxy_filter_model.cpp \
-    model/proxy_decor_model.cpp
+    models/prx_decor/proxy_decor_model.cpp \
+    models/prx_filter/proxy_filter_model.cpp \
+    models/prx_filter/selection_allower.cpp
 
 HEADERS  += \
     appforms/main_window.h \
@@ -37,17 +37,17 @@ HEADERS  += \
     dbt_editor/dbt_editor.h \
     common/db_info.h \
     common/common_defines.h \
-    model/custom_sql_table_model.h \
-    model/sql_gen/generator_dbt_data.h \
-    model/sql_gen/storage_gen_data.h \
-    model/selection_allower.h \
+    models/src_sql/custom_sql_table_model.h \
+    models/src_sql/generator_dbt_data.h \
+    models/src_sql/storage_gen_data.h \
     widgets/reimplemented_widgets.h \
     widgets/fl_widgets.h \
     dbt_editor/edit_ui_creator.h \
     dbt_editor/table_view_ds.h \
     widgets/widget_mapper.h \
-    model/proxy_filter_model.h \
-    model/proxy_decor_model.h
+    models/prx_decor/proxy_decor_model.h \
+    models/prx_filter/proxy_filter_model.h \
+    models/prx_filter/selection_allower.h
 
 FORMS    += \
     appforms/main_window.ui \

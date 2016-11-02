@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <QStringList>
-#include "../common/common_defines.h"
+#include "../../common/common_defines.h"
 
 namespace dbi {
     class DBTFieldInfo;

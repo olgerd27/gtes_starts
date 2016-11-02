@@ -3,7 +3,7 @@
 
 #include <QSqlRelationalTableModel>
 #include <memory>
-#include "../common/common_defines.h"
+#include "../../common/common_defines.h"
 
 // The main model, that perform interactions with DB
 class GeneratorDBTData;

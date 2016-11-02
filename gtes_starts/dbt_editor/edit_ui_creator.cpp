@@ -1,5 +1,4 @@
 #include <QDebug>
-
 #include "edit_ui_creator.h"
 #include "../common/db_info.h"
 #include "../common/common_defines.h"

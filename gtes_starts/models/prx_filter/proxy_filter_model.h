@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <QSortFilterProxyModel>
-#include "../common/common_defines.h"
+#include "../../common/common_defines.h"
 
 /*
  * The proxy model that performs filtering of model data.

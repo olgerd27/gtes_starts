@@ -1,6 +1,6 @@
 #include "proxy_filter_model.h"
-#include "proxy_decor_model.h"
-#include "custom_sql_table_model.h"
+#include "../prx_decor/proxy_decor_model.h"
+#include "../src_sql/custom_sql_table_model.h"
 #include "selection_allower.h"
 
 /*

@@ -4,7 +4,7 @@
 #include <QDebug>
 #include "table_view_ds.h"
 #ifdef __linux__
-#include "../model/proxy_decor_model.h"
+#include "../models/prx_decor/proxy_decor_model.h"
 #endif
 
 // HighlightTableRowsDelegate

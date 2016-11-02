@@ -4,7 +4,7 @@
 #include <memory>
 #include <QAbstractProxyModel>
 #include <QIcon>
-#include "../common/common_defines.h"
+#include "../../common/common_defines.h"
 
 /*
  * The proxy model that add the choice decoration (Ok icon) to the data model.

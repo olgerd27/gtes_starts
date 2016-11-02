@@ -3,7 +3,7 @@
 #include <QVector>
 #include <QDebug>
 #include "generator_dbt_data.h"
-#include "../common/db_info.h"
+#include "../../common/db_info.h"
 
 /* QueryGenerator */
 GeneratorDBTData::QueryGenerator::QueryGenerator(TypeQueryGenerator typeqg)

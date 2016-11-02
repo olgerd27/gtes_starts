@@ -3,9 +3,9 @@
 #include <QDebug>
 #include "dbt_editor.h"
 #include "ui_dbt_editor.h"
-#include "../model/custom_sql_table_model.h"
-#include "../model/proxy_filter_model.h"
-#include "../model/selection_allower.h"
+#include "../models/src_sql/custom_sql_table_model.h"
+#include "../models/prx_filter/proxy_filter_model.h"
+#include "../models/prx_filter/selection_allower.h"
 #include "edit_ui_creator.h"
 #include "../common/db_info.h"
 #include "../widgets/fl_widgets.h"

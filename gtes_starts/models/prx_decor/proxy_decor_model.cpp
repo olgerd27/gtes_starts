@@ -3,7 +3,7 @@
 #include <QLineEdit>
 #include <QDebug>
 #include "proxy_decor_model.h"
-#include "custom_sql_table_model.h"
+#include "../src_sql/custom_sql_table_model.h"
 
 /*
  * RowsChangesHolder - storage of rows changes

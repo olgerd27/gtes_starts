@@ -6,7 +6,7 @@
 #include "custom_sql_table_model.h"
 #include "generator_dbt_data.h"
 #include "storage_gen_data.h"
-#include "../common/db_info.h"
+#include "../../common/db_info.h"
 
 /*
  * Spike1
