@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <memory>
 
+namespace dbi { class DBTInfo; }
+
 /*
  * Class for change model change type.
  * The available types are defined in the MChTypeLabel class, inherited from the QLabel.
@@ -12,7 +14,6 @@ class ChangerMChTypeImpl;
 class ChangerMChType : public QObject
 {
     Q_OBJECT
-
 public:
     explicit ChangerMChType(QObject *parent = 0);
     ~ChangerMChType();
@@ -23,18 +24,36 @@ public slots:
     void slotClearChanges();
 
 signals:
-    void sigChangeChangedType(int ctype);
-    void sigChangeChangedType(bool isDeleted);
+    void sigChangeChType(int chtype);
 
 private:
     std::unique_ptr<ChangerMChTypeImpl> m_pImpl; // std::unique_ptr<> needs ChangerMChType destructor implementation
 };
 
 /*
+ * EDGenerator - entity data generator. Generate data of any database entity, for example the "engine name" data.
+ */
+class QAbstractTableModel;
+class EDGenerator : public QObject
+{
+    Q_OBJECT
+public:
+    EDGenerator(const QAbstractTableModel *m, const dbi::DBTInfo *info);
+    inline void setDataEmpty(bool b) { m_isDataEmpty = b; }
+signals:
+    void sigGenerated(const QString &data);
+public slots:
+    void slotGenerate(int dbtRow);
+private:
+    const QAbstractTableModel *m_model;
+    const dbi::DBTInfo *m_dbtInfo;
+    bool m_isDataEmpty;
+};
+
+/*
  * The form for data input in the database
  */
 namespace Ui { class FormDataInput; }
-namespace dbi { class DBTInfo; }
 class ProxyDecorModel;
 class WidgetMapper;
 class SelectEditPB; // TODO: delete after adding the EditUICreator for creating interface
@@ -58,11 +77,9 @@ signals:
     void sigWrongIdEntered();
     void sigFirstRowReached(bool);
     void sigLastRowReached(bool);
-    void sigEngineNameGenerated(const QString &engName);
 
 private slots:
     void slotNeedChangeMapperIndex(const QString &value);
-    void slotGenEngineName(int row);
     void slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo);
 
 private:
@@ -82,6 +99,7 @@ private:
     WidgetMapper *m_mapper;
     EditUICreator *m_editUICreator;
     ChangerMChType *m_mchTChanger;
+    EDGenerator *m_edgen;
 };
 
 #endif // FORM_DATA_INPUT_H

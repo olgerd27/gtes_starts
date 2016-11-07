@@ -15,7 +15,6 @@ public:
     enum ChangesTypes {
           chtype_insert
         , chtype_delete
-        , chtype_alter
         , chtype_invalid
     };
 

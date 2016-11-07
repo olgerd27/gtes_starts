@@ -14,6 +14,8 @@ ProxyDecorModel::ProxyDecorModel(QObject *parent)
     , m_selectedId(NOT_SETTED)
     , m_selectIcon(":/images/ok.png")
     , m_changedRows(new RowsChangesHolder)
+    , m_colors { QColor(0, 110, 0, 120), /* transperent green */
+                 QColor(255, 0, 0, 120)  /* transperent red */ }
 {
     /*
      * NOTE: For insertion a new virtual column in this model you cannot use the QAbstractProxyModel::insertColumn(),
@@ -46,9 +48,9 @@ QVariant ProxyDecorModel::data(const QModelIndex &index, int role) const
         data = QVariant();
     else if ( role == Qt::BackgroundColorRole && m_changedRows->getChangeForRow(index.row(), &changeType) ) {
         if (changeType == RowsChangesHolder::chtype_insert)
-            data = QColor(0, 110, 0, 80); // set transperent green background
+            data = m_colors[clrIdx_insert];
         else if (changeType == RowsChangesHolder::chtype_delete)
-            data = QColor(255, 0, 0, 80); // set transperent red background
+            data = m_colors[clrIdx_delete];
     }
     else if ( role == Qt::TextAlignmentRole && this->data(index, Qt::DisplayRole).convert(QMetaType::Float) )
         data = Qt::AlignCenter; // center alignment of the numerical values
@@ -234,7 +236,7 @@ void ProxyDecorModel::slotDeleteRow(int currentRow)
     IRDefiner::DefinerType defType;
     if ( m_changedRows->hasRowChange(currentRow, RowsChangesHolder::chtype_insert) ) {
         // if row has "insert change" -> delete change of the last row in the model
-        // (deletion the model's just inserted row in fact delete row from model completely)
+        // (deletion the model's just inserted row in fact delete row from model completely - Qt MVC-pattern behaviour)
         ASSERT_DBG( m_changedRows->deleteChange(rowCount()),
                     cmmn::MessageException::type_critical, QObject::tr("Error delete row"),
                     QObject::tr("Cannot delete row change from the row changes storage"),
@@ -242,7 +244,7 @@ void ProxyDecorModel::slotDeleteRow(int currentRow)
         defType = IRDefiner::dtype_deleteInserted;
     }
     else {
-        // if row is existent in the DB -> save it index as deleted and define appropriate type of row index definer
+        // if row is existent in the DB (isn't just inserted) -> save it index as deleted and define appropriate type of row index definer
         m_changedRows->addChange(currentRow, RowsChangesHolder::chtype_delete); // save current row delete change
         defType = IRDefiner::dtype_deleteExistent;
     }

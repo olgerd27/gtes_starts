@@ -80,13 +80,13 @@ void MChTypeLabel::slotChangeType(int ctype)
     case ctype_inserted:
     {
         strType = tr("inserted");
-        setCustomPalette(pal, Qt::darkGreen);
+        setCustomPalette(pal, QColor(0, 110, 0, 120));
         isAFBG = true;
         break;
     }
     case ctype_deleted:
         strType = tr("deleted");
-        setCustomPalette(pal, Qt::red);
+        setCustomPalette(pal, QColor(255, 0, 0, 120));
         isAFBG = true;
         break;
     case ctype_noChange:
@@ -104,10 +104,8 @@ void MChTypeLabel::slotChangeType(int ctype)
     setAutoFillBackground(isAFBG);
 }
 
-void MChTypeLabel::setCustomPalette(QPalette &pal, Qt::GlobalColor glColorBack)
+void MChTypeLabel::setCustomPalette(QPalette &pal, QColor colorBack)
 {
-    QColor colorBack(glColorBack);
-    colorBack.setAlpha(150);
     pal.setColor(QPalette::Window, colorBack);
     pal.setColor(QPalette::WindowText, Qt::white);
 }

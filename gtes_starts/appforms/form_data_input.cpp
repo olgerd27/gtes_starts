@@ -24,16 +24,15 @@ public:
     typedef QMap<T_id, MChTypeLabel::ChangeTypes> T_modelChanges;
     inline void updateModelChange(T_id idPrim, MChTypeLabel::ChangeTypes changeType) { m_changes[idPrim] = changeType; }
     inline void clearChanges() { m_changes.clear(); }
-    void checkModelChanges(T_id idPrim, MChTypeLabel::ChangeTypes *changeType, bool *isDeleted);
+    MChTypeLabel::ChangeTypes getChange(T_id idPrim);
 private:
     T_modelChanges m_changes;
 };
 
-void ChangerMChTypeImpl::checkModelChanges(T_id idPrim, MChTypeLabel::ChangeTypes *changeType, bool *isDeleted)
+MChTypeLabel::ChangeTypes ChangerMChTypeImpl::getChange(T_id idPrim)
 {
     auto it = m_changes.find(idPrim);
-    if (it != m_changes.end()) *changeType = it.value();
-    *isDeleted = (*changeType == MChTypeLabel::ctype_deleted);
+    return it != m_changes.end() ? it.value() : MChTypeLabel::ctype_noChange;
 }
 
 /*
@@ -69,13 +68,28 @@ void ChangerMChType::slotCheckModelChanges(const QVariant &idPrimary)
         // TODO: generate the error
         qCritical() << "[CRITICAL ERROR] Cannot check the model changes. The primary id value is invalid";
     }
-    MChTypeLabel::ChangeTypes ctype = MChTypeLabel::ctype_noChange;
-    bool isDeleted = false;
     cmmn::T_id id;
     CHECK_ERROR_CONVERT_ID( cmmn::safeQVariantToIdType(idPrimary, id), idPrimary );
-    m_pImpl->checkModelChanges( id, &ctype, &isDeleted );
-    emit sigChangeChangedType(ctype);
-    emit sigChangeChangedType(isDeleted);
+    emit sigChangeChType( m_pImpl->getChange(id) );
+}
+
+/*
+ * EDGenerator
+ */
+EDGenerator::EDGenerator(const QAbstractTableModel *m, const dbi::DBTInfo *info)
+    : m_model(m)
+    , m_dbtInfo(info)
+    , m_isDataEmpty(false)
+{}
+
+void EDGenerator::slotGenerate(int dbtRow)
+{
+    QString genData;
+    if (!m_isDataEmpty)
+        for (const auto &identInf : m_dbtInfo->m_idnFields)
+            genData += ( identInf.m_strBefore +
+                         m_model->data(m_model->index(dbtRow, identInf.m_NField)).toString() );
+    emit sigGenerated(genData);
 }
 
 /*
@@ -89,6 +103,7 @@ FormDataInput::FormDataInput(QWidget *parent)
     , m_mapper(new WidgetMapper(this))
     , m_editUICreator(new EditUICreator(m_DBTInfo, m_mapper, this))
     , m_mchTChanger(new ChangerMChType(this))
+    , m_edgen( new EDGenerator(m_prxDecorMdl->customSourceModel(), m_DBTInfo) )
 {
     m_ui->setupUi(this);
     setModel();
@@ -273,22 +288,30 @@ void FormDataInput::setModelChange()
     {
         m_mchTChanger->slotCheckModelChanges( m_prxDecorMdl->rowId(index) );
     } );
-    connect(m_mchTChanger, SIGNAL(sigChangeChangedType(bool)), m_ui->m_gboxEngineData, SLOT(setDisabled(bool)));
-    connect(m_mchTChanger, SIGNAL(sigChangeChangedType(int)), m_ui->m_lblModelChangeType, SLOT(slotChangeType(int)));
+    connect(m_mchTChanger, SIGNAL(sigChangeChType(int)), m_ui->m_lblModelChangeType, SLOT(slotChangeType(int)));
+    connect(m_mchTChanger, &ChangerMChType::sigChangeChType, [this](int changeType)
+    {
+        bool isDeleted = changeType == MChTypeLabel::ctype_deleted;
+        this->m_ui->m_gboxEngineData->setDisabled(isDeleted);
+        this->m_edgen->setDataEmpty(isDeleted);
+        // TODO: show disabled engines name when it was deleted. Now it is showing empty string instead of the name of deleted engine.
+        // To achieve this there are need to get generated engines name before deleting its record and save it to the storage (maybe to the EDGenerator).
+//        this->m_ui->m_lblEngineName->setDisabled(isDeleted);
+    });
 }
 
 void FormDataInput::setEngineName()
 {
-    // Generate engine name in two case: when mapper's index changes and when model's data changes
-    connect(m_mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(slotGenEngineName(int))); // generate engine name when mapper's index changes
+    // Generate engine name in two cases: when mapper's index changes and when model's data changes
+    connect(m_mapper, SIGNAL(currentIndexChanged(int)), m_edgen, SLOT(slotGenerate(int))); // generate engine name when mapper's index changes
     connect(m_prxDecorMdl, &QAbstractItemModel::dataChanged,
             [this](const QModelIndex &topLeft, const QModelIndex &/*bottomRight*/)
     {
         if (topLeft.column() != ProxyDecorModel::SELECT_ICON_COLUMN)
-            slotGenEngineName(topLeft.row());
+            m_edgen->slotGenerate(topLeft.row());
     }); // generate engine name when model's data changes
-    connect(this, SIGNAL(sigEngineNameGenerated(QString)), m_ui->m_lblEngineName, SLOT(setText(QString)));
-    slotGenEngineName(m_mapper->currentIndex()); // generate initial engine name
+    connect(m_edgen, SIGNAL(sigGenerated(QString)), m_ui->m_lblEngineName, SLOT(setText(QString)));
+    m_edgen->slotGenerate(m_mapper->currentIndex()); // generate initial engine name
 }
 
 FormDataInput::~FormDataInput()
@@ -298,6 +321,7 @@ FormDataInput::~FormDataInput()
     delete m_mapper;
     delete m_editUICreator;
     delete m_mchTChanger;
+    delete m_edgen;
 }
 
 void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
@@ -311,15 +335,6 @@ void FormDataInput::slotNeedChangeMapperIndex(const QString &value)
                              .arg(value));
         emit sigWrongIdEntered();
     }
-}
-
-void FormDataInput::slotGenEngineName(int row)
-{
-    QString engineName;
-    for (const auto &identInf : m_DBTInfo->m_idnFields)
-        engineName += ( identInf.m_strBefore +
-                        m_prxDecorMdl->index( row, identInf.m_NField + ProxyDecorModel::COUNT_ADDED_COLUMNS ).data().toString() );
-    emit sigEngineNameGenerated(engineName);
 }
 
 void FormDataInput::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)

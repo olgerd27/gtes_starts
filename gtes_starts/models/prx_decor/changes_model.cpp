@@ -54,7 +54,6 @@ void RowsChangesHolder::print() const
     for (auto it = m_rowsChanges.cbegin(); it != m_rowsChanges.cend(); ++it) {
         if (it.value() == chtype_insert) name = "INSERT";
         else if (it.value() == chtype_delete) name = "DELETE";
-        else if (it.value() == chtype_alter) name = "ALTER";
         else if (it.value() == chtype_invalid) name = "INVALID";
         else name = "UNKNOWN";
         qDebug() << "  " << it.key() << ":" << name;

@@ -61,6 +61,11 @@ public slots:
 
 private:
     enum { NOT_SETTED = -1 };
+    enum ColorsIndexes {
+          clrIdx_insert = 0
+        , clrIdx_delete
+        , clrIdx_SIZE
+    };
 
     void updatePrevDeselected(const QModelIndexList &deselectList);
     void changeRow(int defType, int row = NOT_SETTED);
@@ -69,6 +74,7 @@ private:
     int m_selectedId; // TODO: using selected Id value (instead of selected row) may allow don't use (maybe partial) the IRDefiner and it childs classes. Test it!
     QIcon m_selectIcon;
     std::unique_ptr<RowsChangesHolder> m_changedRows;
+    const QColor m_colors[clrIdx_SIZE];
 };
 
 #endif // PROXY_MODEL_H
