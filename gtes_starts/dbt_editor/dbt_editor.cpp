@@ -179,8 +179,8 @@ void DBTEditor::askSaving()
 
 void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
 {
-    const QModelIndex &currIdx = m_filterPrxModel->decorProxyModel()->index( m_mapper->currentIndex(), fieldNo + ProxyDecorModel::COUNT_ADDED_COLUMNS );
-    const QVariant &forId = m_filterPrxModel->decorProxyModel()->data(currIdx, Qt::UserRole);
+    const QModelIndex &currIdx = m_filterPrxModel->index( m_mapper->currentIndex(), fieldNo + ProxyDecorModel::COUNT_ADDED_COLUMNS );
+    const QVariant &forId = m_filterPrxModel->data(currIdx, Qt::UserRole);
     DBTEditor childEditor(dbtInfo, this);
     connect(&childEditor, SIGNAL(sigDataSavedInDB()),
             m_filterPrxModel->customSqlSrcModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
@@ -188,10 +188,34 @@ void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
         childEditor.selectInitial(forId);
     if ( childEditor.exec() == QDialog::Accepted ) {
         m_filterPrxModel->customSqlSrcModel()->spike1_turnOn(); // switch ON the Spike #1
-        ASSERT_DBG( m_filterPrxModel->decorProxyModel()->setData( currIdx, childEditor.selectedId(), Qt::EditRole ),
+        ASSERT_DBG( m_filterPrxModel->setData( currIdx, childEditor.selectedId(), Qt::EditRole ),
                     cmmn::MessageException::type_critical, tr("Error data setting"),
                     tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),
                     QString("DBTEditor::slotEditChildDBT") );
         qDebug() << "The id value: \"" << childEditor.selectedId() << "\" was successfully setted to the model";
     }
 }
+
+//void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
+//{
+//    //    const auto &idxFltr = m_filterPrxModel->index( m_mapper->currentIndex(), fieldNo + ProxyDecorModel::COUNT_ADDED_COLUMNS );
+//    //    qDebug() << "slotEditChildDBT() filter model index: [" << idxFltr.row() << "," << idxFltr.column() << "], data: " << m_filterPrxModel->data(idxFltr).toString();
+//    //    const auto &idxDecor = m_filterPrxModel->mapToSource(idxFltr);
+//    //    qDebug() << "map to decor proxy index: [" << idxDecor.row() << "," << idxDecor.column() << "], data: " << idxDecor.data().toString();
+
+//    const QModelIndex &currIdx = m_filterPrxModel->decorProxyModel()->index( m_mapper->currentIndex(), fieldNo + ProxyDecorModel::COUNT_ADDED_COLUMNS );
+//    const QVariant &forId = m_filterPrxModel->decorProxyModel()->data(currIdx, Qt::UserRole);
+//    DBTEditor childEditor(dbtInfo, this);
+//    connect(&childEditor, SIGNAL(sigDataSavedInDB()),
+//            m_filterPrxModel->customSqlSrcModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
+//    if ( !forId.isNull() ) // if data is NULL (this is a new record) -> don't select any row in the view
+//        childEditor.selectInitial(forId);
+//    if ( childEditor.exec() == QDialog::Accepted ) {
+//        m_filterPrxModel->customSqlSrcModel()->spike1_turnOn(); // switch ON the Spike #1
+//        ASSERT_DBG( m_filterPrxModel->decorProxyModel()->setData( currIdx, childEditor.selectedId(), Qt::EditRole ),
+//                    cmmn::MessageException::type_critical, tr("Error data setting"),
+//                    tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),
+//                    QString("DBTEditor::slotEditChildDBT") );
+//        qDebug() << "The id value: \"" << childEditor.selectedId() << "\" was successfully setted to the model";
+//    }
+//}

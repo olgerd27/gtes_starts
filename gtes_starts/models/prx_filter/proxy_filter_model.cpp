@@ -30,14 +30,20 @@ void ProxyFilterModel::setSelectionAllower(SelectionAllower *sa)
     m_selectAllow.reset(sa);
 }
 
+QVariant ProxyFilterModel::data(const QModelIndex &index, int role) const
+{
+    return QSortFilterProxyModel::data(index, role);
+}
+
+bool ProxyFilterModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    bool bSetted = QSortFilterProxyModel::setData(index, value, role);
+    if (bSetted) dataChanged(index, index);
+    return bSetted;
+}
+
 CustomSqlTableModel *ProxyFilterModel::customSqlSrcModel() const
 {
-//    CustomSqlTableModel *srcModel = qobject_cast<CustomSqlTableModel *>(m_decorPrxModel->sourceModel());
-//    ASSERT_DBG( srcModel,
-//                cmmn::MessageException::type_critical, QObject::tr("Error get the custom source model"),
-//                QObject::tr("Unknow source model was setted to the proxy filter model"),
-//                QString("ProxyFilterModel::customSourceModel") );
-//    return srcModel;
     return m_decorPrxModel->customSourceModel();
 }
 
