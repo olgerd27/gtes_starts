@@ -24,6 +24,7 @@ public:
     void setSelectionAllower(SelectionAllower *sa);
 
     CustomSqlTableModel * customSqlSrcModel() const; // get pointer to the custom sql source model
+    ProxyDecorModel * decorProxyModel() const; // get the pointer to the decoration proxy model
     cmmn::T_id selectedId() const;
 
 signals:

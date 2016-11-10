@@ -4,6 +4,7 @@
 #include "dbt_editor.h"
 #include "ui_dbt_editor.h"
 #include "../models/src_sql/custom_sql_table_model.h"
+#include "../models/prx_decor/proxy_decor_model.h"
 #include "../models/prx_filter/proxy_filter_model.h"
 #include "../models/prx_filter/selection_allower.h"
 #include "edit_ui_creator.h"
@@ -178,16 +179,16 @@ void DBTEditor::askSaving()
 
 void DBTEditor::slotEditChildDBT(const dbi::DBTInfo *dbtInfo, int fieldNo)
 {
-    const QModelIndex &srcIndex = m_filterPrxModel->customSqlSrcModel()->index( m_mapper->currentIndex(), fieldNo );
-    const QVariant &foreignId = m_filterPrxModel->customSqlSrcModel()->data(srcIndex, Qt::UserRole);
+    const QModelIndex &currIdx = m_filterPrxModel->decorProxyModel()->index( m_mapper->currentIndex(), fieldNo + ProxyDecorModel::COUNT_ADDED_COLUMNS );
+    const QVariant &forId = m_filterPrxModel->decorProxyModel()->data(currIdx, Qt::UserRole);
     DBTEditor childEditor(dbtInfo, this);
     connect(&childEditor, SIGNAL(sigDataSavedInDB()),
             m_filterPrxModel->customSqlSrcModel(), SLOT(slotRefreshTheModel())); // save changes in the child model -> refresh the parent (current) model
-    if ( !foreignId.isNull() ) // if data is NULL (this is a new record) -> don't select any row in the view
-        childEditor.selectInitial(foreignId);
+    if ( !forId.isNull() ) // if data is NULL (this is a new record) -> don't select any row in the view
+        childEditor.selectInitial(forId);
     if ( childEditor.exec() == QDialog::Accepted ) {
         m_filterPrxModel->customSqlSrcModel()->spike1_turnOn(); // switch ON the Spike #1
-        ASSERT_DBG( m_filterPrxModel->customSqlSrcModel()->setData( srcIndex, childEditor.selectedId(), Qt::EditRole ),
+        ASSERT_DBG( m_filterPrxModel->decorProxyModel()->setData( currIdx, childEditor.selectedId(), Qt::EditRole ),
                     cmmn::MessageException::type_critical, tr("Error data setting"),
                     tr("Cannot set data: \"%1\" to the model").arg(childEditor.selectedId()),
                     QString("DBTEditor::slotEditChildDBT") );
