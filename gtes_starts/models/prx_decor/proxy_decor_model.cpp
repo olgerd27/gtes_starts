@@ -216,7 +216,7 @@ void ProxyDecorModel::slotAddRow()
 {
     int rowInsert = this->rowCount();
     beginInsertRows(QModelIndex(), rowInsert, rowInsert);
-    customSourceModel()->slotInsertToTheModel();
+    customSourceModel()->slotInsertRecord();
     // save current row insert change
     ASSERT_DBG( m_changedRows->addChange(rowInsert, RowsChangesHolder::chtype_insert),
                 cmmn::MessageException::type_critical, QObject::tr("Error add row"),
@@ -232,7 +232,7 @@ void ProxyDecorModel::slotDeleteRow(int currentRow)
     ASSERT_DBG( canDeleteRow(currentRow), cmmn::MessageException::type_warning, QObject::tr("Error delete row"),
                 QObject::tr("Cannot delete current row #%1").arg(currentRow),
                 QString("ProxyDecorModel::slotDeleteRow") );
-    customSourceModel()->slotDeleteRowRecord(currentRow);
+    customSourceModel()->slotDeleteRecord(currentRow);
     IRDefiner::DefinerType defType;
     if ( m_changedRows->hasRowChange(currentRow, RowsChangesHolder::chtype_insert) ) {
         // if row has "insert change" -> delete change of the last row in the model
@@ -259,7 +259,7 @@ bool ProxyDecorModel::canDeleteRow(int row) const
 
 void ProxyDecorModel::slotRefreshModel(int currentRow)
 {
-    customSourceModel()->slotRefreshTheModel();
+    customSourceModel()->slotRefreshModel();
     // definition - is or not the current row a new inserted row
     IRDefiner::DefinerType defType = m_changedRows->hasRowChange(currentRow, RowsChangesHolder::chtype_insert)
             ? IRDefiner::dtype_refreshInserted : IRDefiner::dtype_refreshExistent;
@@ -270,7 +270,7 @@ void ProxyDecorModel::slotRefreshModel(int currentRow)
 
 void ProxyDecorModel::slotSaveDataToDB(int currentRow)
 {
-    customSourceModel()->slotSaveToDB();
+    customSourceModel()->slotSaveInDB();
     clearDirtyChanges();
     qDebug() << "[proxy model] data SAVEd in the DB";
     changeRow(IRDefiner::dtype_save, currentRow);

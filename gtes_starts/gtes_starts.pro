@@ -11,8 +11,9 @@ CONFIG += c++11
 
 SOURCES += main.cpp\
     appforms/main_window.cpp \
-    appforms/form_queries.cpp \
+    appforms/engine_widget.cpp \
     appforms/form_data_input.cpp \
+    appforms/form_queries.cpp \
     appforms/form_options.cpp \
     common/db_info.cpp \
     common/common_defines.cpp \
@@ -32,8 +33,9 @@ SOURCES += main.cpp\
 
 HEADERS  += \
     appforms/main_window.h \
-    appforms/form_queries.h \
     appforms/form_data_input.h \
+    appforms/engine_widget.h \
+    appforms/form_queries.h \
     appforms/form_options.h \
     common/db_info.h \
     common/common_defines.h \
@@ -53,8 +55,8 @@ HEADERS  += \
 
 FORMS    += \
     appforms/main_window.ui \
-    appforms/form_queries.ui \
     appforms/form_data_input.ui \
+    appforms/form_queries.ui \
     appforms/form_options.ui \
     dbt_editor/dbt_editor.ui
 

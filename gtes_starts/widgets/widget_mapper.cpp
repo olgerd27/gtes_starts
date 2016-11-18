@@ -3,7 +3,14 @@
 
 WidgetMapper::WidgetMapper(QObject *parent)
     : QDataWidgetMapper(parent)
-{ }
+{
+    // checking boundaries of DB data records
+    connect(this, &QDataWidgetMapper::currentIndexChanged, [this](int row)
+    {
+        emit sigFirstRowReached(row <= 0);
+        emit sigLastRowReached(row >= model()->rowCount() - 1);
+    } );
+}
 
 WidgetMapper::~WidgetMapper()
 { }

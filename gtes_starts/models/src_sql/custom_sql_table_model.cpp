@@ -122,7 +122,7 @@ void CustomSqlTableModel::setTable(const QString &tableName)
     try {
         if (m_genDataStorage->isEmpty()) {
             defineForeignFields();
-            slotRefreshTheModel();
+            slotRefreshModel();
         }
     }
     catch (const cmmn::MessageException &me) {
@@ -191,7 +191,7 @@ bool CustomSqlTableModel::setData(const QModelIndex &idx, const QVariant &value,
     m_spike1->save(idx, value); // spike 1: save data and restore at the end of this method
     if (role == Qt::EditRole && value == NOT_SETTED) {
         // fill the model's new row by the empty values.
-        // The storages new rows filling performs earlier by calling the CustomSqlTableModel::slotInsertToTheModel()
+        // The storages new rows filling performs earlier by calling the CustomSqlTableModel::slotInsertRecord()
         bSetted = QSqlRelationalTableModel::setData(idx, QVariant(), role);
 //        qDebug() << "source setData(), NOT_SETTED: [" << idx.row() << "," << idx.column() << "],"
 //                 << "role:" << role << ", set data:" << value.toString() << ", bSetted:" << bSetted;
@@ -394,12 +394,12 @@ void CustomSqlTableModel::printHeader(int role) const
     qDebug() << "horizontal source header data, role =" << role << ", data:" << str;
 }
 
-void CustomSqlTableModel::slotRefreshTheModel()
+void CustomSqlTableModel::slotRefreshModel()
 {
     try {
         flushGenData(); // delete previous results
 
-//        qDebug() << "before slotRefreshTheModel()::select(), column count =" << columnCount();
+//        qDebug() << "before slotRefreshModel()::select(), column count =" << columnCount();
 //        printHeader(Qt::DisplayRole);
 //        printDataDB(Qt::DisplayRole);
 
@@ -408,13 +408,13 @@ void CustomSqlTableModel::slotRefreshTheModel()
             qCritical() << "[CRITICAL ERROR] Cannot refresh the model - error data populating.\nThe DB error text: " << lastError().text();
         }
 
-//        qDebug() << "after slotRefreshTheModel()::select(), column count =" << columnCount();
+//        qDebug() << "after slotRefreshModel()::select(), column count =" << columnCount();
 //        printHeader(Qt::DisplayRole);
 //        printDataDB(Qt::DisplayRole);
 
         setHeader(); // must calls only after calling the select method
 
-//        qDebug() << "after slotRefreshTheModel()::insertColumn() and setHeader, column count =" << columnCount();
+//        qDebug() << "after slotRefreshModel()::insertColumn() and setHeader, column count =" << columnCount();
 //        printHeader(Qt::DisplayRole);
 //        printDataDB(Qt::DisplayRole);
 
@@ -441,11 +441,11 @@ void CustomSqlTableModel::slotRefreshTheModel()
     }
 }
 
-void CustomSqlTableModel::slotInsertToTheModel()
+void CustomSqlTableModel::slotInsertRecord()
 {
     try {
         auto newId = insertNewRecord();
-        emit sigNewRecordInserted(rowCount() - 1, newId);
+        emit sigRecordInserted(rowCount() - 1, newId);
     }
     catch (const cmmn::MessageException &me) {
         // TODO: generate a message box with error depending on the cmmn::MessageException::MessageTypes
@@ -461,7 +461,7 @@ void CustomSqlTableModel::slotInsertToTheModel()
     }
 }
 
-void CustomSqlTableModel::slotDeleteRowRecord(int row)
+void CustomSqlTableModel::slotDeleteRecord(int row)
 {
     // getting the primary id value
     cmmn::T_id idPrimary;
@@ -472,21 +472,21 @@ void CustomSqlTableModel::slotDeleteRowRecord(int row)
     ASSERT_DBG( removeRow(row), cmmn::MessageException::type_critical, tr("Delete record error"),
                 tr("Cannot delete the record from the model of DB table %1. "
                    "Primary id = %2, row = %3").arg(tableName()).arg(idPrimary).arg(row),
-                QString("CustomSqlTableModel::slotDeleteRowRecord") );
+                QString("CustomSqlTableModel::slotDeleteRecord") );
     ASSERT_DBG( m_genDataStorage->deleteData(idPrimary), cmmn::MessageException::type_critical, tr("Delete record error"),
                 tr("Cannot delete the record from the custom data storage of the DB table %1. "
                    "Primary id = %2, row = %3").arg(tableName()).arg(idPrimary).arg(row),
-                QString("CustomSqlTableModel::slotDeleteRowRecord") );
+                QString("CustomSqlTableModel::slotDeleteRecord") );
     qDebug() << "The record successfully deleted. DBT:" << tableName() << ", primary id =" << idPrimary << ", row =" << row;
     emit sigRecordDeleted(row, idPrimary);
 }
 
-void CustomSqlTableModel::slotSaveToDB()
+void CustomSqlTableModel::slotSaveInDB()
 {
     qDebug() << "Custom model. SAVE 1";
     ASSERT_DBG( database().transaction(), cmmn::MessageException::type_warning, tr("Database transaction error"),
                 tr("The database driver do not support the transactions operations"),
-                QString("CustomSqlTableModel::slotSaveToDB") );
+                QString("CustomSqlTableModel::slotSaveInDB") );
     if (submitAll())
         database().commit();
     else {
@@ -494,7 +494,7 @@ void CustomSqlTableModel::slotSaveToDB()
         ASSERT_DBG( false, cmmn::MessageException::type_warning, tr("Error data submit to the database"),
                     tr("Cannot submit data to the database. The database report an ERROR #%1: %2")
                     .arg( lastError().nativeErrorCode() ).arg( lastError().text() ),
-                    QString("CustomSqlTableModel::slotSaveToDB") );
+                    QString("CustomSqlTableModel::slotSaveInDB") );
     }
     emit sigSavedInDB();
     qDebug() << "Custom model. SAVE 10";

@@ -5,6 +5,7 @@
 #include "table_view_ds.h"
 #ifdef __linux__
 #include "../models/prx_decor/proxy_decor_model.h"
+#include "../models/prx_filter/proxy_filter_model.h"
 #endif
 
 // HighlightTableRowsDelegate

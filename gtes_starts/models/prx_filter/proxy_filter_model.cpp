@@ -47,11 +47,6 @@ CustomSqlTableModel *ProxyFilterModel::customSqlSrcModel() const
     return m_decorPrxModel->customSourceModel();
 }
 
-ProxyDecorModel *ProxyFilterModel::decorProxyModel() const
-{
-    return m_decorPrxModel;
-}
-
 cmmn::T_id ProxyFilterModel::selectedId() const
 {
     return m_decorPrxModel->selectedId();
