@@ -114,12 +114,13 @@ CREATE TABLE IF NOT EXISTS settings_names (
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
 CREATE TABLE IF NOT EXISTS engines_settings (
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     engine_id MEDIUMINT UNSIGNED NOT NULL,
     setting_name_id MEDIUMINT UNSIGNED NOT NULL,
     setting_value FLOAT,
     comments VARCHAR(1000),
     serial_number MEDIUMINT UNSIGNED NOT NULL,
-    PRIMARY KEY (engine_id, setting_name_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -154,13 +155,14 @@ CREATE TABLE IF NOT EXISTS bypass_mount_places (
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
 CREATE TABLE IF NOT EXISTS engines_bypasses (
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     engine_id MEDIUMINT UNSIGNED NOT NULL,
     bypass_id MEDIUMINT UNSIGNED NOT NULL,
     mount_place_id TINYINT UNSIGNED NOT NULL,
     quantity TINYINT,
     comments VARCHAR(1000),
     serial_number MEDIUMINT UNSIGNED NOT NULL,
-    PRIMARY KEY (engine_id, bypass_id, mount_place_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -196,6 +198,7 @@ CREATE TABLE IF NOT EXISTS on_off_parameters (
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
 CREATE TABLE IF NOT EXISTS engines_algorithms (
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     engine_id MEDIUMINT UNSIGNED NOT NULL,
     parameter_id SMALLINT UNSIGNED NOT NULL,
     switching_on_id SMALLINT UNSIGNED,
@@ -204,7 +207,7 @@ CREATE TABLE IF NOT EXISTS engines_algorithms (
     switching_off_value FLOAT,
     comments VARCHAR(1000),
     serial_number MEDIUMINT UNSIGNED NOT NULL,
-    PRIMARY KEY (engine_id, parameter_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -239,11 +242,12 @@ CREATE TABLE IF NOT EXISTS documents (
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
 CREATE TABLE IF NOT EXISTS engines_documents (
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     engine_id MEDIUMINT UNSIGNED NOT NULL,
     document_id SMALLINT UNSIGNED NOT NULL,
     comments VARCHAR(1000),
     serial_number MEDIUMINT UNSIGNED NOT NULL,
-    PRIMARY KEY (engine_id, document_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -272,12 +276,13 @@ CREATE TABLE IF NOT EXISTS graphs_parameters_values (
 )  ENGINE InnoDB CHARACTER SET cp1251;
 
 CREATE TABLE IF NOT EXISTS engines_graphs (
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE,
     engine_id MEDIUMINT UNSIGNED NOT NULL,
     par_x_id MEDIUMINT UNSIGNED NOT NULL,
     par_y_id MEDIUMINT UNSIGNED NOT NULL,
     comments VARCHAR(1000),
     serial_number MEDIUMINT UNSIGNED NOT NULL,
-    PRIMARY KEY (engine_id, par_x_id, par_y_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (engine_id)
         REFERENCES engines (id)
         ON DELETE RESTRICT ON UPDATE CASCADE,

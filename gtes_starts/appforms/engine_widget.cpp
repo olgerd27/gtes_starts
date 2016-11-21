@@ -83,8 +83,7 @@ void EDGenerator::slotGenerate(int row)
     QString genData;
     if (!m_isDataEmpty)
         for (const auto &identInf : m_dbtInfo->m_idnFields)
-            genData += ( identInf.m_strBefore +
-                         m_model->data(m_model->index(row, identInf.m_NField)).toString() );
+            genData += ( identInf.m_strAdd + m_model->data(m_model->index(row, identInf.m_NField)).toString() );
     emit sigGenerated(genData);
 }
 

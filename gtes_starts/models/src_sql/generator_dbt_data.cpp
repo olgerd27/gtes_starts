@@ -23,11 +23,11 @@ void GeneratorDBTData::QueryGenerator::generateQuery()
 //    qDebug() << "Not ready query data:\nSELECT:" << m_listSelect << "\nFROM:" << m_listFrom << "\nWHERE:" << m_listWhere;
     finalPrepare(); // the Template Method
     m_quantityRes = m_listSelect.size(); // save quantity of the result data
-//    qDebug() << "Ready query data:\nSELECT:" << m_listSelect.join(", ") << "\nFROM:" << m_listFrom.join(", ") << "\nWHERE:" << m_listWhere.join(", ");
+    qDebug() << "Ready query data:\nSELECT:" << m_listSelect.join(", ") << "\nFROM:" << m_listFrom.join(", ") << "\nWHERE:" << m_listWhere.join(", ");
     m_resQuery = QString("SELECT %1 FROM %2 WHERE %3;")
                  .arg( m_listSelect.join(", ") ).arg( m_listFrom.join(", ") ).arg( concatWhere() );
     flush();
-    //    qDebug() << "query:" << m_resQuery;
+        qDebug() << "res query:" << m_resQuery;
 }
 
 QString GeneratorDBTData::QueryGenerator::concatWhere() const
@@ -149,21 +149,20 @@ void GeneratorDBTData::generate(const dbi::DBTFieldInfo &foreignFieldInf)
 //    qDebug() << "generate() 1, field:" << foreignFieldInf.m_nameInDB;
     generate_Mask_QueryData( foreignFieldInf, fieldsCounter );
 //    qDebug() << "generate() 2";
-//    qDebug() << "MASK:" << m_strMask;
+    qDebug() << "MASK:" << m_strMask;
     generateResultData();
 //    qDebug() << "generate() 3";
 }
 
-/* Generate data mask and data for generation query string */
+// Generate data mask and data for generation query string
 void GeneratorDBTData::generate_Mask_QueryData(const dbi::DBTFieldInfo &ffield, int &fieldCounter)
 {
     dbi::DBTInfo *table = dbi::relatedDBT(ffield);
-    const auto &idnFieldsArr = table->m_idnFields;
-    for (const auto &idnField : idnFieldsArr) {
-        m_strMask += idnField.m_strBefore;
+    for (const auto &idnField : table->m_idnFields) {
+        m_strMask += idnField.m_strAdd;
 
         if ( dbi::DBTInfo::isUseStringAfter(idnField.m_NField) )
-            continue; // in this case a "string before" become a "string after" after the previous "field number"
+            continue; // in this case the "additional string" from "string before" turn into the "string after" of the previous "field number"
 
         const dbi::DBTFieldInfo &fieldInf = table->fieldByIndex( idnField.m_NField );
         if (fieldInf.isForeign()) {

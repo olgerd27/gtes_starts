@@ -4,6 +4,10 @@
 #include "ui_form_data_input.h"
 #include "engine_widget.h"
 
+// TODO: temp, delete later
+#include "../models/prx_decor/proxy_decor_model.h"
+#include "../models/src_sql/custom_sql_table_model.h"
+
 /*
  * FormDataInput
  */
@@ -18,6 +22,20 @@ FormDataInput::FormDataInput(QWidget *parent)
     connect(m_ui->tabEngines, SIGNAL(sigChTypeToDeletedChanged(bool)), m_ui->m_lblEngineName, SLOT(setDisabled(bool)));
     connect(m_ui->tabEngines, SIGNAL(sigEngineNameGenerated(QString)), m_ui->m_lblEngineName, SLOT(setText(QString)));
     m_ui->tabEngines->init();
+
+    /*
+     * TODO: when data was saved in the "engines" DB tale, there are need to refresh data in all composite DB tables.
+     * Or, maybe do not refresh, but save flag that "engines" DB changes saved. And when user click to a some tab
+     * with editor of a some DB table, data will be refreshed in this particular DB table and displays already refreshed on this tab.
+     */
+
+    // test of composite DB table editor
+    qDebug() << "********** engines_bypasses **********";
+    ProxyDecorModel *model = new ProxyDecorModel(this);
+    model->setSqlTableName("engines_bypasses");
+//    model->customSourceModel()->setFilter("engine_id='1'");
+    m_ui->m_tvDBTContent->setModel(model);
+    qDebug() << "********** **********";
 }
 
 void FormDataInput::setMainControls()
