@@ -4,7 +4,7 @@
 #include <QVector>
 #include <QMap>
 #include <QVariant>
-#include "../common/common_defines.h"
+#include "../../common/common_defines.h"
 
 /*
  * The class for storing generated data

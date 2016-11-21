@@ -259,7 +259,8 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "engines_settings", trans("Settings"), DBTInfo::ttype_composite,
             {
-                  {"engine_id", trans("Engine's id"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"engine_id", trans("Engine's id"), DBTFieldInfo::wtype_lineEdit, "engines"}
                 , {"setting_name_id", trans("Setting's name id"), DBTFieldInfo::wtype_lineEdit, "settings_names"}
                 , {"setting_value", trans("Setting's value"), DBTFieldInfo::wtype_spinBoxDouble, ""}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
@@ -320,14 +321,15 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "engines_bypasses", trans("Bypasses"), DBTInfo::ttype_composite,
             {
-                  {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
                 , {"bypass_id", trans("Bypass"), DBTFieldInfo::wtype_lineEdit, "bypasses"}
                 , {"mount_place_id", trans("Mount place"), DBTFieldInfo::wtype_lineEdit, "bypass_mount_places"}
                 , {"quantity", trans("Quantity"), DBTFieldInfo::wtype_spinBoxInt, ""}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
                 , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
             },
-            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | 3 KPR za 5 st. KVD
+            // Ident str:       DG90 L2.1 #273, toplivo: Zhidkoe | 2 KPR za 5 st. KVD
             {
                   {"", 0}
                 , {" | ", 3}
@@ -380,7 +382,8 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "engines_algorithms", trans("Algorithms"), DBTInfo::ttype_composite,
             {
-                  {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
                 , {"parameter_id", trans("Parameter"), DBTFieldInfo::wtype_lineEdit, "alg_parameters_names"}
                 , {"switching_on_id", trans("Switching-on"), DBTFieldInfo::wtype_lineEdit, "on_off_parameters"}
                 , {"switching_on_value", trans("Switching-on value"), DBTFieldInfo::wtype_spinBoxDouble, ""}
@@ -429,7 +432,8 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "engines_documents", trans("Documents"), DBTInfo::ttype_composite,
             {
-                  {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
                 , {"document_id", trans("Document"), DBTFieldInfo::wtype_lineEdit, "documents"}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}
                 , {"serial_number", trans("Serial number"), DBTFieldInfo::wtype_not_show, ""}
@@ -476,7 +480,8 @@ dbi::DBInfo::DBInfo()
         new DBTInfo {
             "engines_graphs", trans("Graphs"), DBTInfo::ttype_composite,
             {
-                  {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
+                  {"id", trans("Id"), DBTFieldInfo::wtype_lineEdit, ""}
+                , {"engine_id", trans("Engine"), DBTFieldInfo::wtype_lineEdit, "engines"}
                 , {"par_x_id", trans("X"), DBTFieldInfo::wtype_lineEdit, "graphs_parameters_values"}
                 , {"par_y_id", trans("Y"), DBTFieldInfo::wtype_lineEdit, "graphs_parameters_values"}
                 , {"comments", trans("Comments"), DBTFieldInfo::wtype_plainTextEdit, ""}

@@ -11,6 +11,8 @@ public:
     virtual ~WidgetMapper();
 
 signals:
+    void sigFirstRowReached(bool);
+    void sigLastRowReached(bool);
 
 public slots:
     void slotSetWidgetData(QWidget *w, const QString &data);

@@ -3,7 +3,7 @@
 
 #include <QSqlRelationalTableModel>
 #include <memory>
-#include "../common/common_defines.h"
+#include "../../common/common_defines.h"
 
 // The main model, that perform interactions with DB
 class GeneratorDBTData;
@@ -34,16 +34,16 @@ public:
     void printHeader(int role = Qt::DisplayRole) const; // TODO: temporary function, delete later
 
 signals:
-    void sigNewRecordInserted(int row, cmmn::T_id primaryId);
+    void sigRecordInserted(int row, cmmn::T_id primaryId);
     void sigRecordDeleted(int row, cmmn::T_id primaryId);
     void sigModelRefreshed();
     void sigSavedInDB();
 
 public slots:
-    void slotRefreshTheModel();
-    void slotInsertToTheModel();
-    void slotDeleteRowRecord(int row);
-    void slotSaveToDB();
+    void slotRefreshModel();
+    void slotInsertRecord();
+    void slotDeleteRecord(int row);
+    void slotSaveInDB();
 
 private:
     enum { NOT_SETTED = -1 };

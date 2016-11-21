@@ -3,7 +3,10 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include "table_view_ds.h"
-#include "../model/proxy_model.h"
+#ifdef __linux__
+#include "../models/prx_decor/proxy_decor_model.h"
+#include "../models/prx_filter/proxy_filter_model.h"
+#endif
 
 // HighlightTableRowsDelegate
 class HighlightTableRowsDelegate : public QStyledItemDelegate
@@ -145,7 +148,7 @@ void TableView_DS::setHorizSectionResizeMode(QHeaderView *header)
 
 void TableView_DS::mousePressEvent(QMouseEvent *event)
 {
-    if ( indexAt(event->pos()).isValid() ) // if model index on the mouse current position is valid -> mouse pressed over the table field
+    if ( indexAt(event->pos()).isValid() ) // if mouse current position is over the valid model index -> mouse pressed over the table field
         emit sigMousePressedOverTable();
     QTableView::mousePressEvent(event);
 }

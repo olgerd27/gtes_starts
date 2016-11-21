@@ -45,9 +45,12 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Maximum</enum>
+       </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>403</width>
+         <width>50</width>
          <height>20</height>
         </size>
        </property>
@@ -65,6 +68,12 @@
         <size>
          <width>200</width>
          <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
         </size>
        </property>
        <property name="font">
@@ -98,7 +107,7 @@
        <height>18</height>
       </size>
      </property>
-     <widget class="QWidget" name="tab_engines">
+     <widget class="EngineWidget" name="tabEngines">
       <attribute name="icon">
        <iconset resource="../images_resources.qrc">
         <normaloff>:/images/turbina.png</normaloff>:/images/turbina.png</iconset>
@@ -106,23 +115,8 @@
       <attribute name="title">
        <string>Engines</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QGroupBox" name="m_gboxEngineData">
-         <property name="locale">
-          <locale language="Russian" country="Ukraine"/>
-         </property>
-         <property name="title">
-          <string>Engine data</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
-     <widget class="QWidget" name="tab_bypasses">
+     <widget class="QWidget" name="tabBypasses">
       <attribute name="icon">
        <iconset resource="../images_resources.qrc">
         <normaloff>:/images/rotated_trash.png</normaloff>:/images/rotated_trash.png</iconset>
@@ -167,7 +161,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_algorithm">
+     <widget class="QWidget" name="tabAlgorithm">
       <attribute name="icon">
        <iconset resource="../images_resources.qrc">
         <normaloff>:/images/algorithm.png</normaloff>:/images/algorithm.png</iconset>
@@ -176,7 +170,7 @@
        <string>Algorithm</string>
       </attribute>
      </widget>
-     <widget class="QWidget" name="tab_settings">
+     <widget class="QWidget" name="tabSettings">
       <attribute name="icon">
        <iconset resource="../images_resources.qrc">
         <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
@@ -185,7 +179,7 @@
        <string>Settings</string>
       </attribute>
      </widget>
-     <widget class="QWidget" name="tab_documents">
+     <widget class="QWidget" name="tabDocuments">
       <attribute name="icon">
        <iconset resource="../images_resources.qrc">
         <normaloff>:/images/documents.png</normaloff>:/images/documents.png</iconset>
@@ -194,7 +188,7 @@
        <string>Documents</string>
       </attribute>
      </widget>
-     <widget class="QWidget" name="tab_graphs">
+     <widget class="QWidget" name="tabGraphs">
       <attribute name="icon">
        <iconset resource="../images_resources.qrc">
         <normaloff>:/images/graphs.png</normaloff>:/images/graphs.png</iconset>
@@ -224,7 +218,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="m_tbRecordFirst">
+      <widget class="QToolButton" name="m_tbEngineFirst">
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>
        </property>
@@ -247,7 +241,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="m_tbRecordPrev">
+      <widget class="QToolButton" name="m_tbEnginePrev">
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>
        </property>
@@ -270,7 +264,7 @@
       </widget>
      </item>
      <item>
-      <widget class="LE_DataSend" name="m_leRecordId">
+      <widget class="LE_DataSend" name="m_leEngineId">
        <property name="minimumSize">
         <size>
          <width>75</width>
@@ -295,7 +289,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="m_tbRecordNext">
+      <widget class="QToolButton" name="m_tbEngineNext">
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>
        </property>
@@ -318,7 +312,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="m_tbRecordLast">
+      <widget class="QToolButton" name="m_tbEngineLast">
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>
        </property>
@@ -355,32 +349,38 @@
    <extends>QLineEdit</extends>
    <header>widgets/reimplemented_widgets.h</header>
   </customwidget>
+  <customwidget>
+   <class>EngineWidget</class>
+   <extends>QWidget</extends>
+   <header>appforms/engine_widget.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>m_tabWidget</tabstop>
-  <tabstop>m_tbRecordFirst</tabstop>
-  <tabstop>m_tbRecordPrev</tabstop>
-  <tabstop>m_leRecordId</tabstop>
-  <tabstop>m_tbRecordNext</tabstop>
-  <tabstop>m_tbRecordLast</tabstop>
+  <tabstop>m_tbEngineFirst</tabstop>
+  <tabstop>m_tbEnginePrev</tabstop>
+  <tabstop>m_leEngineId</tabstop>
+  <tabstop>m_tbEngineNext</tabstop>
+  <tabstop>m_tbEngineLast</tabstop>
  </tabstops>
  <resources>
   <include location="../images_resources.qrc"/>
  </resources>
  <connections>
   <connection>
-   <sender>m_leRecordId</sender>
+   <sender>m_leEngineId</sender>
    <signal>editingFinished()</signal>
-   <receiver>m_leRecordId</receiver>
+   <receiver>m_leEngineId</receiver>
    <slot>selectAll()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>577</x>
-     <y>405</y>
+     <y>447</y>
     </hint>
     <hint type="destinationlabel">
      <x>577</x>
-     <y>405</y>
+     <y>447</y>
     </hint>
    </hints>
   </connection>

@@ -72,6 +72,8 @@ bool StorageGenData::hasNextFieldIndex() const
 
 StorageGenData::T_fIndex StorageGenData::nextFieldIndex()
 {
+    // use QVector::at() method instead of the QVector::operator[], because user can forget check - is next field index exists,
+    // i.e. forget call the hasNextFieldIndex() method before calling this method. If the next field index doesn't exist, the at() throws an exception.
     return m_fIndexes.at(m_indexFIndexes++);
 }
 

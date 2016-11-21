@@ -108,6 +108,7 @@ private slots:
     void slotTransmitSEPBInfo();
 
 private:
+    void setBoldFont(QWidget *wgt);
     SelectEditPB * createSEPB(bool canCreate);
     void setEditChildPB(SelectEditPB *pb, const QString &childTableName, int fieldNo);
 

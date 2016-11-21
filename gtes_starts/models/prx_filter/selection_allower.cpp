@@ -1,6 +1,6 @@
 #include <QDebug> // TODO: delete later
 #include "selection_allower.h"
-#include "../dbt_editor/table_view_ds.h"
+#include "../../dbt_editor/table_view_ds.h"
 
 // SelectionAllower
 SelectionAllower::SelectionAllower(QObject *parent)
